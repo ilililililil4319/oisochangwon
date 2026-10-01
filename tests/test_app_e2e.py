@@ -58,6 +58,11 @@ def _visible_text(app):
     return "\n".join(visible_values)
 
 
+def _show_both(app):
+    app.button(key="show-policy").click().run()
+    app.button(key="show-journey").click().run()
+
+
 class ApplicationE2ETests(unittest.TestCase):
     def setUp(self):
         calculate_month = progress_manager.current_settlement_month
@@ -68,12 +73,57 @@ class ApplicationE2ETests(unittest.TestCase):
         clock_patch.start()
         self.addCleanup(clock_patch.stop)
 
+    def test_initial_view_hides_results_even_with_saved_records(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                state_manager.save_mission_group("코디세이", {"M1-1": {"completed": True, "note": "기존 기록"}})
+                app = AppTest.from_file(str(APP_FILE)).run()
+                self.assertFalse(app.exception)
+                self.assertEqual([b.label for b in app.button], ["받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기"])
+                self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
+                self.assertEqual(len(app.expander), 0)
+                self.assertFalse(any("확인 결과" in h.value for h in app.subheader))
+                self.assertFalse(any("창원에서 해볼 것" in h.value for h in app.subheader))
+
+    def test_policy_button_shows_only_policy_and_keeps_view_on_rerun(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.button(key="show-policy").click().run()
+                self.assertFalse(app.exception)
+                self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
+                self.assertEqual(len(app.expander), 0)
+                self.assertTrue(any(l.url == "https://www.changwon.go.kr/youth/05085/05105/05105.web" for l in app.get("link_button")))
+                app.number_input[1].set_value(0).run()
+                self.assertIn("현재 조건으로는 신청 대상이 아니에요", _visible_text(app))
+                self.assertEqual(len(app.expander), 0)
+
+    def test_journey_button_shows_only_journey_and_preserves_drafts_with_policy(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.button(key="show-journey").click().run()
+                self.assertFalse(app.exception)
+                self.assertEqual(len(app.expander), 6)
+                self.assertTrue(app.expander[0].proto.expanded)
+                self.assertFalse(any("확인 결과" in h.value for h in app.subheader))
+                app.checkbox(key="mission-progress:코디세이:M1-1").check().run()
+                app.text_input(key="mission-note:코디세이:M1-1").set_value("저장 전 기록").run()
+                app.button(key="show-policy").click().run()
+                self.assertEqual(len(app.expander), 6)
+                self.assertTrue(app.checkbox(key="mission-progress:코디세이:M1-1").value)
+                self.assertEqual(app.text_input(key="mission-note:코디세이:M1-1").value, "저장 전 기록")
+                app.button(key="save-stage:코디세이:1").click().run()
+                self.assertEqual(load_mission_notes("코디세이")["M1-1"], "저장 전 기록")
+                self.assertTrue(load_mission_states("코디세이")["M1-1"])
+                self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
+
     def test_neutral_home_district_and_filter_sync_after_results(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 self.assertEqual(app.selectbox(key="home_district").value, "지역을 선택해 주세요")
-                app.button[0].click().run()
+                _show_both(app)
                 self.assertEqual(app.selectbox(key="activity_district").value, "창원 전체")
                 app.selectbox(key="home_district").select("성산구").run()
                 self.assertFalse(app.exception)
@@ -85,7 +135,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
-                app.button[0].click().run()
+                _show_both(app)
                 self.assertFalse(app.exception)
                 urls = [item.proto.url for item in app.get("link_button")]
                 self.assertIn("https://sakers.kbl.or.kr/", urls)
@@ -101,7 +151,7 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 state_manager.save_mission_group("다른 사용자", {"M2-1": {"completed": True}})
                 app = AppTest.from_file(str(APP_FILE)).run()
-                app.button[0].click().run()
+                _show_both(app)
                 app.button(key="save-stage:코디세이:1").click().run()
                 self.assertEqual(app.session_state["last_saved_nickname"], "코디세이")
                 app.text_input[0].set_value("다른 사용자").run()
@@ -113,7 +163,7 @@ class ApplicationE2ETests(unittest.TestCase):
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
                 app = AppTest.from_file(str(APP_FILE)).run()
-                app.button[0].click().run()
+                _show_both(app)
 
                 self.assertFalse(app.exception)
                 rendered_text = _visible_text(app)
@@ -183,7 +233,7 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", database):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 app.number_input[1].set_value(0).run()
-                app.button[0].click().run()
+                _show_both(app)
 
                 self.assertFalse(app.exception)
                 self.assertIn(
@@ -208,7 +258,7 @@ class ApplicationE2ETests(unittest.TestCase):
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
                 app = AppTest.from_file(str(APP_FILE)).run()
-                app.button[0].click().run()
+                _show_both(app)
                 app.selectbox(key="activity_district").select("성산구").run()
                 app.selectbox(key="activity_category").select("문화생활").run()
 
@@ -248,7 +298,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     side_effect=ValueError("invalid data"),
                 ):
                     app = AppTest.from_file(str(APP_FILE)).run()
-                    app.button[0].click().run()
+                    _show_both(app)
 
                 self.assertFalse(app.exception)
                 visible_text = _visible_text(app)
@@ -264,7 +314,7 @@ class ApplicationE2ETests(unittest.TestCase):
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
                 app = AppTest.from_file(str(APP_FILE)).run()
-                app.button[0].click().run()
+                _show_both(app)
 
                 self.assertFalse(app.exception)
                 links = {
@@ -321,7 +371,7 @@ class ApplicationE2ETests(unittest.TestCase):
                             return_value=[test_activity],
                         ):
                             app = AppTest.from_file(str(APP_FILE)).run()
-                            app.button[0].click().run()
+                            _show_both(app)
 
                     self.assertFalse(app.exception)
                     links = app.get("link_button")
@@ -355,7 +405,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     return_value=[source_activity],
                 ):
                     app = AppTest.from_file(str(APP_FILE)).run()
-                    app.button[0].click().run()
+                    _show_both(app)
 
             self.assertFalse(app.exception)
             rendered_text = [item.value for item in app.text]
@@ -372,7 +422,7 @@ class ApplicationE2ETests(unittest.TestCase):
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
                 first_session = AppTest.from_file(str(APP_FILE)).run()
-                first_session.button[0].click().run()
+                _show_both(first_session)
                 first_session.checkbox(key="mission-progress:코디세이:M1-1").check().run()
                 first_session.button(key="save-stage:코디세이:1").click().run()
 
@@ -382,6 +432,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 )
 
                 restored_session = AppTest.from_file(str(APP_FILE)).run()
+                restored_session.button(key="show-journey").click().run()
                 self.assertFalse(restored_session.exception)
                 self.assertTrue(
                     restored_session.checkbox(
@@ -425,7 +476,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertIn("0 / 4 완료", sidebar_text)
                 self.assertIn("0 / 26 완료", sidebar_text)
 
-                app.button[0].click().run()
+                _show_both(app)
                 self.assertFalse(app.exception)
                 self.assertEqual(
                     app.selectbox(key="activity_district").value,
@@ -445,7 +496,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     with self.subTest(current_month=current_month):
                         with patch.object(progress_manager, "current_settlement_month", return_value=current_month):
                             app = AppTest.from_file(str(APP_FILE)).run()
-                            app.button[0].click().run()
+                            _show_both(app)
                         self.assertFalse(app.exception)
                         stages = list(app.expander)
                         self.assertEqual(len(stages), 6)
@@ -463,7 +514,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 app.text_input[0].set_value(nickname).run()
                 app.date_input[0].set_value(date(2026, 8, 20)).run()
-                app.button[0].click().run()
+                _show_both(app)
                 # In month 2, month 1 is past and month 6 is future.
                 for month, mission_id in ((1, "M1-1"), (6, "M6-1")):
                     app.checkbox(key=f"mission-progress:{nickname}:{mission_id}").check().run()
@@ -477,6 +528,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.button(key=f"save-stage:{nickname}:1").click().run()
                 restored = AppTest.from_file(str(APP_FILE)).run()
                 restored.text_input[0].set_value(nickname).run()
+                restored.button(key="show-journey").click().run()
                 restored.date_input[0].set_value(date(2026, 3, 20)).run()
                 self.assertFalse(restored.exception)
                 self.assertEqual(len(restored.expander), 6)
@@ -497,7 +549,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 app.text_input[0].set_value(nickname).run()
                 app.date_input[0].set_value(date(2026, 8, 20)).run()
-                app.button[0].click().run()
+                _show_both(app)
 
                 checkbox_key = f"mission-progress:{nickname}:M2-1"
                 note_key = f"mission-note:{nickname}:M2-1"
@@ -528,6 +580,7 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", database):
                 restored = AppTest.from_file(str(APP_FILE)).run()
                 restored.text_input[0].set_value(nickname).run()
+                restored.button(key="show-journey").click().run()
                 restored.date_input[0].set_value(date(2026, 8, 20)).run()
 
                 self.assertFalse(restored.exception)

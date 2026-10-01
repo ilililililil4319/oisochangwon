@@ -78,8 +78,6 @@ user_key = nickname.strip()
 saved_mission_states = load_mission_states(user_key) if user_key else {}
 saved_mission_notes = load_mission_notes(user_key) if user_key else {}
 saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
-if saved_mission_states:
-    st.session_state["show_policy_results"] = True
 
 age = st.number_input(
     "나이",
@@ -190,18 +188,28 @@ with st.sidebar:
         if formatted_saved_at:
             st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
 
-show_policy_results = st.button(
-    "지원과 할 일 확인하기",
-    type="primary",
-    disabled=not user_key,
-)
-if show_policy_results:
-    st.session_state["show_policy_results"] = True
+st.session_state.setdefault("show_policy_results", False)
+st.session_state.setdefault("show_journey", False)
+with st.container(horizontal=True, wrap=True):
+    if st.button(
+        "받을 수 있는 지원 확인하기",
+        key="show-policy",
+        type="primary",
+        disabled=not user_key,
+    ):
+        st.session_state["show_policy_results"] = True
+    if st.button(
+        "나의 정착 할 일 확인하기",
+        key="show-journey",
+        type="primary",
+        disabled=not user_key,
+    ):
+        st.session_state["show_journey"] = True
 
 if not user_key:
     st.info("할 일 진행 상황을 이어 보려면 닉네임을 입력해 주세요.")
 
-if user_key and st.session_state.get("show_policy_results", False):
+if user_key and st.session_state["show_policy_results"]:
 
     profile = {
         "nickname": nickname,
@@ -256,6 +264,8 @@ if user_key and st.session_state.get("show_policy_results", False):
             "확인할 항목: "
             + ", ".join(missing_labels)
         )
+
+if user_key and st.session_state["show_journey"]:
 
     settlement_plan = build_settlement_plan(move_in_date)
 
