@@ -1,7 +1,7 @@
 import json
 import re
 from pathlib import Path
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 
 
 ACTIVITIES_PATH = Path(__file__).resolve().parent / "data" / "activities_mvp.json"
@@ -227,12 +227,43 @@ def build_naver_map_search_app_url(place_name, app_name):
     return f"nmap://search?{parameters}"
 
 
+def build_naver_map_search_web_url(place_name, district=""):
+    """Use the search route observed from Naver Map's own web search UI."""
+    if not isinstance(place_name, str) or not place_name.strip():
+        return NAVER_MAP_WEB_URL
+    parts = [place_name.strip()]
+    if "창원" not in place_name:
+        parts.append("창원")
+    for area in _DISTRICT_PATTERN.findall(district):
+        if area not in place_name and area not in parts:
+            parts.append(area)
+    return f"{NAVER_MAP_WEB_URL}search/{quote(' '.join(parts), safe='')}"
+
+
 def _find_naver_map_url(activity):
+    # Reuse only already-present HTTPS place links, never invent a place ID.
     for field in ("공식 URL", "대중교통 접근(검수)"):
         url = _extract_http_url(activity.get(field, ""))
-        if url and (urlsplit(url).hostname or "").lower() == NAVER_MAP_DOMAIN:
-            return url
-    return NAVER_MAP_WEB_URL
+        if url:
+            parsed = urlsplit(url)
+            if (parsed.scheme == "https" and parsed.hostname == NAVER_MAP_DOMAIN
+                    and re.fullmatch(r"/p/(?:entry/)?place/\d+/?", parsed.path)
+                    and parsed.username is None and parsed.password is None):
+                return url
+    return build_naver_map_search_web_url(activity.get("이름"), activity.get("생활권(구)", ""))
+
+
+def activity_introduction(activity):
+    """Summarize only recorded type/category/tags, without ratings or new services."""
+    name = activity.get("이름", "")
+    tags = [tag.strip() for tag in activity.get("관심사 태그", "").split(",") if tag.strip()]
+    if all(tag in tags for tag in ("온천", "찜질방", "인피니티풀")):
+        return "온천·찜질방·인피니티풀을 이용할 수 있는 휴식 공간이에요."
+    if name.endswith("미술관") and "미술" in tags:
+        return "미술 작품을 관람할 수 있는 미술관이에요."
+    kind = activity.get("유형(행사/모임/기관/공간)", "활동")
+    subject = "·".join(tags[:3]) or activity.get("MVP 그룹", "지역활동")
+    return f"{subject} 관련 {kind}이에요."
 
 
 def get_activity_filter_options(activities):
@@ -274,6 +305,7 @@ def activity_view(activity, app_name):
     return {
         "id": activity["ID"],
         "name": activity["이름"],
+        "introduction": activity_introduction(activity),
         "kind": activity["유형(행사/모임/기관/공간)"],
         "district": activity["생활권(구)"],
         "category": activity["MVP 그룹"],

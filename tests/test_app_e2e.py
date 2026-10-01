@@ -1,5 +1,6 @@
 import unittest
 from datetime import date
+from urllib.parse import unquote
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -367,14 +368,17 @@ class ApplicationE2ETests(unittest.TestCase):
                         any(label == "공식 안내 보기" for label, _ in links)
                     )
                 self.assertIn(
-                    ("네이버 지도에서 보기", "https://map.naver.com/p/"),
+                    ("네이버 지도에서 보기", activity_view(selected_activity, "http://localhost:8501")["naver_map_url"]),
                     links,
                 )
                 map_links = [
                     item.url for item in app.get("link_button")
                     if item.label.startswith("네이버 지도")
                 ]
-                self.assertEqual(map_links, ["https://map.naver.com/p/"])
+                self.assertEqual(len(map_links), 1)
+                self.assertTrue(map_links[0].startswith("https://map.naver.com/p/search/"))
+                self.assertIn(selected_activity["이름"], unquote(map_links[0]))
+                self.assertIn(activity_view(selected_activity, "http://localhost:8501")["introduction"], [t.value for t in app.text])
                 self.assertFalse(any(item.url.startswith("nmap://") for item in app.get("link_button")))
 
     def test_untrusted_and_missing_activity_urls_are_not_official_buttons(self):

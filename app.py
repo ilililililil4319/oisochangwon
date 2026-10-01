@@ -478,6 +478,7 @@ if user_key and st.session_state["show_journey"]:
             item = activity_view(activity_by_id[selected_activity_id], app_name)
 
             _content_title(item["name"])
+            st.text(item["introduction"])
             st.caption(f"{item['district']} · {item['category']}")
             st.caption(f"관심 분야: {item['interests']}")
             _detail("운영시간", _schedule_lines(item["schedule"]))
@@ -503,7 +504,7 @@ if user_key and st.session_state["show_journey"]:
             st.subheader("이동")
             st.link_button("네이버 지도에서 보기", item["naver_map_url"])
             st.text(
-                "네이버 지도 검색창에 위 장소명을 입력해 주세요. "
+                "검색 결과에서 장소와 지역을 확인해 주세요. "
                 "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
                 "대중교통 길찾기를 선택해 주세요."
             )

@@ -3,10 +3,12 @@ import unittest
 from collections import Counter
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 from activity_manager import (
     activity_view,
+    activity_introduction,
+    build_naver_map_search_web_url,
     build_naver_map_search_app_url,
     classify_activity_url,
     filter_activities,
@@ -56,7 +58,7 @@ class ActivityManagerTests(unittest.TestCase):
         self.assertIsNone(view["official_url"])
         self.assertEqual(
             view["naver_map_url"],
-            "https://map.naver.com/p/",
+            build_naver_map_search_web_url(without_official_url["이름"], without_official_url["생활권(구)"]),
         )
         self.assertTrue(view["naver_map_search_app_url"].startswith("nmap://search?"))
 
@@ -73,7 +75,48 @@ class ActivityManagerTests(unittest.TestCase):
         for name in ("경남도립미술관", "시민생활체육관 (창원)", "창원 청년비전센터"):
             with self.subTest(name=name):
                 activity = dict(activities[0], 이름=name)
-                self.assertEqual(activity_view(activity, "http://localhost:8501")["naver_map_url"], "https://map.naver.com/p/")
+                self.assertIn(name, unquote(activity_view(activity, "http://localhost:8501")["naver_map_url"]))
+
+    def test_representative_search_queries_and_no_invented_coordinates(self):
+        for name, district in (("시민생활체육관", "성산구"), ("스파더스페이스", "마산합포구"), ("경남도립미술관", "의창구")):
+            parsed = urlsplit(build_naver_map_search_web_url(name, district))
+            self.assertEqual(parsed.scheme, "https")
+            query = unquote(parsed.path.removeprefix("/p/search/"))
+            self.assertIn(name, query)
+            self.assertIn("창원", query)
+            self.assertIn(district, query)
+            self.assertFalse(parsed.query)
+            self.assertFalse(parsed.fragment)
+        self.assertEqual(build_naver_map_search_web_url(""), "https://map.naver.com/p/")
+
+    def test_existing_place_link_precedes_search_and_home_link_does_not(self):
+        activity = dict(load_activities()[0])
+        # Synthetic fixture: verifies preservation, not a claim that this place exists.
+        activity["대중교통 접근(검수)"] = "https://map.naver.com/p/entry/place/123"
+        self.assertEqual(activity_view(activity, "http://localhost:8501")["naver_map_url"], activity["대중교통 접근(검수)"])
+        activity["대중교통 접근(검수)"] = "https://map.naver.com/p/"
+        self.assertIn("/p/search/", activity_view(activity, "http://localhost:8501")["naver_map_url"])
+
+    def test_introductions_only_use_recorded_tags_and_types(self):
+        for activity in load_activities():
+            intro = activity_introduction(activity)
+            self.assertTrue(intro.strip())
+            self.assertLess(len(intro), 120)
+            self.assertEqual(intro.count("."), 1)
+            self.assertNotIn("최고", intro)
+            self.assertNotIn("인기 명소", intro)
+            tags = [tag.strip() for tag in activity["관심사 태그"].split(",") if tag.strip()]
+            if intro.startswith("온천·"):
+                self.assertTrue(all(tag in tags for tag in ("온천", "찜질방", "인피니티풀")))
+            elif "미술관이에요" in intro:
+                self.assertIn("미술", tags)
+                self.assertTrue(activity["이름"].endswith("미술관"))
+            else:
+                for tag in tags[:3]:
+                    self.assertIn(tag, intro)
+                self.assertIn(activity["유형(행사/모임/기관/공간)"], intro)
+        plain = dict(load_activities()[0], 이름="알 수 없는 장소", **{"관심사 태그": "휴식"})
+        self.assertNotIn("온천", activity_introduction(plain))
 
     def test_classifies_all_58_source_links(self):
         activities = load_activities()
@@ -139,7 +182,7 @@ class ActivityManagerTests(unittest.TestCase):
         self.assertEqual(query["appname"], ["http://localhost:8501"])
         self.assertNotIn("lat", query)
         self.assertNotIn("lng", query)
-        self.assertEqual(view["naver_map_url"], "https://map.naver.com/p/")
+        self.assertIn(activity["이름"], unquote(view["naver_map_url"]))
 
     def test_nonofficial_links_are_never_returned_as_official(self):
         untrusted_urls = (
