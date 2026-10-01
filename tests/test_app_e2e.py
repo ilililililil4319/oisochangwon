@@ -21,6 +21,7 @@ def _visible_text(app):
         "header",
         "subheader",
         "markdown",
+        "text",
         "caption",
         "success",
         "info",
@@ -33,9 +34,11 @@ def _visible_text(app):
         "number_input",
         "date_input",
         "selectbox",
+        "link_button",
     )
     for element_type in element_types:
-        for element in getattr(app, element_type, []):
+        elements = app.get(element_type) if element_type == "link_button" else getattr(app, element_type, [])
+        for element in elements:
             for attribute in ("label", "value"):
                 value = getattr(element, attribute, None)
                 if isinstance(value, str):
@@ -155,12 +158,13 @@ class ApplicationE2ETests(unittest.TestCase):
                     category="문화생활",
                 )
                 expected_labels = {
-                    f"{view['name']} · {view['district']}"
-                    for view in (activity_view(item) for item in expected)
+                    f"{item['이름']} · {item['생활권(구)']}"
+                    for item in expected
                 }
-                visible_expanders = {item.label for item in app.expander}
+                activity_selector = app.selectbox(key="activity_selection")
                 self.assertTrue(expected_labels)
-                self.assertTrue(expected_labels <= visible_expanders)
+                self.assertEqual(set(activity_selector.options), expected_labels)
+                self.assertIn(expected[0]["이름"], [item.value for item in app.text])
                 self.assertEqual(
                     len(
                         [
@@ -193,6 +197,106 @@ class ApplicationE2ETests(unittest.TestCase):
                     visible_text,
                 )
                 self.assertNotIn("ValueError", visible_text)
+
+    def test_youth_policy_and_activity_links_use_their_verified_labels(self):
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "storage" / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.button[0].click().run()
+
+                self.assertFalse(app.exception)
+                links = {
+                    (item.label, item.url)
+                    for item in app.get("link_button")
+                }
+                self.assertIn(
+                    (
+                        "창원시 청년정책 전체 보기",
+                        "https://www.changwon.go.kr/youth/05085/05105/05105.web",
+                    ),
+                    links,
+                )
+                first_activity = load_activities()[0]
+                self.assertIn(
+                    ("공식 안내 보기", first_activity["공식 URL"].split()[0]),
+                    links,
+                )
+                self.assertIn(
+                    ("네이버 지도에서 보기", "https://map.naver.com/p/"),
+                    links,
+                )
+                app_search_links = [
+                    item.url
+                    for item in app.get("link_button")
+                    if item.label == "네이버 지도 앱에서 장소 찾기"
+                ]
+                self.assertEqual(len(app_search_links), 1)
+                self.assertTrue(app_search_links[0].startswith("nmap://search?"))
+                self.assertNotIn("lat=", app_search_links[0])
+                self.assertNotIn("lng=", app_search_links[0])
+
+    def test_untrusted_and_missing_activity_urls_are_not_official_buttons(self):
+        source_activities = load_activities()
+        source_by_id = {activity["ID"]: activity for activity in source_activities}
+
+        for activity_id in ("A98", "A126", "A323", "A56", "A134"):
+            with self.subTest(activity_id=activity_id):
+                with TemporaryDirectory() as temp_dir:
+                    database = Path(temp_dir) / "storage" / "progress.sqlite3"
+                    test_activity = dict(source_by_id[activity_id])
+                    with patch.object(state_manager, "DB_PATH", database):
+                        with patch.object(
+                            activity_manager,
+                            "load_activities",
+                            return_value=[test_activity],
+                        ):
+                            app = AppTest.from_file(str(APP_FILE)).run()
+                            app.button[0].click().run()
+
+                    self.assertFalse(app.exception)
+                    links = app.get("link_button")
+                    self.assertFalse(
+                        any(item.label in {"공식 안내 보기", "공식 SNS 보기"} for item in links)
+                    )
+                    self.assertTrue(
+                        any(item.label == "네이버 지도에서 보기" for item in links)
+                    )
+
+    def test_activity_text_preserves_markdown_special_characters(self):
+        source_activity = dict(load_activities()[0])
+        source_activity.update(
+            {
+                "ID": "QA-SPECIAL-TEXT",
+                "이름": "온천 ~~장소~~ <상세> _확인_",
+                "일정·운영시간": (
+                    "온천 06:00~23:00 / 인피니티풀 10:00~21:00"
+                ),
+                "참여 방법": "예약 ~~후~~ 확인 <안내>",
+                "대상": "누구나 *가능*",
+            }
+        )
+
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "storage" / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                with patch.object(
+                    activity_manager,
+                    "load_activities",
+                    return_value=[source_activity],
+                ):
+                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app.button[0].click().run()
+
+            self.assertFalse(app.exception)
+            rendered_text = [item.value for item in app.text]
+            self.assertIn("온천 ~~장소~~ <상세> _확인_", rendered_text)
+            self.assertIn(
+                "운영시간: 온천 06:00~23:00 / 인피니티풀 10:00~21:00",
+                rendered_text,
+            )
+            self.assertIn("참여 방법: 예약 ~~후~~ 확인 <안내>", rendered_text)
+            self.assertIn("대상: 누구나 *가능*", rendered_text)
 
     def test_mission_progress_persists_for_same_nickname_only(self):
         with TemporaryDirectory() as temp_dir:

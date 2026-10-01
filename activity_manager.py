@@ -1,7 +1,7 @@
 import json
 import re
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 
 ACTIVITIES_PATH = Path(__file__).resolve().parent / "data" / "activities_mvp.json"
@@ -39,6 +39,46 @@ _STRING_FIELDS = (
 )
 _DISTRICT_PATTERN = re.compile(r"[가-힣]+구")
 _URL_PATTERN = re.compile(r"https?://[^\s<>\"']+")
+PUBLIC_OFFICIAL_DOMAINS = frozenset(
+    {
+        "www.changwon.go.kr",
+        "www.gyeongnam.go.kr",
+        "www.mcst.go.kr",
+        "korean.visitkorea.or.kr",
+        "access.visitkorea.or.kr",
+    }
+)
+OPERATOR_OFFICIAL_DOMAINS = frozenset(
+    {
+        "www.cwsisul.or.kr",
+        "sakers.kbl.or.kr",
+        "changdongartvillage.kr",
+        "cgv.co.kr",
+        "www.ceco.co.kr",
+        "www.dd.co.kr",
+        "www.lotteshopping.com",
+        "www.shinsegae.com",
+        "spathespace.com",
+        "www.fatimahosp.co.kr",
+        "www.smgysh.co.kr",
+        "www.yonseis.com",
+        "www.mamf.co.kr",
+    }
+)
+NAVER_MAP_DOMAIN = "map.naver.com"
+NAVER_MAP_WEB_URL = "https://map.naver.com/p/"
+_BLOG_DOMAINS = frozenset({"blog.naver.com", "mirimblog.com"})
+_DIRECTORY_DOMAINS = frozenset(
+    {"www.diningcode.com", "www.ban-life.com", "selection.moumi.app"}
+)
+_NEWS_DOMAINS = frozenset(
+    {
+        "www.koreatimenews.com",
+        "www.gnnews.co.kr",
+        "thetravelnews.co.kr",
+        "sports.news.nate.com",
+    }
+)
 
 
 def load_activities(path=None):
@@ -106,6 +146,93 @@ def _extract_http_url(value):
     return candidate
 
 
+def classify_activity_url(value):
+    url = _extract_http_url(value) if isinstance(value, str) else None
+    if not url:
+        return {
+            "domain": None,
+            "classification": "no_link",
+            "is_official": False,
+            "url": None,
+            "label": None,
+        }
+
+    parsed_url = urlsplit(url)
+    domain = (parsed_url.hostname or "").lower()
+    if domain == NAVER_MAP_DOMAIN:
+        return {
+            "domain": domain,
+            "classification": "naver_map",
+            "is_official": False,
+            "url": None,
+            "label": None,
+        }
+
+    if domain in PUBLIC_OFFICIAL_DOMAINS:
+        classification = "public_official"
+    elif domain in OPERATOR_OFFICIAL_DOMAINS:
+        classification = "operator_official"
+    elif domain == "namu.wiki" or domain.endswith(".wikipedia.org"):
+        classification = "encyclopedia"
+    elif domain in _BLOG_DOMAINS or "blog" in domain:
+        classification = "blog"
+    elif domain == "facebook.com" or domain.endswith(".facebook.com"):
+        classification = "unverified_social"
+    elif domain in _DIRECTORY_DOMAINS:
+        classification = "directory"
+    elif domain in _NEWS_DOMAINS:
+        classification = "news"
+    else:
+        classification = "unverified"
+
+    is_official = classification in {"public_official", "operator_official"}
+    path = parsed_url.path.lower()
+    if is_official and any(
+        marker in path for marker in ("/reserve", "/reservation", "/booking", "/ticket")
+    ):
+        label = "예약·이용 안내 보기"
+    elif is_official:
+        label = "공식 안내 보기"
+    else:
+        label = None
+
+    return {
+        "domain": domain,
+        "classification": classification,
+        "is_official": is_official,
+        "url": url if is_official else None,
+        "label": label,
+    }
+
+
+def build_naver_map_search_app_url(place_name, app_name):
+    """Build the documented Naver Maps app search URL; never invent coordinates."""
+    if not isinstance(place_name, str) or not place_name.strip():
+        raise ValueError("place_name must not be empty")
+    if not isinstance(app_name, str):
+        raise TypeError("app_name must be a string")
+
+    parsed_app_name = urlsplit(app_name)
+    if parsed_app_name.scheme not in {"http", "https"} or not parsed_app_name.netloc:
+        raise ValueError("app_name must be the calling web page URL")
+
+    parameters = urlencode(
+        {
+            "query": place_name.strip(),
+            "appname": app_name,
+        }
+    )
+    return f"nmap://search?{parameters}"
+
+
+def _find_naver_map_url(activity):
+    for field in ("공식 URL", "대중교통 접근(검수)"):
+        url = _extract_http_url(activity.get(field, ""))
+        if url and (urlsplit(url).hostname or "").lower() == NAVER_MAP_DOMAIN:
+            return url
+    return NAVER_MAP_WEB_URL
+
+
 def get_activity_filter_options(activities):
     districts = set()
     categories = []
@@ -139,9 +266,8 @@ def filter_activities(activities, district=None, category=None):
     ]
 
 
-def activity_view(activity):
-    route_text = activity["대중교통 접근(검수)"]
-    route_url = _extract_http_url(route_text)
+def activity_view(activity, app_name):
+    source_link = classify_activity_url(activity["공식 URL"])
 
     return {
         "id": activity["ID"],
@@ -155,7 +281,13 @@ def activity_view(activity):
         "schedule": activity["일정·운영시간"],
         "start_date": activity.get("시작일"),
         "end_date": activity.get("종료일"),
-        "official_url": _extract_http_url(activity["공식 URL"]),
-        "directions_url": route_url,
+        "official_url": source_link["url"],
+        "official_link_label": source_link["label"],
+        "link_classification": source_link["classification"],
+        "naver_map_url": _find_naver_map_url(activity),
+        "naver_map_search_app_url": build_naver_map_search_app_url(
+            activity["이름"],
+            app_name,
+        ),
         "last_checked": activity["최종 확인일"],
     }

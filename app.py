@@ -33,6 +33,7 @@ PROFILE_FIELD_LABELS = {
     "previous_residence_years": "전입 전 다른 지역 거주 기간",
     "employed_in_changwon": "창원 사업장 재직 여부",
 }
+CITY_YOUTH_POLICY_URL = "https://www.changwon.go.kr/youth/05085/05105/05105.web"
 
 
 def _save_mission_checkbox(nickname, mission_id, widget_key):
@@ -138,6 +139,11 @@ if user_key and st.session_state.get("show_policy_results", False):
             f"{result['eligible_date']}"
         )
 
+    st.link_button(
+        "창원시 청년정책 전체 보기",
+        CITY_YOUTH_POLICY_URL,
+    )
+
     if result["missing_fields"]:
         missing_labels = [
             PROFILE_FIELD_LABELS.get(field, "추가 정보")
@@ -221,25 +227,53 @@ if user_key and st.session_state.get("show_policy_results", False):
         if not filtered_activities:
             st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
 
-        for activity in filtered_activities:
-            item = activity_view(activity)
-            with st.expander(f"{item['name']} · {item['district']}"):
-                st.caption(f"{item['category']} · {item['interests']}")
-                st.write(f"일정과 운영시간: {item['schedule']}")
-                if item["start_date"] or item["end_date"]:
-                    period = " ~ ".join(
-                        value
-                        for value in (item["start_date"], item["end_date"])
-                        if value
-                    )
-                    st.write(f"기간: {period}")
-                st.write(f"참여 방법: {item['participation']}")
-                st.write(f"대상: {item['audience']}")
-                st.caption(f"정보 확인일: {item['last_checked']}")
-                if item["official_url"]:
-                    st.markdown(f"[공식 안내 보기]({item['official_url']})")
-                if item["directions_url"]:
-                    st.markdown(f"[대중교통 길찾기]({item['directions_url']})")
+        if filtered_activities:
+            activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
+            selected_activity_id = st.selectbox(
+                "어떤 곳을 볼까요?",
+                list(activity_by_id),
+                format_func=lambda activity_id: (
+                    f"{activity_by_id[activity_id]['이름']} · "
+                    f"{activity_by_id[activity_id]['생활권(구)']}"
+                ),
+                key="activity_selection",
+            )
+            app_name = st.context.url or "http://localhost:8501"
+            item = activity_view(activity_by_id[selected_activity_id], app_name)
+
+            st.text(item["name"])
+            st.text(f"{item['district']} · {item['category']}")
+            st.text(f"관심 분야: {item['interests']}")
+            st.text(f"운영시간: {item['schedule']}")
+            if item["start_date"] or item["end_date"]:
+                period = " ~ ".join(
+                    value
+                    for value in (item["start_date"], item["end_date"])
+                    if value
+                )
+                st.text(f"기간: {period}")
+            st.text(f"참여 방법: {item['participation']}")
+            st.text(f"대상: {item['audience']}")
+            st.text(f"{item['last_checked']} 기준으로 확인했어요.")
+            st.text("방문 전 운영시간을 한 번 더 확인해 주세요.")
+
+            st.subheader("장소 안내")
+            if item["official_url"]:
+                st.link_button(
+                    item["official_link_label"],
+                    item["official_url"],
+                )
+
+            st.subheader("이동")
+            st.link_button("네이버 지도에서 보기", item["naver_map_url"])
+            st.link_button(
+                "네이버 지도 앱에서 장소 찾기",
+                item["naver_map_search_app_url"],
+            )
+            st.text(
+                "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
+                "대중교통 길찾기를 선택해 주세요."
+            )
     except (OSError, ValueError):
         st.info(
             "창원 활동 정보를 불러오지 못했어요. "
