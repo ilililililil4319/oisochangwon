@@ -298,15 +298,12 @@ class ApplicationE2ETests(unittest.TestCase):
                     ("네이버 지도에서 보기", "https://map.naver.com/p/"),
                     links,
                 )
-                app_search_links = [
-                    item.url
-                    for item in app.get("link_button")
-                    if item.label == "네이버 지도 앱에서 장소 찾기"
+                map_links = [
+                    item.url for item in app.get("link_button")
+                    if item.label.startswith("네이버 지도")
                 ]
-                self.assertEqual(len(app_search_links), 1)
-                self.assertTrue(app_search_links[0].startswith("nmap://search?"))
-                self.assertNotIn("lat=", app_search_links[0])
-                self.assertNotIn("lng=", app_search_links[0])
+                self.assertEqual(map_links, ["https://map.naver.com/p/"])
+                self.assertFalse(any(item.url.startswith("nmap://") for item in app.get("link_button")))
 
     def test_untrusted_and_missing_activity_urls_are_not_official_buttons(self):
         source_activities = load_activities()
@@ -440,6 +437,56 @@ class ApplicationE2ETests(unittest.TestCase):
                     if "창원 생활 2개월 차" in item.label
                 )
                 self.assertTrue(current_stage.proto.expanded)
+
+    def test_all_six_month_titles_and_only_current_month_default_expansion(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                for current_month in range(1, 7):
+                    with self.subTest(current_month=current_month):
+                        with patch.object(progress_manager, "current_settlement_month", return_value=current_month):
+                            app = AppTest.from_file(str(APP_FILE)).run()
+                            app.button[0].click().run()
+                        self.assertFalse(app.exception)
+                        stages = list(app.expander)
+                        self.assertEqual(len(stages), 6)
+                        for month, stage in enumerate(stages, start=1):
+                            self.assertIn(f"창원 생활 {month}개월 차", stage.label)
+                            self.assertEqual(stage.proto.expanded, month == current_month)
+                            self.assertEqual(" · 지금" in stage.label, month == current_month)
+                        self.assertEqual(len([c for c in app.checkbox if c.key and c.key.startswith("mission-progress:")]), 26)
+
+    def test_past_and_future_stage_records_survive_month_change_and_restore(self):
+        nickname = "여정 기록 사용자"
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.text_input[0].set_value(nickname).run()
+                app.date_input[0].set_value(date(2026, 8, 20)).run()
+                app.button[0].click().run()
+                # In month 2, month 1 is past and month 6 is future.
+                for month, mission_id in ((1, "M1-1"), (6, "M6-1")):
+                    app.checkbox(key=f"mission-progress:{nickname}:{mission_id}").check().run()
+                    app.text_input(key=f"mission-note:{nickname}:{mission_id}").set_value(f"{month}개월 기록").run()
+                    app.button(key=f"save-stage:{nickname}:{month}").click().run()
+                app.date_input[0].set_value(date(2026, 3, 20)).run()
+                self.assertFalse(app.exception)
+                self.assertTrue(app.expander[5].proto.expanded)
+                app.checkbox(key=f"mission-progress:{nickname}:M1-1").uncheck().run()
+                app.text_input(key=f"mission-note:{nickname}:M1-1").set_value("과거 기록 수정").run()
+                app.button(key=f"save-stage:{nickname}:1").click().run()
+                restored = AppTest.from_file(str(APP_FILE)).run()
+                restored.text_input[0].set_value(nickname).run()
+                restored.date_input[0].set_value(date(2026, 3, 20)).run()
+                self.assertFalse(restored.exception)
+                self.assertEqual(len(restored.expander), 6)
+                self.assertFalse(restored.checkbox(key=f"mission-progress:{nickname}:M1-1").value)
+                self.assertEqual(restored.text_input(key=f"mission-note:{nickname}:M1-1").value, "과거 기록 수정")
+                self.assertTrue(restored.checkbox(key=f"mission-progress:{nickname}:M6-1").value)
+                self.assertEqual(restored.text_input(key=f"mission-note:{nickname}:M6-1").value, "6개월 기록")
+                self.assertIn("마지막 저장:", "\n".join(c.value for c in restored.sidebar.caption))
+                self.assertIn("1 / 26 완료", "\n".join(m.value for m in restored.sidebar.markdown))
+                self.assertEqual(load_mission_states("다른 사용자", database), {})
 
     def test_stage_note_and_check_save_only_on_explicit_button_and_restore(self):
         nickname = "기록 복원 사용자"

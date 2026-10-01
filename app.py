@@ -33,7 +33,7 @@ MILESTONE_LABELS = {
     180: "여섯 달쯤 뒤",
 }
 MONTH_LABELS = {
-    1: "처음 한 달",
+    1: "1개월 차",
     2: "2개월 차",
     3: "3개월 차",
     4: "4개월 차",
@@ -276,14 +276,16 @@ if user_key and st.session_state.get("show_policy_results", False):
         mission_resources = {}
         st.info("할 일 관련 안내를 불러오지 못했어요. 할 일과 기록 저장은 계속 이용할 수 있어요.")
 
-    st.subheader("이번에 할 일")
-    st.caption("체크한 내용은 닉네임과 함께 저장돼 다시 열어도 확인할 수 있어요.")
+    st.subheader("이번에 할 일 · 1~6개월 정착 여정")
+    st.caption("모든 단계는 제목을 눌러 언제든 열어볼 수 있어요. 체크와 내 기록은 ‘이 단계 저장하기’를 눌러 저장해 주세요.")
 
     for mission_group in mission_groups:
         group_title = (
             f"창원 생활 {MONTH_LABELS[mission_group['month']]} · "
             f"{mission_group['theme']} · {len(mission_group['missions'])}개"
         )
+        if mission_group["month"] == current_month:
+            group_title += " · 지금"
         with st.expander(
             group_title,
             expanded=mission_group["month"] == current_month,
@@ -457,11 +459,8 @@ if user_key and st.session_state.get("show_policy_results", False):
 
             st.subheader("이동")
             st.link_button("네이버 지도에서 보기", item["naver_map_url"])
-            st.link_button(
-                "네이버 지도 앱에서 장소 찾기",
-                item["naver_map_search_app_url"],
-            )
             st.text(
+                "네이버 지도 검색창에 위 장소명을 입력해 주세요. "
                 "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
                 "대중교통 길찾기를 선택해 주세요."
             )

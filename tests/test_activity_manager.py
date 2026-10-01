@@ -60,6 +60,21 @@ class ActivityManagerTests(unittest.TestCase):
         )
         self.assertTrue(view["naver_map_search_app_url"].startswith("nmap://search?"))
 
+    def test_web_map_links_for_all_activities_and_korean_place_names(self):
+        activities = load_activities()
+        self.assertEqual(len(activities), 58)
+        for activity in activities:
+            with self.subTest(activity_id=activity["ID"]):
+                url = activity_view(activity, "http://localhost:8501")["naver_map_url"]
+                parsed = urlsplit(url)
+                self.assertEqual(parsed.scheme, "https")
+                self.assertEqual(parsed.hostname, "map.naver.com")
+                self.assertFalse(parsed.query)
+        for name in ("경남도립미술관", "시민생활체육관 (창원)", "창원 청년비전센터"):
+            with self.subTest(name=name):
+                activity = dict(activities[0], 이름=name)
+                self.assertEqual(activity_view(activity, "http://localhost:8501")["naver_map_url"], "https://map.naver.com/p/")
+
     def test_classifies_all_58_source_links(self):
         activities = load_activities()
         classifications = Counter(
