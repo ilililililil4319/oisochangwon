@@ -1,6 +1,12 @@
 import streamlit as st
 from datetime import date
 
+from activity_manager import (
+    activity_view,
+    filter_activities,
+    get_activity_filter_options,
+    load_activities,
+)
 from policy_engine import evaluate_p01
 from mission_manager import group_missions_by_month, load_missions
 from settlement_engine import build_settlement_plan
@@ -183,3 +189,59 @@ if user_key and st.session_state.get("show_policy_results", False):
                     args=(user_key, mission_id, widget_key),
                 )
                 st.caption(f"완료 기준: {mission['완료 기준']}")
+
+    st.divider()
+    st.subheader("창원에서 해볼 것")
+    st.write("동네와 관심 분야를 골라 가볼 곳과 참여할 일을 찾아보세요.")
+
+    try:
+        activities = load_activities()
+        activity_options = get_activity_filter_options(activities)
+        selected_district = st.selectbox(
+            "어느 지역에서 찾을까요?",
+            ["창원 전체", *activity_options["districts"]],
+            key="activity_district",
+        )
+        selected_category = st.selectbox(
+            "어떤 활동을 찾으세요?",
+            ["모든 분야", *activity_options["categories"]],
+            key="activity_category",
+        )
+        filtered_activities = filter_activities(
+            activities,
+            district=(
+                None if selected_district == "창원 전체" else selected_district
+            ),
+            category=(
+                None if selected_category == "모든 분야" else selected_category
+            ),
+        )
+
+        st.caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
+        if not filtered_activities:
+            st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
+
+        for activity in filtered_activities:
+            item = activity_view(activity)
+            with st.expander(f"{item['name']} · {item['district']}"):
+                st.caption(f"{item['category']} · {item['interests']}")
+                st.write(f"일정과 운영시간: {item['schedule']}")
+                if item["start_date"] or item["end_date"]:
+                    period = " ~ ".join(
+                        value
+                        for value in (item["start_date"], item["end_date"])
+                        if value
+                    )
+                    st.write(f"기간: {period}")
+                st.write(f"참여 방법: {item['participation']}")
+                st.write(f"대상: {item['audience']}")
+                st.caption(f"정보 확인일: {item['last_checked']}")
+                if item["official_url"]:
+                    st.markdown(f"[공식 안내 보기]({item['official_url']})")
+                if item["directions_url"]:
+                    st.markdown(f"[대중교통 길찾기]({item['directions_url']})")
+    except (OSError, ValueError):
+        st.info(
+            "창원 활동 정보를 불러오지 못했어요. "
+            "지원 확인과 정착 할 일은 계속 이용할 수 있어요."
+        )

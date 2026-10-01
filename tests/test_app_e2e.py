@@ -4,9 +4,11 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 import state_manager
+import activity_manager
 from policy_engine import evaluate_p01
 from state_manager import load_mission_states
 from streamlit.testing.v1 import AppTest
+from activity_manager import activity_view, filter_activities, load_activities
 
 
 APP_FILE = Path(__file__).resolve().parents[1] / "app.py"
@@ -30,6 +32,7 @@ def _visible_text(app):
         "text_input",
         "number_input",
         "date_input",
+        "selectbox",
     )
     for element_type in element_types:
         for element in getattr(app, element_type, []):
@@ -135,6 +138,61 @@ class ApplicationE2ETests(unittest.TestCase):
 
         self.assertEqual(result["status"], "needs_info")
         self.assertEqual(result["missing_fields"], ["move_in_date"])
+
+    def test_activity_recommendations_filter_by_real_district_and_category(self):
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "storage" / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.button[0].click().run()
+                app.selectbox(key="activity_district").select("성산구").run()
+                app.selectbox(key="activity_category").select("문화생활").run()
+
+                self.assertFalse(app.exception)
+                expected = filter_activities(
+                    load_activities(),
+                    district="성산구",
+                    category="문화생활",
+                )
+                expected_labels = {
+                    f"{view['name']} · {view['district']}"
+                    for view in (activity_view(item) for item in expected)
+                }
+                visible_expanders = {item.label for item in app.expander}
+                self.assertTrue(expected_labels)
+                self.assertTrue(expected_labels <= visible_expanders)
+                self.assertEqual(
+                    len(
+                        [
+                            item
+                            for item in app.checkbox
+                            if item.key
+                            and item.key.startswith("mission-progress:")
+                        ]
+                    ),
+                    26,
+                )
+
+    def test_activity_data_failure_does_not_hide_p0_results(self):
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "storage" / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                with patch.object(
+                    activity_manager,
+                    "load_activities",
+                    side_effect=ValueError("invalid data"),
+                ):
+                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app.button[0].click().run()
+
+                self.assertFalse(app.exception)
+                visible_text = _visible_text(app)
+                self.assertIn("조금 뒤 신청할 수 있어요", visible_text)
+                self.assertIn(
+                    "지원 확인과 정착 할 일은 계속 이용할 수 있어요",
+                    visible_text,
+                )
+                self.assertNotIn("ValueError", visible_text)
 
     def test_mission_progress_persists_for_same_nickname_only(self):
         with TemporaryDirectory() as temp_dir:
