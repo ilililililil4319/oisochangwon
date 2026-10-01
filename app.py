@@ -8,6 +8,7 @@ from activity_manager import (
     get_activity_filter_options,
     load_activities,
 )
+from naver_map_links import naver_map_web_url
 from policy_engine import evaluate_p01
 from mission_manager import group_missions_by_month, load_missions
 from policy_resource_manager import load_mission_resources
@@ -504,7 +505,10 @@ if user_key and st.session_state["show_journey"]:
                 )
 
             st.subheader("이동")
-            st.link_button("네이버 지도에서 보기", item["naver_map_url"])
+            st.link_button(
+                "네이버 지도에서 보기",
+                naver_map_web_url(activity_by_id[selected_activity_id]),
+            )
             st.text(
                 "검색 결과에서 장소와 지역을 확인해 주세요. "
                 "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "

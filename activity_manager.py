@@ -1,7 +1,9 @@
 import json
 import re
 from pathlib import Path
-from urllib.parse import quote, urlencode, urlsplit
+from urllib.parse import urlencode, urlsplit
+
+from naver_map_links import build_naver_map_search_web_url, naver_map_web_url
 
 
 ACTIVITIES_PATH = Path(__file__).resolve().parent / "data" / "activities_mvp.json"
@@ -66,7 +68,6 @@ OPERATOR_OFFICIAL_DOMAINS = frozenset(
     }
 )
 NAVER_MAP_DOMAIN = "map.naver.com"
-NAVER_MAP_WEB_URL = "https://map.naver.com/p/"
 _BLOG_DOMAINS = frozenset({"blog.naver.com", "mirimblog.com"})
 _DIRECTORY_DOMAINS = frozenset(
     {"www.diningcode.com", "www.ban-life.com", "selection.moumi.app"}
@@ -227,32 +228,6 @@ def build_naver_map_search_app_url(place_name, app_name):
     return f"nmap://search?{parameters}"
 
 
-def build_naver_map_search_web_url(place_name, district=""):
-    """Use the search route observed from Naver Map's own web search UI."""
-    if not isinstance(place_name, str) or not place_name.strip():
-        return NAVER_MAP_WEB_URL
-    parts = [place_name.strip()]
-    if "창원" not in place_name:
-        parts.append("창원")
-    for area in _DISTRICT_PATTERN.findall(district):
-        if area not in place_name and area not in parts:
-            parts.append(area)
-    return f"{NAVER_MAP_WEB_URL}search/{quote(' '.join(parts), safe='')}"
-
-
-def _find_naver_map_url(activity):
-    # Reuse only already-present HTTPS place links, never invent a place ID.
-    for field in ("공식 URL", "대중교통 접근(검수)"):
-        url = _extract_http_url(activity.get(field, ""))
-        if url:
-            parsed = urlsplit(url)
-            if (parsed.scheme == "https" and parsed.hostname == NAVER_MAP_DOMAIN
-                    and re.fullmatch(r"/p/(?:entry/)?place/\d+/?", parsed.path)
-                    and parsed.username is None and parsed.password is None):
-                return url
-    return build_naver_map_search_web_url(activity.get("이름"), activity.get("생활권(구)", ""))
-
-
 def activity_introduction(activity):
     """Summarize only recorded type/category/tags, without ratings or new services."""
     name = activity.get("이름")
@@ -325,7 +300,7 @@ def activity_view(activity, app_name):
         "official_url": source_link["url"],
         "official_link_label": source_link["label"],
         "link_classification": source_link["classification"],
-        "naver_map_url": _find_naver_map_url(activity),
+        "naver_map_url": naver_map_web_url(activity),
         "naver_map_search_app_url": build_naver_map_search_app_url(
             activity["이름"],
             app_name,

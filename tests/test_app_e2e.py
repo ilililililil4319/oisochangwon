@@ -354,6 +354,30 @@ class ApplicationE2ETests(unittest.TestCase):
                 )
                 self.assertNotIn("ValueError", visible_text)
 
+    def test_map_button_ignores_stale_activity_view_home_url(self):
+        original_view = activity_manager.activity_view
+
+        def stale_view(activity, app_name):
+            return dict(original_view(activity, app_name), naver_map_url="https://map.naver.com/p/")
+
+        activities = load_activities()
+        # Civic gym is not in the curated 58: use a named fixture without adding data.
+        civic = dict(activities[0], 이름="시민생활체육관", **{"생활권(구)": "성산구"})
+        samples = [civic] + [a for a in activities if a["이름"] in ("스파더스페이스", "경남도립미술관")]
+        self.assertEqual(len(samples), 3)
+        for activity in samples:
+            with self.subTest(name=activity["이름"]), TemporaryDirectory() as temp_dir:
+                with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(
+                    activity_manager, "activity_view", side_effect=stale_view
+                ), patch.object(activity_manager, "load_activities", return_value=[activity]):
+                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app.button(key="show-journey").click().run()
+                    self.assertFalse(app.exception)
+                    link = next(x for x in app.get("link_button") if x.label == "네이버 지도에서 보기")
+                    self.assertTrue(link.url.startswith("https://map.naver.com/p/search/"))
+                    self.assertEqual(unquote(link.url.split("/p/search/", 1)[1]),
+                                     f'{activity["이름"]} 창원 {activity["생활권(구)"]}')
+
     def test_youth_policy_and_activity_links_use_their_verified_labels(self):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"

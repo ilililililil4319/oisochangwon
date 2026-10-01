@@ -3,7 +3,7 @@ import unittest
 from collections import Counter
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from urllib.parse import parse_qs, unquote, urlsplit
+from urllib.parse import parse_qs, quote, unquote, urlsplit
 
 from activity_manager import (
     activity_view,
@@ -71,16 +71,23 @@ class ActivityManagerTests(unittest.TestCase):
                 parsed = urlsplit(url)
                 self.assertEqual(parsed.scheme, "https")
                 self.assertEqual(parsed.hostname, "map.naver.com")
+                self.assertTrue(url.startswith("https://map.naver.com/p/search/"))
+                self.assertIn(quote(activity["이름"], safe=""), url)
                 self.assertFalse(parsed.query)
         for name in ("경남도립미술관", "시민생활체육관 (창원)", "창원 청년비전센터"):
             with self.subTest(name=name):
                 activity = dict(activities[0], 이름=name)
-                self.assertIn(name, unquote(activity_view(activity, "http://localhost:8501")["naver_map_url"]))
+                url = activity_view(activity, "http://localhost:8501")["naver_map_url"]
+                self.assertIn(quote(name, safe=""), url)
+                self.assertNotIn(" ", url)
+                self.assertIn(name, unquote(url))
 
     def test_representative_search_queries_and_no_invented_coordinates(self):
         for name, district in (("시민생활체육관", "성산구"), ("스파더스페이스", "마산합포구"), ("경남도립미술관", "의창구")):
             parsed = urlsplit(build_naver_map_search_web_url(name, district))
             self.assertEqual(parsed.scheme, "https")
+            self.assertTrue(parsed.path.startswith("/p/search/"))
+            self.assertEqual(parsed.path, "/p/search/" + quote(f"{name} 창원 {district}", safe=""))
             query = unquote(parsed.path.removeprefix("/p/search/"))
             self.assertIn(name, query)
             self.assertIn("창원", query)
