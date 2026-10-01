@@ -478,7 +478,9 @@ if user_key and st.session_state["show_journey"]:
             item = activity_view(activity_by_id[selected_activity_id], app_name)
 
             _content_title(item["name"])
-            st.text(item["introduction"])
+            introduction = item.get("introduction")
+            if isinstance(introduction, str) and introduction.strip():
+                st.text(introduction)
             st.caption(f"{item['district']} · {item['category']}")
             st.caption(f"관심 분야: {item['interests']}")
             _detail("운영시간", _schedule_lines(item["schedule"]))

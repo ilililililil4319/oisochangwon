@@ -255,14 +255,21 @@ def _find_naver_map_url(activity):
 
 def activity_introduction(activity):
     """Summarize only recorded type/category/tags, without ratings or new services."""
-    name = activity.get("이름", "")
-    tags = [tag.strip() for tag in activity.get("관심사 태그", "").split(",") if tag.strip()]
+    name = activity.get("이름")
+    name = name if isinstance(name, str) else ""
+    raw_tags = activity.get("관심사 태그")
+    raw_tags = raw_tags if isinstance(raw_tags, str) else ""
+    tags = [tag.strip() for tag in raw_tags.split(",") if tag.strip()]
     if all(tag in tags for tag in ("온천", "찜질방", "인피니티풀")):
         return "온천·찜질방·인피니티풀을 이용할 수 있는 휴식 공간이에요."
     if name.endswith("미술관") and "미술" in tags:
         return "미술 작품을 관람할 수 있는 미술관이에요."
-    kind = activity.get("유형(행사/모임/기관/공간)", "활동")
-    subject = "·".join(tags[:3]) or activity.get("MVP 그룹", "지역활동")
+    kind = activity.get("유형(행사/모임/기관/공간)")
+    category = activity.get("MVP 그룹")
+    subject = "·".join(tags[:3]) or (category.strip() if isinstance(category, str) else "")
+    if not subject:
+        return ""
+    kind = kind.strip() if isinstance(kind, str) and kind.strip() else "활동"
     return f"{subject} 관련 {kind}이에요."
 
 

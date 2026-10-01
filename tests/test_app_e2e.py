@@ -96,6 +96,28 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertTrue(any("가장 간단한 것부터" in c.value for c in app.caption))
                 self.assertEqual(len([c for c in app.checkbox if c.key and c.key.startswith("mission-progress:")]), 26)
 
+    def test_changdong_activity_renders_with_current_and_missing_introduction(self):
+        target = next(a for a in load_activities() if a["ID"] == "A40")
+        self.assertEqual(target["이름"], "창동예술촌 '창동쪽샘길' 플리마켓·아트클래스")
+        original_view = activity_manager.activity_view
+        for legacy_view in (False, True):
+            with self.subTest(legacy_view=legacy_view), TemporaryDirectory() as temp_dir:
+                def convert(activity, app_name):
+                    view = original_view(activity, app_name)
+                    if legacy_view:
+                        view.pop("introduction")
+                    return view
+                with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(activity_manager, "activity_view", side_effect=convert):
+                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app.button(key="show-journey").click().run()
+                    app.selectbox(key="activity_selection").select("A40").run()
+                    self.assertFalse(app.exception)
+                    self.assertTrue(any("창동쪽샘길" in h.value for h in app.header))
+                    self.assertIn(target["대상"], [t.value for t in app.text])
+                    self.assertTrue(any(l.label == "네이버 지도에서 보기" for l in app.get("link_button")))
+                    if not legacy_view:
+                        self.assertIn(original_view(target, "http://localhost:8501")["introduction"], [t.value for t in app.text])
+
     def test_initial_view_hides_results_even_with_saved_records(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):

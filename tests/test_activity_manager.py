@@ -118,6 +118,17 @@ class ActivityManagerTests(unittest.TestCase):
         plain = dict(load_activities()[0], 이름="알 수 없는 장소", **{"관심사 태그": "휴식"})
         self.assertNotIn("온천", activity_introduction(plain))
 
+    def test_all_58_activity_views_always_supply_introduction(self):
+        activities = load_activities()
+        self.assertEqual(len(activities), 58)
+        for activity in activities:
+            with self.subTest(activity_id=activity["ID"]):
+                view = activity_view(activity, "http://localhost:8501")
+                self.assertIsInstance(view["introduction"], str)
+                self.assertTrue(view["introduction"].strip())
+        self.assertEqual(activity_introduction({}), "")
+        self.assertEqual(activity_introduction({"이름": None, "관심사 태그": None, "MVP 그룹": None}), "")
+
     def test_classifies_all_58_source_links(self):
         activities = load_activities()
         classifications = Counter(
