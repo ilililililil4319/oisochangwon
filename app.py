@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import date
+import re
 
 from activity_manager import (
     activity_view,
@@ -49,6 +50,40 @@ CITY_YOUTH_POLICY_URL = "https://www.changwon.go.kr/youth/05085/05105/05105.web"
 HOME_DISTRICTS = ["의창구", "성산구", "마산합포구", "마산회원구", "진해구"]
 
 
+# Native heading and caption roles share one small typography layer.
+READABILITY_CSS = """
+<style>
+[data-testid="stMainBlockContainer"] {max-width: 48rem;}
+[data-testid="stText"], [data-testid="stMarkdownContainer"] p {
+    line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap;
+}
+h2 {font-size: 1.8rem !important; font-weight: 700 !important;}
+h3 {font-size: 1.25rem !important; font-weight: 600 !important;}
+[data-testid="stExpander"] summary p {font-size: 1.4rem; font-weight: 700; line-height: 1.5;}
+[data-testid="stExpander"] [data-testid="stCheckbox"] p {font-size: 1.35rem; font-weight: 600;}
+[data-testid="stExpander"] [data-testid="stTextInput"] label p {font-size: .85rem; font-weight: 400;}
+[data-testid="stExpander"] [data-testid="stCheckbox"] {margin-top: 1.25rem;}
+[data-testid="stLinkButton"], [data-testid="stButton"] {margin-block: .35rem;}
+</style>
+"""
+
+
+def _content_title(value):
+    # Headings accept Markdown; escape source text to preserve its literal meaning.
+    escaped = re.sub(r"([\\`*_{}\[\]()<>#+.!|~-])", r"\\\1", value)
+    st.header(escaped, anchor=False)
+
+
+def _detail(label, value):
+    st.markdown(f"**{label}**")
+    st.text(value)
+
+
+def _schedule_lines(value):
+    # Retain the original separators and words; only add line breaks.
+    return re.sub(r"([/,;]) +", r"\1\n", value)
+
+
 def _sync_activity_district():
     selected_home_district = st.session_state["home_district"]
     st.session_state["activity_district"] = (
@@ -63,6 +98,8 @@ st.set_page_config(
     page_icon="🌱",
     layout="centered",
 )
+
+st.html(READABILITY_CSS)
 
 st.title("🌱 오이소창원")
 st.subheader("창원 생활, 하나씩 준비해요")
@@ -224,9 +261,9 @@ if user_key and st.session_state["show_policy_results"]:
     result = evaluate_p01(profile)
 
     st.divider()
-    st.subheader(f"{nickname}님을 위한 확인 결과")
+    st.caption(f"{nickname}님을 위한 확인 결과")
     st.subheader("받을 수 있는 지원")
-    st.markdown(f"**{result['policy_name']}**")
+    _content_title(result["policy_name"])
 
     status = result["status"]
 
@@ -242,13 +279,9 @@ if user_key and st.session_state["show_policy_results"]:
     elif status == "not_eligible":
         st.error("현재 조건으로는 신청 대상이 아니에요.")
 
-    st.write(f"**확인 내용:** {result['reason']}")
-
     if result["eligible_date"]:
-        st.write(
-            f"**계속 거주 6개월 기준일:** "
-            f"{result['eligible_date']}"
-        )
+        _detail("신청 시점", f"계속 거주 6개월 기준일: {result['eligible_date']}")
+    _detail("핵심 조건", result["reason"])
 
     st.link_button(
         "창원시 청년정책 전체 보기",
@@ -314,7 +347,7 @@ if user_key and st.session_state["show_journey"]:
                     current_completion_states,
                     current_month,
                 )
-                st.info(
+                st.caption(
                     encouragement_message(
                         stage_progress["stage_completed"],
                         len(stage_missions),
@@ -343,7 +376,7 @@ if user_key and st.session_state["show_journey"]:
                 resource = mission_resources.get(mission_id)
                 if resource:
                     st.text(resource["summary"])
-                    st.text(resource["application_period"])
+                    _detail("신청기간·이용 일정", resource["application_period"])
                     for link in resource["official_links"]:
                         st.link_button(
                             f"{resource['title']} · {link['label']}",
@@ -444,21 +477,21 @@ if user_key and st.session_state["show_journey"]:
             app_name = st.context.url or "http://localhost:8501"
             item = activity_view(activity_by_id[selected_activity_id], app_name)
 
-            st.text(item["name"])
-            st.text(f"{item['district']} · {item['category']}")
-            st.text(f"관심 분야: {item['interests']}")
-            st.text(f"운영시간: {item['schedule']}")
+            _content_title(item["name"])
+            st.caption(f"{item['district']} · {item['category']}")
+            st.caption(f"관심 분야: {item['interests']}")
+            _detail("운영시간", _schedule_lines(item["schedule"]))
             if item["start_date"] or item["end_date"]:
                 period = " ~ ".join(
                     value
                     for value in (item["start_date"], item["end_date"])
                     if value
                 )
-                st.text(f"기간: {period}")
-            st.text(f"참여 방법: {item['participation']}")
-            st.text(f"대상: {item['audience']}")
-            st.text(f"{item['last_checked']} 기준으로 확인했어요.")
-            st.text("방문 전 운영시간을 한 번 더 확인해 주세요.")
+                _detail("기간", period)
+            _detail("참여 방법", item["participation"])
+            _detail("대상", item["audience"])
+            st.caption(f"{item['last_checked']} 기준으로 확인했어요.")
+            st.caption("방문 전 운영시간을 한 번 더 확인해 주세요.")
 
             st.subheader("장소 안내")
             if item["official_url"]:

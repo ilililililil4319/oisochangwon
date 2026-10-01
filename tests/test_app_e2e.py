@@ -73,6 +73,28 @@ class ApplicationE2ETests(unittest.TestCase):
         clock_patch.start()
         self.addCleanup(clock_patch.stop)
 
+    def test_typography_roles_and_literal_schedule_breaks(self):
+        activity = dict(load_activities()[0])
+        activity["일정·운영시간"] = "교육동 평일 10:00~20:00, 토 10:00~17:00 / 다목적동 하절기 09:00~20:00, 동절기 09:00~18:00"
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(activity_manager, "load_activities", return_value=[activity]):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                _show_both(app)
+                self.assertFalse(app.exception)
+                self.assertIn("기업노동자 전입지원금", [h.value for h in app.header])
+                self.assertIn("받을 수 있는 지원", [h.value for h in app.subheader])
+                self.assertIn("**운영시간**", [m.value for m in app.markdown])
+                self.assertIn("**참여 방법**", [m.value for m in app.markdown])
+                self.assertIn("**대상**", [m.value for m in app.markdown])
+                rendered_schedule = next(t.value for t in app.text if "교육동 평일" in t.value)
+                self.assertIn("\n", rendered_schedule)
+                self.assertEqual(rendered_schedule.replace("\n", " "), activity["일정·운영시간"])
+                self.assertTrue(any(c.value.startswith("완료 기준:") for c in app.caption))
+                self.assertTrue(any("기준으로 확인했어요" in c.value for c in app.caption))
+                self.assertFalse(any("가장 간단한 것부터" in i.value for i in app.info))
+                self.assertTrue(any("가장 간단한 것부터" in c.value for c in app.caption))
+                self.assertEqual(len([c for c in app.checkbox if c.key and c.key.startswith("mission-progress:")]), 26)
+
     def test_initial_view_hides_results_even_with_saved_records(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
@@ -275,7 +297,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 activity_selector = app.selectbox(key="activity_selection")
                 self.assertTrue(expected_labels)
                 self.assertEqual(set(activity_selector.options), expected_labels)
-                self.assertIn(expected[0]["이름"], [item.value for item in app.text])
+                self.assertIn(expected[0]["이름"], [item.value.replace("\\", "") for item in app.header])
                 self.assertEqual(
                     len(
                         [
@@ -409,13 +431,13 @@ class ApplicationE2ETests(unittest.TestCase):
 
             self.assertFalse(app.exception)
             rendered_text = [item.value for item in app.text]
-            self.assertIn("온천 ~~장소~~ <상세> _확인_", rendered_text)
+            self.assertIn(r"온천 \~\~장소\~\~ \<상세\> \_확인\_", [item.value for item in app.header])
             self.assertIn(
-                "운영시간: 온천 06:00~23:00 / 인피니티풀 10:00~21:00",
+                "온천 06:00~23:00 /\n인피니티풀 10:00~21:00",
                 rendered_text,
             )
-            self.assertIn("참여 방법: 예약 ~~후~~ 확인 <안내>", rendered_text)
-            self.assertIn("대상: 누구나 *가능*", rendered_text)
+            self.assertIn("예약 ~~후~~ 확인 <안내>", rendered_text)
+            self.assertIn("누구나 *가능*", rendered_text)
 
     def test_mission_progress_persists_for_same_nickname_only(self):
         with TemporaryDirectory() as temp_dir:
