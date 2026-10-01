@@ -84,8 +84,16 @@ class ActivityManagerTests(unittest.TestCase):
         )
         self.assertEqual(
             sum(classify_activity_url(item["공식 URL"])["is_official"] for item in activities),
-            31,
+            30,
         )
+
+    def test_withholds_changdong_venue_without_valid_https(self):
+        for url in ("http://changdongartvillage.kr/", "https://changdongartvillage.kr/"):
+            result = classify_activity_url(url)
+            self.assertEqual(result["classification"], "operator_official")
+            self.assertFalse(result["is_official"])
+            self.assertIsNone(result["url"])
+            self.assertIsNone(result["label"])
 
     def test_every_existing_activity_url_has_an_http_scheme(self):
         for activity in load_activities():

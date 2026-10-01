@@ -1,14 +1,26 @@
 import unittest
+from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 import state_manager
 import activity_manager
+import progress_manager
 from policy_engine import evaluate_p01
-from state_manager import load_mission_states
+from state_manager import (
+    format_korea_timestamp,
+    load_mission_notes,
+    load_mission_states,
+    load_mission_timestamps,
+)
 from streamlit.testing.v1 import AppTest
-from activity_manager import activity_view, filter_activities, load_activities
+from activity_manager import (
+    activity_view,
+    classify_activity_url,
+    filter_activities,
+    load_activities,
+)
 
 
 APP_FILE = Path(__file__).resolve().parents[1] / "app.py"
@@ -47,6 +59,55 @@ def _visible_text(app):
 
 
 class ApplicationE2ETests(unittest.TestCase):
+    def setUp(self):
+        calculate_month = progress_manager.current_settlement_month
+        clock_patch = patch.object(
+            progress_manager, "current_settlement_month",
+            side_effect=lambda move_in_date: calculate_month(move_in_date, date(2026, 10, 2)),
+        )
+        clock_patch.start()
+        self.addCleanup(clock_patch.stop)
+
+    def test_neutral_home_district_and_filter_sync_after_results(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                self.assertEqual(app.selectbox(key="home_district").value, "지역을 선택해 주세요")
+                app.button[0].click().run()
+                self.assertEqual(app.selectbox(key="activity_district").value, "창원 전체")
+                app.selectbox(key="home_district").select("성산구").run()
+                self.assertFalse(app.exception)
+                self.assertEqual(app.selectbox(key="activity_district").value, "성산구")
+                app.selectbox(key="home_district").select("지역을 선택해 주세요").run()
+                self.assertEqual(app.selectbox(key="activity_district").value, "창원 전체")
+
+    def test_resources_render_safely_and_failure_preserves_missions(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.button[0].click().run()
+                self.assertFalse(app.exception)
+                urls = [item.proto.url for item in app.get("link_button")]
+                self.assertIn("https://sakers.kbl.or.kr/", urls)
+                self.assertFalse(any("changdongartvillage.kr" in url for url in urls))
+                self.assertNotIn("unverified", _visible_text(app))
+                with patch("policy_resource_manager.load_mission_resources", side_effect=ValueError("invalid")):
+                    app.run()
+                self.assertFalse(app.exception)
+                self.assertEqual(len([c for c in app.checkbox if c.key and c.key.startswith("mission-progress:")]), 26)
+
+    def test_saved_stage_does_not_leak_to_another_nickname(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                state_manager.save_mission_group("다른 사용자", {"M2-1": {"completed": True}})
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.button[0].click().run()
+                app.button(key="save-stage:코디세이:1").click().run()
+                self.assertEqual(app.session_state["last_saved_nickname"], "코디세이")
+                app.text_input[0].set_value("다른 사용자").run()
+                self.assertFalse(app.exception)
+                self.assertFalse(any("저장한 단계:" in c.value for c in app.sidebar.caption))
+
     def test_representative_profile_renders_policy_timeline_and_all_missions(self):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
@@ -217,11 +278,22 @@ class ApplicationE2ETests(unittest.TestCase):
                     ),
                     links,
                 )
-                first_activity = load_activities()[0]
-                self.assertIn(
-                    ("공식 안내 보기", first_activity["공식 URL"].split()[0]),
-                    links,
+                selected_activity_id = app.selectbox(key="activity_selection").value
+                selected_activity = next(
+                    activity
+                    for activity in load_activities()
+                    if activity["ID"] == selected_activity_id
                 )
+                source_link = classify_activity_url(selected_activity["공식 URL"])
+                if source_link["is_official"]:
+                    self.assertIn(
+                        (source_link["label"], source_link["url"]),
+                        links,
+                    )
+                else:
+                    self.assertFalse(
+                        any(label == "공식 안내 보기" for label, _ in links)
+                    )
                 self.assertIn(
                     ("네이버 지도에서 보기", "https://map.naver.com/p/"),
                     links,
@@ -305,6 +377,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 first_session = AppTest.from_file(str(APP_FILE)).run()
                 first_session.button[0].click().run()
                 first_session.checkbox(key="mission-progress:코디세이:M1-1").check().run()
+                first_session.button(key="save-stage:코디세이:1").click().run()
 
                 self.assertFalse(first_session.exception)
                 self.assertTrue(
@@ -334,6 +407,89 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(
                     load_mission_states("다른 사용자", database),
                     {},
+                )
+
+    def test_profile_defaults_activity_filter_and_shows_current_stage(self):
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "storage" / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.text_input[0].set_value("단계 확인 사용자").run()
+                app.selectbox(key="home_district").select("성산구").run()
+                app.text_input(key="neighborhood").set_value("상남동").run()
+                app.date_input[0].set_value(date(2026, 8, 20)).run()
+
+                sidebar_text = "\n".join(
+                    [item.value for item in app.sidebar.markdown]
+                    + [item.value for item in app.sidebar.caption]
+                )
+                self.assertIn("창원 생활 2개월 차", sidebar_text)
+                self.assertIn("성산구 · 상남동", sidebar_text)
+                self.assertIn("0 / 4 완료", sidebar_text)
+                self.assertIn("0 / 26 완료", sidebar_text)
+
+                app.button[0].click().run()
+                self.assertFalse(app.exception)
+                self.assertEqual(
+                    app.selectbox(key="activity_district").value,
+                    "성산구",
+                )
+                current_stage = next(
+                    item
+                    for item in app.expander
+                    if "창원 생활 2개월 차" in item.label
+                )
+                self.assertTrue(current_stage.proto.expanded)
+
+    def test_stage_note_and_check_save_only_on_explicit_button_and_restore(self):
+        nickname = "기록 복원 사용자"
+        database = None
+        with TemporaryDirectory() as temp_dir:
+            database = Path(temp_dir) / "storage" / "progress.sqlite3"
+            with patch.object(state_manager, "DB_PATH", database):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                app.text_input[0].set_value(nickname).run()
+                app.date_input[0].set_value(date(2026, 8, 20)).run()
+                app.button[0].click().run()
+
+                checkbox_key = f"mission-progress:{nickname}:M2-1"
+                note_key = f"mission-note:{nickname}:M2-1"
+                app.checkbox(key=checkbox_key).check().run()
+                app.text_input(key=note_key).set_value(
+                    "10/2 상남동 방문 ~~완료~~ <기록>"
+                ).run()
+
+                self.assertEqual(load_mission_states(nickname, database), {})
+                self.assertEqual(load_mission_notes(nickname, database), {})
+
+                app.button(key=f"save-stage:{nickname}:2").click().run()
+                self.assertFalse(app.exception)
+                self.assertTrue(load_mission_states(nickname, database)["M2-1"])
+                self.assertEqual(
+                    load_mission_notes(nickname, database)["M2-1"],
+                    "10/2 상남동 방문 ~~완료~~ <기록>",
+                )
+                saved_at = load_mission_timestamps(nickname, database)["M2-1"]
+                self.assertTrue(saved_at.endswith("+09:00"))
+                self.assertTrue(
+                    any(
+                        format_korea_timestamp(saved_at) in item.value
+                        for item in app.sidebar.caption
+                    )
+                )
+
+            with patch.object(state_manager, "DB_PATH", database):
+                restored = AppTest.from_file(str(APP_FILE)).run()
+                restored.text_input[0].set_value(nickname).run()
+                restored.date_input[0].set_value(date(2026, 8, 20)).run()
+
+                self.assertFalse(restored.exception)
+                self.assertTrue(
+                    restored.checkbox(key=checkbox_key).value
+                )
+                self.assertEqual(
+                    restored.text_input(key=note_key).value,
+                    "10/2 상남동 방문 ~~완료~~ <기록>",
                 )
 
 

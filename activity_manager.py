@@ -185,7 +185,9 @@ def classify_activity_url(value):
     else:
         classification = "unverified"
 
-    is_official = classification in {"public_official", "operator_official"}
+    # This venue currently has no certificate-valid HTTPS endpoint.
+    withheld = domain == "changdongartvillage.kr"
+    is_official = classification in {"public_official", "operator_official"} and not withheld
     path = parsed_url.path.lower()
     if is_official and any(
         marker in path for marker in ("/reserve", "/reservation", "/booking", "/ticket")

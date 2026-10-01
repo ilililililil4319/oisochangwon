@@ -9,8 +9,20 @@ from activity_manager import (
 )
 from policy_engine import evaluate_p01
 from mission_manager import group_missions_by_month, load_missions
+from policy_resource_manager import load_mission_resources
+from progress_manager import (
+    calculate_mission_progress,
+    current_settlement_month,
+    encouragement_message,
+)
 from settlement_engine import build_settlement_plan
-from state_manager import load_mission_states, save_mission_state
+from state_manager import (
+    format_korea_timestamp,
+    load_mission_notes,
+    load_mission_states,
+    load_mission_timestamps,
+    save_mission_group,
+)
 
 
 MILESTONE_LABELS = {
@@ -34,13 +46,15 @@ PROFILE_FIELD_LABELS = {
     "employed_in_changwon": "창원 사업장 재직 여부",
 }
 CITY_YOUTH_POLICY_URL = "https://www.changwon.go.kr/youth/05085/05105/05105.web"
+HOME_DISTRICTS = ["의창구", "성산구", "마산합포구", "마산회원구", "진해구"]
 
 
-def _save_mission_checkbox(nickname, mission_id, widget_key):
-    save_mission_state(
-        nickname,
-        mission_id,
-        st.session_state[widget_key],
+def _sync_activity_district():
+    selected_home_district = st.session_state["home_district"]
+    st.session_state["activity_district"] = (
+        selected_home_district
+        if selected_home_district in HOME_DISTRICTS
+        else "창원 전체"
     )
 
 
@@ -62,6 +76,8 @@ st.divider()
 nickname = st.text_input("닉네임", value="코디세이")
 user_key = nickname.strip()
 saved_mission_states = load_mission_states(user_key) if user_key else {}
+saved_mission_notes = load_mission_notes(user_key) if user_key else {}
+saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 if saved_mission_states:
     st.session_state["show_policy_results"] = True
 
@@ -77,6 +93,20 @@ move_in_date = st.date_input(
     value=date(2026, 9, 20),
 )
 
+home_district = st.selectbox(
+    "사는 지역",
+    ["지역을 선택해 주세요", *HOME_DISTRICTS],
+    key="home_district",
+    on_change=_sync_activity_district,
+)
+home_district = home_district if home_district in HOME_DISTRICTS else None
+neighborhood = st.text_input(
+    "동네 (선택)",
+    placeholder="예: 상남동",
+    max_chars=40,
+    key="neighborhood",
+)
+
 previous_residence_years = st.number_input(
     "창원 전입 전 타지역 거주기간(년)",
     min_value=0,
@@ -88,6 +118,77 @@ employed_in_changwon = st.checkbox(
     "현재 창원 소재 사업장에 재직 중입니다.",
     value=True,
 )
+
+all_missions = load_missions()
+mission_groups = group_missions_by_month(all_missions)
+current_month = current_settlement_month(move_in_date)
+completion_states = {
+    mission["ID"]: st.session_state.get(
+        f"mission-progress:{user_key}:{mission['ID']}",
+        saved_mission_states.get(mission["ID"], False),
+    )
+    for mission in all_missions
+}
+progress_summary = calculate_mission_progress(
+    all_missions,
+    completion_states,
+    current_month,
+)
+current_group = next(
+    group for group in mission_groups if group["month"] == current_month
+)
+
+with st.sidebar:
+    st.subheader("나의 창원 정착 현황")
+    st.write(nickname.strip() or "닉네임을 입력해 주세요")
+    if home_district:
+        st.caption(
+            f"{home_district} · {neighborhood.strip()}"
+            if neighborhood.strip()
+            else home_district
+        )
+    st.write(f"지금은 창원 생활 {current_month}개월 차예요.")
+    st.caption(current_group["theme"])
+    st.write(
+        f"현재 단계: {progress_summary['stage_completed']} / "
+        f"{progress_summary['stage_total']} 완료"
+    )
+    st.progress(
+        progress_summary["stage_completed"] / progress_summary["stage_total"]
+        if progress_summary["stage_total"]
+        else 0.0
+    )
+    st.write(
+        f"전체 진행: {progress_summary['overall_completed']} / "
+        f"{progress_summary['overall_total']} 완료"
+    )
+    st.progress(
+        progress_summary["overall_completed"] / progress_summary["overall_total"]
+        if progress_summary["overall_total"]
+        else 0.0
+    )
+    last_saved_at = (
+        st.session_state.get("last_saved_at")
+        if st.session_state.get("last_saved_nickname") == user_key
+        else None
+    )
+    if last_saved_at is None and saved_mission_timestamps:
+        last_saved_at = max(
+            saved_mission_timestamps.values(),
+            key=lambda value: format_korea_timestamp(value) or "",
+        )
+    if last_saved_at:
+        st.success("진행 상황을 저장했어요.")
+        saved_month = (
+            st.session_state.get("last_saved_month")
+            if st.session_state.get("last_saved_nickname") == user_key
+            else None
+        )
+        if saved_month:
+            st.caption(f"저장한 단계: {MONTH_LABELS[saved_month]}")
+        formatted_saved_at = format_korea_timestamp(last_saved_at)
+        if formatted_saved_at:
+            st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
 
 show_policy_results = st.button(
     "지원과 할 일 확인하기",
@@ -106,6 +207,8 @@ if user_key and st.session_state.get("show_policy_results", False):
         "nickname": nickname,
         "age": age,
         "move_in_date": move_in_date,
+        "home_district": home_district,
+        "neighborhood": neighborhood.strip(),
         "previous_residence_years": previous_residence_years,
         "employed_in_changwon": employed_in_changwon,
     }
@@ -167,34 +270,115 @@ if user_key and st.session_state.get("show_policy_results", False):
         "날짜가 다를 수 있어요."
     )
 
+    try:
+        mission_resources = load_mission_resources()
+    except (OSError, ValueError):
+        mission_resources = {}
+        st.info("할 일 관련 안내를 불러오지 못했어요. 할 일과 기록 저장은 계속 이용할 수 있어요.")
+
     st.subheader("이번에 할 일")
     st.caption("체크한 내용은 닉네임과 함께 저장돼 다시 열어도 확인할 수 있어요.")
 
-    mission_groups = group_missions_by_month(load_missions())
     for mission_group in mission_groups:
         group_title = (
-            f"{MONTH_LABELS[mission_group['month']]} · "
+            f"창원 생활 {MONTH_LABELS[mission_group['month']]} · "
             f"{mission_group['theme']} · {len(mission_group['missions'])}개"
         )
         with st.expander(
             group_title,
-            expanded=mission_group["month"] == 1,
+            expanded=mission_group["month"] == current_month,
         ):
+            stage_missions = mission_group["missions"]
+            if mission_group["month"] == current_month:
+                current_completion_states = {
+                    mission["ID"]: st.session_state.get(
+                        f"mission-progress:{user_key}:{mission['ID']}",
+                        saved_mission_states.get(mission["ID"], False),
+                    )
+                    for mission in all_missions
+                }
+                stage_progress = calculate_mission_progress(
+                    all_missions,
+                    current_completion_states,
+                    current_month,
+                )
+                st.info(
+                    encouragement_message(
+                        stage_progress["stage_completed"],
+                        len(stage_missions),
+                    )
+                )
+
             for mission in mission_group["missions"]:
                 mission_id = mission["ID"]
                 widget_key = f"mission-progress:{user_key}:{mission_id}"
+                note_key = f"mission-note:{user_key}:{mission_id}"
                 if widget_key not in st.session_state:
                     st.session_state[widget_key] = saved_mission_states.get(
                         mission_id,
                         False,
                     )
+                if note_key not in st.session_state:
+                    st.session_state[note_key] = saved_mission_notes.get(
+                        mission_id,
+                        "",
+                    )
                 st.checkbox(
                     mission["미션"],
                     key=widget_key,
-                    on_change=_save_mission_checkbox,
-                    args=(user_key, mission_id, widget_key),
                 )
                 st.caption(f"완료 기준: {mission['완료 기준']}")
+                resource = mission_resources.get(mission_id)
+                if resource:
+                    st.text(resource["summary"])
+                    st.text(resource["application_period"])
+                    for link in resource["official_links"]:
+                        st.link_button(
+                            f"{resource['title']} · {link['label']}",
+                            link["url"],
+                        )
+                st.text_input(
+                    "내 기록 (선택)",
+                    key=note_key,
+                    max_chars=300,
+                )
+
+            save_key = f"save-stage:{user_key}:{mission_group['month']}"
+            if st.button(
+                "이 단계 저장하기",
+                key=save_key,
+                disabled=not user_key,
+            ):
+                stage_progress_to_save = {
+                    mission["ID"]: {
+                        "completed": st.session_state[
+                            f"mission-progress:{user_key}:{mission['ID']}"
+                        ],
+                        "note": st.session_state[
+                            f"mission-note:{user_key}:{mission['ID']}"
+                        ],
+                    }
+                    for mission in stage_missions
+                }
+                st.session_state["last_saved_at"] = save_mission_group(
+                    user_key,
+                    stage_progress_to_save,
+                )
+                st.session_state["last_saved_nickname"] = user_key
+                st.session_state["last_saved_month"] = mission_group["month"]
+                st.rerun()
+
+            stage_timestamps = [
+                formatted
+                for mission in stage_missions
+                if (
+                    formatted := format_korea_timestamp(
+                        saved_mission_timestamps.get(mission["ID"])
+                    )
+                )
+            ]
+            if stage_timestamps:
+                st.caption(f"마지막 저장: {max(stage_timestamps)} (한국시간)")
 
     st.divider()
     st.subheader("창원에서 해볼 것")
@@ -203,9 +387,16 @@ if user_key and st.session_state.get("show_policy_results", False):
     try:
         activities = load_activities()
         activity_options = get_activity_filter_options(activities)
+        district_options = ["창원 전체", *activity_options["districts"]]
+        default_activity_district = (
+            home_district
+            if home_district in district_options
+            else "창원 전체"
+        )
+        st.session_state.setdefault("activity_district", default_activity_district)
         selected_district = st.selectbox(
             "어느 지역에서 찾을까요?",
-            ["창원 전체", *activity_options["districts"]],
+            district_options,
             key="activity_district",
         )
         selected_category = st.selectbox(
