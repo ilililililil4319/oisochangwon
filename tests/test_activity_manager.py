@@ -24,8 +24,8 @@ class ActivityManagerTests(unittest.TestCase):
     def test_loads_all_curated_activities_with_unique_ids(self):
         activities = load_activities()
 
-        self.assertEqual(len(activities), 58)
-        self.assertEqual(len({activity["ID"] for activity in activities}), 58)
+        self.assertEqual(len(activities), 60)
+        self.assertEqual(len({activity["ID"] for activity in activities}), 60)
         self.assertTrue(all(activity["MVP 선별"] == "O" for activity in activities))
 
     def test_filters_by_actual_district_and_category(self):
@@ -67,7 +67,7 @@ class ActivityManagerTests(unittest.TestCase):
 
     def test_web_map_links_for_all_activities_and_korean_place_names(self):
         activities = load_activities()
-        self.assertEqual(len(activities), 58)
+        self.assertEqual(len(activities), 60)
         for activity in activities:
             with self.subTest(activity_id=activity["ID"]):
                 url = activity_view(activity, "http://localhost:8501")["naver_map_url"]
@@ -150,9 +150,9 @@ class ActivityManagerTests(unittest.TestCase):
         plain = dict(load_activities()[0], 이름="알 수 없는 장소", **{"관심사 태그": "휴식"})
         self.assertNotIn("온천", activity_introduction(plain))
 
-    def test_all_58_activity_views_always_supply_introduction(self):
+    def test_all_60_activity_views_always_supply_introduction(self):
         activities = load_activities()
-        self.assertEqual(len(activities), 58)
+        self.assertEqual(len(activities), 60)
         for activity in activities:
             with self.subTest(activity_id=activity["ID"]):
                 view = activity_view(activity, "http://localhost:8501")
@@ -161,18 +161,18 @@ class ActivityManagerTests(unittest.TestCase):
         self.assertEqual(activity_introduction({}), "")
         self.assertEqual(activity_introduction({"이름": None, "관심사 태그": None, "MVP 그룹": None}), "")
 
-    def test_classifies_all_58_source_links(self):
+    def test_classifies_all_60_source_links(self):
         activities = load_activities()
         classifications = Counter(
             classify_activity_url(activity["공식 URL"])["classification"]
             for activity in activities
         )
 
-        self.assertEqual(len(activities), 58)
+        self.assertEqual(len(activities), 60)
         self.assertEqual(
             classifications,
             {
-                "public_official": 16,
+                "public_official": 18,
                 "operator_official": 15,
                 "news": 4,
                 "directory": 14,
@@ -185,7 +185,7 @@ class ActivityManagerTests(unittest.TestCase):
         )
         self.assertEqual(
             sum(classify_activity_url(item["공식 URL"])["is_official"] for item in activities),
-            30,
+            32,
         )
 
     def test_withholds_changdong_venue_without_valid_https(self):
