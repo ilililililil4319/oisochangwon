@@ -158,7 +158,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertFalse(app.button(key="nav-profile").disabled)
 
     def test_contact_email_in_sidebar_and_footer_on_every_page(self):
-        contact = "앱 문의: [connect9114@gmail.com](mailto:connect9114@gmail.com)"
+        contact = "앱 문의: [whwnstn9294@gmail.com](mailto:whwnstn9294@gmail.com)"
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
@@ -171,6 +171,32 @@ class ApplicationE2ETests(unittest.TestCase):
                         self.assertFalse(app.exception)
                         self.assertEqual([c.value for c in app.main.caption][-1], contact)
                         self.assertIn(contact, [c.value for c in app.sidebar.caption])
+
+    def test_ask_page_answers_with_rule_fallback_links_and_log(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), \
+                    patch.dict("os.environ", {"ANTHROPIC_API_KEY": "", "OPENAI_API_KEY": "", "LLM_PROVIDER": ""}):
+                app = _demo_app()
+                app.button(key="show-ask").click().run()
+                self.assertFalse(app.exception)
+                self.assertIn("AI 모델이 연결되지 않아", _visible_text(app))
+                app.button(key="ask-example-0").click().run()
+                self.assertFalse(app.exception)
+                text = _visible_text(app)
+                self.assertIn("기업노동자 전입지원금", text)
+                self.assertIn("기본 안내", text)
+                self.assertTrue(any(l.url == "https://www.changwon.go.kr/youth/05085/05105/05105.web" for l in app.get("link_button")))
+                self.assertEqual(len(app.expander), 1)
+                app.chat_input(key="ask_input").set_value("월세 지원 있어?").run()
+                self.assertIn("청년월세", _visible_text(app))
+                self.assertEqual(len(app.expander), 2)
+                app.chat_input(key="ask_input").set_value("집에 불이 났어요").run()
+                self.assertIn("119", _visible_text(app))
+                _visit(app, "policy")
+                _visit(app, "ask")
+                self.assertEqual(len(app.expander), 3)
+                app.button(key="ask-clear").click().run()
+                self.assertEqual(len(app.expander), 0)
 
     def test_clear_profile_and_journey_needs_move_in_date(self):
         with TemporaryDirectory() as temp_dir:
@@ -242,8 +268,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기", "창원 둘러보기"])
-                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "받을 수 있는 지원", "정착 할 일", "창원 둘러보기"])
+                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "AI에게 한 문장으로 물어보기", "받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기", "창원 둘러보기"])
+                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI에게 물어보기", "받을 수 있는 지원", "정착 할 일", "창원 둘러보기"])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
                 self.assertEqual(len(app.expander), 0)

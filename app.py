@@ -2,8 +2,10 @@ import streamlit as st
 import streamlit.components.v1 as components
 from datetime import date
 from pathlib import Path
+import os
 import re
 
+from agent import DEFAULT_MODELS, MODEL_LABELS, make_client, run_agent
 from activity_manager import (
     activity_view,
     filter_activities,
@@ -56,7 +58,7 @@ LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
 LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
 LOGO_WIDTH = 560  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
 SLOGAN = "창원에서 너의 내일을 응원해!"
-CONTACT_EMAIL = "connect9114@gmail.com"
+CONTACT_EMAIL = "whwnstn9294@gmail.com"
 CONTACT_TEXT = f"앱 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})"
 DEFAULT_NICKNAME = "코디2026"
 
@@ -111,13 +113,16 @@ PAGE_PROFILE = "profile"
 PAGE_POLICY = "policy"
 PAGE_JOURNEY = "journey"
 PAGE_EXPLORE = "explore"
+PAGE_ASK = "ask"
 PAGE_LABELS = {
     PAGE_PROFILE: "내 정보",
+    PAGE_ASK: "AI에게 물어보기",
     PAGE_POLICY: "받을 수 있는 지원",
     PAGE_JOURNEY: "정착 할 일",
     PAGE_EXPLORE: "창원 둘러보기",
 }
 FEATURE_BUTTONS = (
+    (PAGE_ASK, "AI에게 한 문장으로 물어보기", "show-ask"),
     (PAGE_POLICY, "받을 수 있는 지원 확인하기", "show-policy"),
     (PAGE_JOURNEY, "나의 정착 할 일 확인하기", "show-journey"),
     (PAGE_EXPLORE, "창원 둘러보기", "show-explore"),
@@ -378,9 +383,8 @@ with st.sidebar:
 
 
 # --- ② 받을 수 있는 지원 -----------------------------------------------------
-def render_policy_page():
-    _back_home_button("policy")
-    profile = {
+def _current_profile():
+    return {
         "nickname": nickname,
         "age": st.session_state["age"],
         "move_in_date": move_in_date,
@@ -393,6 +397,11 @@ def render_policy_page():
             else st.session_state["employment_status"] == EMPLOYMENT_OPTIONS[0]
         ),
     }
+
+
+def render_policy_page():
+    _back_home_button("policy")
+    profile = _current_profile()
 
     result = evaluate_p01(profile)
 
@@ -671,7 +680,105 @@ def render_explore_page():
     _next_feature_button(PAGE_POLICY, "받을 수 있는 지원 보기 →")
 
 
+# --- ⑤ AI에게 물어보기 ---------------------------------------------------------
+ASK_EXAMPLES = (
+    "내가 받을 수 있는 지원 알려줘",
+    "이번 주말 버스로 갈 만한 야경 명소 추천해 줘",
+    "‘욕봤데이’가 무슨 뜻이에요?",
+    "집 앞 가로등이 며칠째 꺼져 있어요",
+)
+MODE_LABELS = {
+    "llm": "AI 답변",
+    "rule": "기본 안내(AI 미연결·대체)",
+    "emergency": "안전 안내(긴급)",
+    "crisis": "안전 안내(위기)",
+}
+
+
+def _setting(name):
+    try:
+        value = st.secrets.get(name)
+    except Exception:  # secrets 파일이 없으면 환경변수만 본다
+        value = None
+    return value or os.environ.get(name)
+
+
+def llm_settings():
+    provider = (_setting("LLM_PROVIDER") or "").strip().lower() or None
+    if provider is None:
+        if _setting("ANTHROPIC_API_KEY"):
+            provider = "anthropic"
+        elif _setting("OPENAI_API_KEY"):
+            provider = "openai"
+    key_name = {"anthropic": "ANTHROPIC_API_KEY", "openai": "OPENAI_API_KEY"}.get(provider)
+    api_key = _setting(key_name) if key_name else None
+    if not api_key:
+        return None, None, None
+    return provider, api_key, _setting("LLM_MODEL") or DEFAULT_MODELS[provider]
+
+
+@st.cache_resource(show_spinner=False)
+def _llm_client(provider, api_key):
+    return make_client(provider, api_key)
+
+
+def _queue_question(text):
+    st.session_state["ask_pending"] = text
+
+
+def render_ask_page():
+    _back_home_button("ask")
+    st.subheader("AI에게 물어보기")
+    provider, api_key, model = llm_settings()
+    if provider:
+        st.caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료(정책·장소·지역말·접수 창구)로만 답해요.")
+    else:
+        st.caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
+    st.caption("실명·연락처 같은 개인정보는 입력하지 마세요. 질문은 답변을 만들기 위해 AI 모델로 전송돼요.")
+
+    st.markdown("**이렇게 물어보세요**")
+    with st.container(horizontal=True, wrap=True):
+        for index, example in enumerate(ASK_EXAMPLES):
+            st.button(example, key=f"ask-example-{index}", on_click=_queue_question, args=(example,))
+
+    history = st.session_state.setdefault("ask_history", [])
+    question = st.chat_input("창원 정착에 관해 한 문장으로 물어보세요", key="ask_input")
+    question = question or st.session_state.pop("ask_pending", None)
+    if question:
+        client = _llm_client(provider, api_key) if provider else None
+        with st.spinner("필요한 자료를 찾아보고 있어요…"):
+            result = run_agent(question, _current_profile(), provider=provider, client=client, model=model)
+        history.append({
+            "question": question,
+            "answer": result.answer,
+            "mode": result.mode,
+            "model": MODEL_LABELS.get(result.model, result.model),
+            "verified": result.verified,
+            "steps": result.steps,
+            "links": result.links,
+        })
+
+    for index, item in enumerate(history):
+        with st.chat_message("user"):
+            st.text(item["question"])
+        with st.chat_message("assistant"):
+            st.text(item["answer"])
+            badge = MODE_LABELS[item["mode"]]
+            if item["mode"] == "llm":
+                badge += f" · {item['model']}"
+            badge += " · 검증 통과" if item["verified"] else " · 검증 필요"
+            st.caption(badge)
+            for link_index, (label, url) in enumerate(item.get("links", [])):
+                st.link_button(label, url, key=f"ask-link-{index}-{link_index}")
+            with st.expander("Agent 실행 기록 보기"):
+                for number, step in enumerate(item["steps"], start=1):
+                    st.text(f"{number}. [{step['단계']}] {step['내용']}")
+    if history:
+        st.button("대화 지우기", key="ask-clear", on_click=lambda: st.session_state.update(ask_history=[]))
+
+
 PAGE_RENDERERS = {
+    PAGE_ASK: render_ask_page,
     PAGE_PROFILE: render_profile_page,
     PAGE_POLICY: render_policy_page,
     PAGE_JOURNEY: render_journey_page,

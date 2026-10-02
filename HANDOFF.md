@@ -198,5 +198,18 @@ python -m unittest discover -s tests -v
 
 ## 2026-10-02 (이혜경) A4 문의처 표시
 
-- 사이드바 맨 아래와 모든 화면 하단에 “앱 문의: connect9114@gmail.com”(mailto 링크) 표시(`CONTACT_EMAIL`). Chrome에서 mailto 링크 2개(사이드바·하단) 확인.
+- 사이드바 맨 아래와 모든 화면 하단에 “앱 문의: whwnstn9294@gmail.com”(팀장 메일, mailto 링크) 표시 (10/2 connect9114 → 팀장 메일로 변경)(`CONTACT_EMAIL`). Chrome에서 mailto 링크 2개(사이드바·하단) 확인.
 - 문의처 AppTest 1개 추가(4개 화면 모두 하단 마지막 줄에 표시). 전체 unittest 71개 통과.
+
+## 2026-10-02 (이혜경) LLM Agent — 「AI에게 물어보기」 화면
+
+- 새 모듈 `agent.py`, 새 화면 `ask`(첫 화면 버튼 `show-ask`, 사이드바 ‘AI에게 물어보기’). 기존 4개 화면·공식 링크·신청 사이트 연결은 변경 없음.
+- 흐름: ① 안전 확인(화재·사고 → 112·119, 생명 위기 표현 → 109·119·청년마음단디센터, LLM 호출 없이 즉시) → ② LLM이 도구 선택·호출(최대 4회) → ③ 답변 검증(답의 전화번호·링크가 도구 결과나 팀 확인 공용 연락처에 있는지) → 실패 시 1회 재작성 → 그래도 실패하면 규칙 기반 안내 → ④ 실행 기록·관련 공식 링크 버튼 표시.
+- 도구 5개: `get_my_situation`(프로필·P01 판정·현재 단계 할 일), `search_policies`(policies_mvp 23), `search_activities`(activities_mvp 60, 구·실내 필터), `lookup_dialect`(dialects_core30), `find_complaint_channel`(complaint_channels 6단계).
+- 모델: Anthropic `claude-haiku-4-5-20251001`(기본) 또는 OpenAI `gpt-4.1-mini`. 키·설정은 Streamlit Secrets(또는 환경변수) `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`, 선택 `LLM_PROVIDER`·`LLM_MODEL`. **키는 GitHub·단톡·문서에 올리지 않음.** 키가 없거나 API 오류면 키워드 규칙 기반으로 자동 대체(화면에 ‘기본 안내’ 표시).
+- 개인정보: 닉네임은 LLM에 보내지 않음. 화면에 “실명·연락처 입력 금지, 질문은 AI 모델로 전송” 안내.
+- `data/complaint_channels.json`에 C6 ‘위기’(자살예방상담전화 109) 추가 — 기획안 외 안전 항목, **팀 확인 필요**.
+- 앱 문의 메일을 팀장 메일 whwnstn9294@gmail.com으로 변경.
+- requirements: `anthropic==1.11.0`, `openai==3.23.0` 추가.
+- 테스트: `tests/test_agent.py` 11개(도구·안전·검증·가짜 Anthropic/OpenAI 도구 호출 루프·오류 대체) + 화면 테스트 1개. 전체 unittest 83개 통과. 실제 API 호출 테스트는 키 등록 후 배포본에서 확인 필요.
+- 참고: 스크롤 맨 위 이동에 쓰는 `st.components.v1.html`은 Streamlit이 `st.iframe`으로 교체 권고(1.64.0 고정 버전에서는 정상 동작).
