@@ -259,7 +259,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 text = _visible_text(app)
                 self.assertIn("[높음]", text)
                 self.assertIn("1899-1111", text)
-                self.assertTrue(any("단계별 접수 창구" in e.label for e in app.expander))
+                self.assertIn("**단계별 접수 창구**", [m.value for m in app.markdown])
                 app.button(key="show-dialect").click().run() if False else _visit(app, "dialect")
                 self.assertIn("④ 창원 지역말 번역", [h.value for h in app.subheader])
                 app.button(key="dialect-example-0").click().run()

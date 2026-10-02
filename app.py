@@ -76,8 +76,13 @@ DEFAULT_NICKNAME = "코디2026"
 # Native heading and caption roles share one small typography layer.
 READABILITY_CSS = """
 <style>
-[data-testid="stMainBlockContainer"] {max-width: 74rem; padding-left: 2.5rem; padding-right: 2.5rem;}
+[data-testid="stMainBlockContainer"] {max-width: 100%; padding: 3.2rem 2.5rem 2rem 2.5rem;}
 @media (max-width: 640px) {[data-testid="stMainBlockContainer"] {padding-left: 1rem; padding-right: 1rem;}}
+/* 화면 전체 폭으로 퍼지는 색 띠 */
+.st-key-band-hero, .st-key-band-notes {margin-left: -2.5rem !important; width: calc(100% + 5rem) !important; max-width: none !important; padding: 1.6rem 2.5rem; box-sizing: border-box;}
+.st-key-band-hero {background: linear-gradient(120deg, #E6EEF8 0%, #F3F6FB 55%, #FFF1E6 100%);}
+.st-key-band-notes {background: #F2F5F9; border-top: 3px solid #FE6A01;}
+@media (max-width: 640px) {.st-key-band-hero, .st-key-band-notes {margin-left: -1rem !important; width: calc(100% + 2rem) !important; padding: 1.2rem 1rem;}}
 [data-testid="stText"], [data-testid="stMarkdownContainer"] p {
     line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap;
 }
@@ -109,9 +114,6 @@ h1, h2, h3 {color: #063465 !important;}
 [data-testid="stExpander"] summary:hover p {color: #FE6A01;}
 }
 /* 처음 화면: 여백에 색 · 큰 글씨 · 큰 버튼 */
-.st-key-home-hero {background: linear-gradient(120deg, #EAF0F7 0%, #FFF1E6 100%); border-radius: 1.1rem; padding: 1.4rem 1.8rem 1.1rem;}
-.st-key-home-hero [data-testid="stMarkdownContainer"] p {font-size: 1.12rem;}
-.st-key-home-hero .st-key-slogan h3 {font-size: 1.7rem !important;}
 .st-key-home-buttons {background: #EEF3F9; border-radius: 1.1rem; padding: 1.2rem;}
 .st-key-home-guide {background: #FFF6EE; border-radius: 1.1rem; padding: 1.2rem 1.4rem;}
 .st-key-start-card {background: #FFFFFF; border: 2px solid #FE6A01; border-radius: .9rem; padding: .9rem 1rem;}
@@ -122,8 +124,7 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-home-buttons button p, .st-key-profile-features button p {font-size: 1.08rem !important; font-weight: 600;}
 /* 첫 화면: 색 배경으로 구역 나누기 · 큰 글자 · 큰 기능 버튼 */
 @media (min-width: 1024px) { html {font-size: 17px;} }
-.st-key-home-hero {background: linear-gradient(135deg, #EAF0F8 0%, #FFF3EA 100%); border-radius: 18px; padding: 1.4rem 1.8rem;}
-.st-key-home-hero [data-testid="stMarkdownContainer"] p {font-size: 1.08rem;}
+.st-key-band-hero [data-testid="stMarkdownContainer"] p {font-size: 1.05rem;}
 .st-key-start-card {background: #FFF4EC; border-left: 6px solid #FE6A01; border-radius: 14px; padding: 1rem 1.4rem;}
 [class*="st-key-feature-card-"] {background: #F5F8FC; border: 1px solid #D5DDE7; border-radius: 14px; padding: .9rem 1rem; height: 100%;}
 .st-key-feature-grid [data-testid="stBaseButton-primary"] {min-height: 3.6rem;}
@@ -133,7 +134,6 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-ai-banner [data-testid="stBaseButton-secondary"] {background-color: #FE6A01 !important; border-color: #FE6A01 !important; color: #FFFFFF !important;}
 .st-key-ai-banner [data-testid="stBaseButton-secondary"] p {color: #FFFFFF !important; font-weight: 700;}
 .st-key-ai-banner [data-testid="stBaseButton-secondary"]:disabled {background-color: #5B7393 !important; border-color: #5B7393 !important;}
-.st-key-home-notes, .st-key-home-contact {background: #F5F8FC; border-radius: 14px; padding: 1rem 1.3rem; height: 100%;}
 /* 잠긴(비활성) 버튼은 흐리게 */
 [data-testid="stBaseButton-primary"]:disabled {
     background-color: #C9D3E0 !important; border-color: #C9D3E0 !important; color: #FFFFFF !important; cursor: not-allowed;
@@ -333,16 +333,15 @@ USAGE_NOTES = (
     "안내는 팀이 공식 자료로 확인한 정보(확인일 표시) 기준이에요. 지원 대상 여부의 최종 판단은 담당 기관에서 해요.",
     "장소·행사는 방문 전 운영시간을 꼭 확인해 주세요. 특정 업체 홍보가 아니에요.",
     "AI 답변은 검증 자료 안에서만 만들지만 틀릴 수 있어요. 중요한 내용은 링크로 원문을 확인해 주세요.",
-    "화재·사고 등 긴급 상황은 앱을 거치지 말고 바로 112·119에 신고하세요.",
 )
 
 
-def _feature_buttons(with_descriptions=False):
+def _feature_buttons(with_descriptions=False, per_row=2):
     # 기획안 핵심기능 4개(① 혜택 알림 ② 생활 정보·일정 편성 ③ 불편 접수 ④ 지역말 번역)
     with st.container(key="feature-grid"):
-        rows = [FEATURE_BUTTONS[:2], FEATURE_BUTTONS[2:]]
+        rows = [FEATURE_BUTTONS[i:i + per_row] for i in range(0, len(FEATURE_BUTTONS), per_row)]
         for row in rows:
-            columns = st.columns(2, gap="small")
+            columns = st.columns(per_row, gap="small")
             for column, (target_page, label, key) in zip(columns, row):
                 with column:
                     with st.container(key=f"feature-card-{target_page}"):
@@ -361,65 +360,79 @@ def _feature_buttons(with_descriptions=False):
 
 def _ai_banner():
     with st.container(key="ai-banner"):
-        st.markdown(f"**STEP 3 · 궁금한 건 {ASK_LABEL}**")
-        st.caption("“내가 받을 수 있는 지원 알려줘”, “버스로 갈 만한 야경 명소?”처럼 한 문장으로 물어보세요.")
-        st.button(
-            f"{ASK_LABEL} →",
-            key="show-ask",
-            disabled=not user_key,
-            on_click=_go,
-            args=(PAGE_ASK,),
-        )
+        text_col, button_col = st.columns([3, 1], vertical_alignment="center")
+        with text_col:
+            st.markdown(f"**STEP 3 · 궁금한 건 {ASK_LABEL}**")
+            st.caption("“내가 받을 수 있는 지원 알려줘”, “버스로 갈 만한 야경 명소?”처럼 한 문장으로 물어보세요.")
+        with button_col:
+            st.button(
+                f"{ASK_LABEL} →",
+                key="show-ask",
+                disabled=not user_key,
+                on_click=_go,
+                args=(PAGE_ASK,),
+                width="stretch",
+            )
 
 
 def _condition_card():
     with st.container(key="start-card"):
-        st.markdown(f"**STEP 1 · {CONDITION_LABEL}**")
-        if user_key:
-            st.caption(f"{user_key}님의 조건이 입력돼 있어요. 바꾸려면 눌러 주세요.")
-            st.button("조건 확인·수정", key="show-profile", on_click=_go, args=(PAGE_PROFILE,))
-        else:
-            st.caption("나이·창원 전입일 같은 조건만 적으면 4개 기능이 열려요. 개인정보는 받지 않아요.")
-            st.button(f"{CONDITION_LABEL}하기 →", key="show-profile", type="primary", on_click=_go, args=(PAGE_PROFILE,))
+        text_col, button_col = st.columns([3, 1], vertical_alignment="center")
+        with text_col:
+            st.markdown(f"**STEP 1 · {CONDITION_LABEL}**")
+            if user_key:
+                st.caption(f"{user_key}님의 조건이 입력돼 있어요. 바꾸려면 오른쪽 버튼을 눌러 주세요.")
+            else:
+                st.caption("나이·창원 전입일 같은 조건만 적으면 아래 기능 4개가 열려요. 개인정보는 받지 않아요. "
+                           "먼저 둘러보려면 들어가서 ‘예시 정보로 채우기’를 눌러 보세요.")
+        with button_col:
+            if user_key:
+                st.button("조건 확인·수정", key="show-profile", on_click=_go, args=(PAGE_PROFILE,), width="stretch")
+            else:
+                st.button(f"{CONDITION_LABEL}하기 →", key="show-profile", type="primary", on_click=_go,
+                          args=(PAGE_PROFILE,), width="stretch")
 
 
 def render_home_page():
-    with st.container(key="home-hero"):
-        hero_left, hero_right = st.columns([3, 2], gap="large")
-        with hero_left:
+    # 화면 전체 폭 색 띠: 로고 | 앱 소개 | 이렇게 이용해요 | 문의
+    with st.container(key="band-hero"):
+        logo_col, intro_col, howto_col, contact_col = st.columns([1.5, 1.4, 1.1, 1.1], gap="large")
+        with logo_col:
             st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
             with st.container(key="slogan"):
                 st.subheader(SLOGAN, anchor=False)
             st.write(
                 "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
             )
-        with hero_right:
+        with intro_col:
             st.markdown("**앱 소개**")
             st.write(APP_INTRO)
+        with howto_col:
             st.markdown("**이렇게 이용해요**")
-            st.markdown(" → ".join(f"**{n}. {title}**" for n, (title, _) in enumerate(HOW_TO_STEPS, start=1)))
-
-    _condition_card()
-    st.markdown("**STEP 2 · 기능 4개 중 고르기**")
-    _feature_buttons(with_descriptions=True)
-    if not user_key:
-        st.caption(f"STEP 1 ‘{CONDITION_LABEL}’에서 닉네임을 적으면 기능 버튼이 열려요. 먼저 둘러보려면 ‘예시 정보로 채우기’를 눌러 보세요.")
-    _ai_banner()
-
-    notes_column, contact_column = st.columns([3, 2], gap="medium")
-    with notes_column:
-        with st.container(key="home-notes"):
-            st.markdown("**이용 시 참고사항**")
-            st.markdown("\n".join(f"- {note}" for note in USAGE_NOTES))
-    with contact_column:
-        with st.container(key="home-contact"):
+            for number, (title, text) in enumerate(HOW_TO_STEPS, start=1):
+                st.markdown(f"**{number}. {title}**")
+                st.caption(text)
+        with contact_col:
             st.markdown("**문의**")
             st.markdown(
-                f"- 앱 이용 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})\n"
-                "- 창원시 행정·민원 문의: 창원시 콜센터 1899-1111\n"
-                "- 정책 원문: [창원청년정보플랫폼](https://www.changwon.go.kr/youth/05085/05105/05105.web)"
+                f"앱 이용 문의  \n[{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})  \n\n"
+                "창원시 행정·민원 문의  \n창원시 콜센터 1899-1111"
             )
             st.caption("제4회 경남 AI·SW 경진대회 · 팀 오이소창원")
+
+    # STEP 1 → STEP 2(기능 4개 가로 한 줄) → STEP 3, 각각 화면 폭 전체 사용
+    _condition_card()
+    st.markdown("**STEP 2 · 기능 4개 중 고르기**")
+    _feature_buttons(with_descriptions=True, per_row=4)
+    _ai_banner()
+
+    # 화면 전체 폭 색 띠: 이용 시 참고사항
+    with st.container(key="band-notes"):
+        st.markdown("**이용 시 참고사항**")
+        note_columns = st.columns(len(USAGE_NOTES), gap="medium")
+        for column, note in zip(note_columns, USAGE_NOTES):
+            with column:
+                st.caption(note)
 
 
 # --- 나의 조건 입력 --------------------------------------------------------------
@@ -443,47 +456,50 @@ def render_profile_page():
             on_click=_fill_profile,
             args=(PROFILE_DEFAULTS,),
         )
-    st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20,
-                  help="실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.")
-    st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이",
-                    help="만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.")
-    st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD",
-                  help="전입일 = 새 주소로 전입신고를 한 날. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.")
-    st.selectbox(
-        "사는 지역",
-        [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
-        key="home_district",
-        on_change=_sync_activity_district,
-        help="사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
-    )
-    st.text_input(
-        "동네 (선택)",
-        placeholder="예: 상남동",
-        max_chars=40,
-        key="neighborhood",
-    )
-    st.number_input(
-        "창원 전입 전 타지역 거주기간(년)",
-        min_value=0,
-        max_value=50,
-        key="previous_residence_years",
-        placeholder="예: 2",
-        help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
-    )
-    st.radio(
-        "창원 소재 사업장 재직 여부",
-        EMPLOYMENT_OPTIONS,
-        key="employment_status",
-        horizontal=True,
-        help="창원에 있는 회사·가게에서 일하고 있는지예요. 근로자 대상 혜택을 판단할 때 써요.",
-    )
-    st.radio(
-        "차량 소지 여부",
-        VEHICLE_OPTIONS,
-        key="vehicle",
-        horizontal=True,
-        help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
-    )
+    left_inputs, right_inputs = st.columns(2, gap="large")
+    with left_inputs:
+        st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20,
+                      help="실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.")
+        st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이",
+                        help="만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.")
+        st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD",
+                      help="전입일 = 새 주소로 전입신고를 한 날. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.")
+        st.selectbox(
+            "사는 지역",
+            [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
+            key="home_district",
+            on_change=_sync_activity_district,
+            help="사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
+        )
+        st.text_input(
+            "동네 (선택)",
+            placeholder="예: 상남동",
+            max_chars=40,
+            key="neighborhood",
+        )
+    with right_inputs:
+        st.number_input(
+            "창원 전입 전 타지역 거주기간(년)",
+            min_value=0,
+            max_value=50,
+            key="previous_residence_years",
+            placeholder="예: 2",
+            help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
+        )
+        st.radio(
+            "창원 소재 사업장 재직 여부",
+            EMPLOYMENT_OPTIONS,
+            key="employment_status",
+            horizontal=True,
+            help="창원에 있는 회사·가게에서 일하고 있는지예요. 근로자 대상 혜택을 판단할 때 써요.",
+        )
+        st.radio(
+            "차량 소지 여부",
+            VEHICLE_OPTIONS,
+            key="vehicle",
+            horizontal=True,
+            help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
+        )
 
     st.divider()
     if user_key:
@@ -662,6 +678,15 @@ def _policy_card(match):
         st.caption(" · ".join(v for v in (f"{match['checked']} 확인" if match["checked"] else "", match["status"]) if v))
 
 
+def _policy_grid(matches, per_row=2):
+    # PC는 카드 2개씩 가로로, 모바일은 한 줄에 하나
+    for start in range(0, len(matches), per_row):
+        columns = st.columns(per_row, gap="medium")
+        for column, match in zip(columns, matches[start:start + per_row]):
+            with column:
+                _policy_card(match)
+
+
 def render_policy_page():
     _back_home_button("policy")
     profile = _current_profile()
@@ -679,16 +704,13 @@ def render_policy_page():
         "받을 수 있다고 단정하지 않아요 — 최종 판단은 담당 기관에서 해요."
     )
 
-    for match in candidates[:POLICY_CARDS_SHOWN]:
-        _policy_card(match)
+    _policy_grid(candidates[:POLICY_CARDS_SHOWN])
     if len(candidates) > POLICY_CARDS_SHOWN:
         with st.expander(f"더 보기 · 다른 지원 {len(candidates) - POLICY_CARDS_SHOWN}개"):
-            for match in candidates[POLICY_CARDS_SHOWN:]:
-                _policy_card(match)
+            _policy_grid(candidates[POLICY_CARDS_SHOWN:])
     if excluded:
         with st.expander(f"해당 없음 {len(excluded)}개 · 이유 보기"):
-            for match in excluded:
-                _policy_card(match)
+            _policy_grid(excluded)
 
     st.link_button(
         "창원시 청년정책 전체 보기",
@@ -730,9 +752,12 @@ def render_journey_page():
 
     st.subheader("창원 정착 일정")
 
-    for milestone in settlement_plan["milestones"]:
+    milestone_columns = st.columns(len(settlement_plan["milestones"]), gap="small")
+    for column, milestone in zip(milestone_columns, settlement_plan["milestones"]):
         label = MILESTONE_LABELS[milestone["day"]]
-        st.markdown(f"**{label} · {milestone['date']}**")
+        with column:
+            with st.container(key=f"milestone-{milestone['day']}"):
+                st.markdown(f"**{label} · {milestone['date']}**")
     st.caption(
         "마지막 일정과 계속 거주 6개월 기준일은 서로 다른 방식으로 계산되어 "
         "날짜가 다를 수 있어요."
@@ -895,96 +920,101 @@ def render_explore_page():
         st.session_state.setdefault("activity_district", default_activity_district)
         if st.session_state["activity_district"] not in district_options:
             st.session_state["activity_district"] = "창원 전체"
-        selected_district = st.selectbox(
-            "어느 지역에서 찾을까요?",
-            district_options,
-            key="activity_district",
-        )
-        selected_category = st.selectbox(
-            "어떤 활동을 찾으세요?",
-            ["모든 분야", *activity_options["categories"]],
-            key="activity_category",
-        )
-        filtered_activities = filter_activities(
-            activities,
-            district=(
-                None if selected_district == "창원 전체" else selected_district
-            ),
-            category=(
-                None if selected_category == "모든 분야" else selected_category
-            ),
-        )
-
-        st.caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
-        if not filtered_activities:
-            st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
-
-        if filtered_activities:
-            activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
-            if st.session_state.get("activity_selection") not in activity_by_id:
-                st.session_state.pop("activity_selection", None)
-            selected_activity_id = st.selectbox(
-                "어떤 곳을 볼까요?",
-                list(activity_by_id),
-                format_func=lambda activity_id: (
-                    f"{activity_by_id[activity_id]['이름']} · "
-                    f"{activity_by_id[activity_id]['생활권(구)']}"
-                ),
-                key="activity_selection",
+        # PC: 왼쪽 찾기 조건·목록 / 가운데 장소 정보 / 오른쪽 장소 안내·이동 (모바일은 위에서 아래로)
+        filter_column, detail_column, move_column = st.columns([1.1, 1.6, 1.1], gap="large")
+        with filter_column:
+            selected_district = st.selectbox(
+                "어느 지역에서 찾을까요?",
+                district_options,
+                key="activity_district",
             )
+            selected_category = st.selectbox(
+                "어떤 활동을 찾으세요?",
+                ["모든 분야", *activity_options["categories"]],
+                key="activity_category",
+            )
+            filtered_activities = filter_activities(
+                activities,
+                district=(
+                    None if selected_district == "창원 전체" else selected_district
+                ),
+                category=(
+                    None if selected_category == "모든 분야" else selected_category
+                ),
+            )
+            st.caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
+            if not filtered_activities:
+                st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
+            selected_activity_id = None
+            if filtered_activities:
+                activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
+                if st.session_state.get("activity_selection") not in activity_by_id:
+                    st.session_state.pop("activity_selection", None)
+                selected_activity_id = st.selectbox(
+                    "어떤 곳을 볼까요?",
+                    list(activity_by_id),
+                    format_func=lambda activity_id: (
+                        f"{activity_by_id[activity_id]['이름']} · "
+                        f"{activity_by_id[activity_id]['생활권(구)']}"
+                    ),
+                    key="activity_selection",
+                )
+
+        if selected_activity_id:
             app_name = st.context.url or "http://localhost:8501"
             item = activity_view(activity_by_id[selected_activity_id], app_name)
+            with detail_column:
+                _content_title(item["name"])
+                introduction = item.get("introduction")
+                if isinstance(introduction, str) and introduction.strip():
+                    st.text(introduction)
+                st.caption(f"{item['district']} · {item['category']}")
+                st.caption(f"관심 분야: {item['interests']}")
+                _detail("운영시간", _schedule_lines(item["schedule"]))
+                if item["start_date"] or item["end_date"]:
+                    period = " ~ ".join(
+                        value
+                        for value in (item["start_date"], item["end_date"])
+                        if value
+                    )
+                    _detail("기간", period)
+                _detail("참여 방법", item["participation"])
+                _detail("대상", item["audience"])
+                st.caption(f"{item['last_checked']} 기준으로 확인했어요.")
+                st.caption("방문 전 운영시간을 한 번 더 확인해 주세요.")
 
-            _content_title(item["name"])
-            introduction = item.get("introduction")
-            if isinstance(introduction, str) and introduction.strip():
-                st.text(introduction)
-            st.caption(f"{item['district']} · {item['category']}")
-            st.caption(f"관심 분야: {item['interests']}")
-            _detail("운영시간", _schedule_lines(item["schedule"]))
-            if item["start_date"] or item["end_date"]:
-                period = " ~ ".join(
-                    value
-                    for value in (item["start_date"], item["end_date"])
-                    if value
-                )
-                _detail("기간", period)
-            _detail("참여 방법", item["participation"])
-            _detail("대상", item["audience"])
-            st.caption(f"{item['last_checked']} 기준으로 확인했어요.")
-            st.caption("방문 전 운영시간을 한 번 더 확인해 주세요.")
+            with move_column:
+                st.subheader("장소 안내")
+                if item["official_url"]:
+                    st.link_button(
+                        item["official_link_label"],
+                        item["official_url"],
+                    )
 
-            st.subheader("장소 안내")
-            if item["official_url"]:
+                st.subheader("이동")
+                no_car = st.session_state["vehicle"] == "없음"
+                selected_raw = activity_by_id[selected_activity_id]
+                if selected_raw.get("이동 권장") == "차량 권장":
+                    st.warning("창원 외곽이라 시내버스로 가기 어려워요. 차량으로 가는 것을 권장해요.")
+                elif no_car:
+                    st.info("차가 없으니 대중교통 경로로 안내해요. 시내버스를 자주 탄다면 K-패스로 교통비 일부를 돌려받을 수 있어요.")
                 st.link_button(
-                    item["official_link_label"],
-                    item["official_url"],
+                    "네이버 지도에서 보기",
+                    naver_map_web_url(activity_by_id[selected_activity_id]),
+                    type="primary" if no_car else "secondary",
                 )
-
-            st.subheader("이동")
-            no_car = st.session_state["vehicle"] == "없음"
-            selected_raw = activity_by_id[selected_activity_id]
-            if selected_raw.get("이동 권장") == "차량 권장":
-                st.warning("창원 외곽이라 시내버스로 가기 어려워요. 차량으로 가는 것을 권장해요.")
-            elif no_car:
-                st.info("차가 없으니 대중교통 경로로 안내해요. 시내버스를 자주 탄다면 K-패스로 교통비 일부를 돌려받을 수 있어요.")
-            st.link_button(
-                "네이버 지도에서 보기",
-                naver_map_web_url(activity_by_id[selected_activity_id]),
-                type="primary" if no_car else "secondary",
-            )
-            if no_car:
-                st.button(
-                    "K-패스 혜택 카드 보기",
-                    key="explore-kpass",
-                    on_click=_go,
-                    args=(PAGE_POLICY,),
+                if no_car:
+                    st.button(
+                        "K-패스 혜택 카드 보기",
+                        key="explore-kpass",
+                        on_click=_go,
+                        args=(PAGE_POLICY,),
+                    )
+                st.text(
+                    "검색 결과에서 장소와 지역을 확인해 주세요. "
+                    "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
+                    "대중교통 길찾기를 선택해 주세요."
                 )
-            st.text(
-                "검색 결과에서 장소와 지역을 확인해 주세요. "
-                "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
-                "대중교통 길찾기를 선택해 주세요."
-            )
     except (OSError, ValueError):
         st.info(
             "창원 활동 정보를 불러오지 못했어요. "
@@ -1142,29 +1172,36 @@ def _queue_complaint(text):
 def render_complaint_page():
     _back_home_button("complaint")
     st.subheader(FEATURE_3)
-    st.write("불편한 상황을 한 문장으로 적으면 AI가 긴급도를 판단하고 알맞은 접수 창구를 안내해요.")
-    _ai_status_caption()
-    st.caption("민원을 대신 접수하거나 개인정보를 받지 않아요. 화재·사고 같은 긴급 상황은 바로 112·119에 신고하세요.")
-    with st.container(horizontal=True, wrap=True):
-        for index, example in enumerate(COMPLAINT_EXAMPLES):
-            st.button(example, key=f"complaint-example-{index}", on_click=_queue_complaint, args=(example,))
-    with st.form("complaint-form", clear_on_submit=True, border=False):
-        text = st.text_input("어떤 불편이 있나요?", placeholder="예: 우리 동네 인도 블록이 깨져서 위험해요", max_chars=200)
-        submitted = st.form_submit_button("접수 창구 찾기", type="primary")
+    input_column, result_column, reference_column = st.columns([1.2, 1.5, 1.1], gap="large")
+    with input_column:
+        st.write("불편한 상황을 한 문장으로 적으면 AI가 긴급도를 판단하고 알맞은 접수 창구를 안내해요.")
+        _ai_status_caption()
+        st.caption("민원을 대신 접수하거나 개인정보를 받지 않아요. 화재·사고 같은 긴급 상황은 바로 112·119에 신고하세요.")
+        with st.form("complaint-form", clear_on_submit=True, border=False):
+            text = st.text_input("어떤 불편이 있나요?", placeholder="예: 우리 동네 인도 블록이 깨져서 위험해요", max_chars=200)
+            submitted = st.form_submit_button("접수 창구 찾기", type="primary")
+        st.markdown("**예시로 해 보기**")
+        with st.container(horizontal=True, wrap=True):
+            for index, example in enumerate(COMPLAINT_EXAMPLES):
+                st.button(example, key=f"complaint-example-{index}", on_click=_queue_complaint, args=(example,))
     question = (text if submitted and text.strip() else None) or st.session_state.pop("complaint_pending", None)
     if question:
         st.session_state["complaint_result"] = _ask_agent(f"[불편사항 접수 안내] {question}")
         st.session_state["complaint_result"]["question"] = question
-    if st.session_state.get("complaint_result"):
-        with st.container(key="complaint-result"):
-            _render_agent_item(st.session_state["complaint_result"], "complaint")
-        if question:
-            _scroll_into_view("complaint-result")
-
-    with st.expander("단계별 접수 창구 한눈에 보기"):
+    with result_column:
+        st.markdown("**안내 결과**")
+        if st.session_state.get("complaint_result"):
+            with st.container(key="complaint-result"):
+                _render_agent_item(st.session_state["complaint_result"], "complaint")
+            if question:
+                _scroll_into_view("complaint-result")
+        else:
+            st.caption("왼쪽에 상황을 적거나 예시를 누르면 여기에 결과가 나와요.")
+    with reference_column:
+        st.markdown("**단계별 접수 창구**")
         for item in load_complaint_channels():
             COMPLAINT_BOXES.get(item["단계"], st.info)(f"[{item['단계']}] {item['예시']}")
-            st.text(item["안내"] + "\n연락처: " + ", ".join(item["연락처"]))
+            st.caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
         st.caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
     _next_feature_button(PAGE_DIALECT, f"{BUTTON_4} →")
 
@@ -1177,33 +1214,40 @@ def _queue_dialect(text):
 def render_dialect_page():
     _back_home_button("dialect")
     st.subheader(FEATURE_4)
-    st.write("직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.")
-    _ai_status_caption()
-    st.caption("뜻은 ‘문헌 기준 뜻’이에요. 사전에 없는 말은 ‘AI 추정 - 사람 검수 필요’로 표시해요.")
     dialects = load_dialects()
     demo = [d for d in dialects if d.get("시연 사용")][:6]
-    with st.container(horizontal=True, wrap=True):
-        for index, item in enumerate(demo):
-            st.button(item["표현"], key=f"dialect-example-{index}", on_click=_queue_dialect, args=(item["표현"],))
-    with st.form("dialect-form", clear_on_submit=True, border=False):
-        text = st.text_input("들은 말", placeholder="예: 단디 해래이", max_chars=60)
-        submitted = st.form_submit_button("뜻 찾기", type="primary")
+    input_column, result_column, reference_column = st.columns([1.2, 1.5, 1.1], gap="large")
+    with input_column:
+        st.write("직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.")
+        _ai_status_caption()
+        st.caption("뜻은 ‘문헌 기준 뜻’이에요. 사전에 없는 말은 ‘AI 추정 - 사람 검수 필요’로 표시해요.")
+        with st.form("dialect-form", clear_on_submit=True, border=False):
+            text = st.text_input("들은 말", placeholder="예: 단디 해래이", max_chars=60)
+            submitted = st.form_submit_button("뜻 찾기", type="primary")
+        st.markdown("**예시로 해 보기**")
+        with st.container(horizontal=True, wrap=True):
+            for index, item in enumerate(demo):
+                st.button(item["표현"], key=f"dialect-example-{index}", on_click=_queue_dialect, args=(item["표현"],))
     expression = (text if submitted and text.strip() else None) or st.session_state.pop("dialect_pending", None)
     if expression:
         result = _ask_agent(f"창원 지역말 ‘{expression.strip()}’이(가) 무슨 뜻이에요?")
         result["question"] = expression.strip()
         st.session_state["dialect_result"] = result
-    if st.session_state.get("dialect_result"):
-        with st.container(key="dialect-result"):
-            _render_agent_item(st.session_state["dialect_result"], "dialect")
-        if expression:
-            _scroll_into_view("dialect-result")
-
-    with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기"):
-        for item in dialects:
-            st.markdown(f"**{item['표현']}**")
-            st.text(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
-        st.caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
+    with result_column:
+        st.markdown("**뜻 풀이**")
+        if st.session_state.get("dialect_result"):
+            with st.container(key="dialect-result"):
+                _render_agent_item(st.session_state["dialect_result"], "dialect")
+            if expression:
+                _scroll_into_view("dialect-result")
+        else:
+            st.caption("왼쪽에 들은 말을 적거나 예시를 누르면 여기에 뜻이 나와요.")
+    with reference_column:
+        with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기", expanded=True):
+            for item in dialects:
+                st.markdown(f"**{item['표현']}**")
+                st.caption(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
+            st.caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
     _next_feature_button(PAGE_ASK, f"{ASK_LABEL} →")
 
 
@@ -1217,7 +1261,10 @@ PAGE_RENDERERS = {
     PAGE_JOURNEY: render_journey_page,
     PAGE_EXPLORE: render_explore_page,
 }
-PAGE_RENDERERS.get(page, render_home_page)()
+# 화면을 바꾸면 이전 화면을 통째로 지우고 새 화면만 그린다(이전 화면이 아래에 남지 않게).
+page_root = st.empty()
+with page_root.container(key=f"page-{page}"):
+    PAGE_RENDERERS.get(page, render_home_page)()
 
 st.divider()
 st.caption(CONTACT_TEXT)
