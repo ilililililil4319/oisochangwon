@@ -251,7 +251,7 @@ def get_my_situation(profile):
         situation["이번 단계 할 일"] = [m["미션"] for m in group["missions"]]
         situation["180일 범위"] = f"{move_in_date.isoformat()} ~ {(move_in_date + relativedelta(days=179)).isoformat()}"
     else:
-        situation["안내"] = "전입일이 없어 정착 단계를 계산하지 못했습니다. '내 정보'에서 전입일을 입력하도록 안내하세요."
+        situation["안내"] = "전입일이 없어 정착 단계를 계산하지 못했습니다. '나의 조건 입력'에서 전입일을 입력하도록 안내하세요."
     return situation
 
 

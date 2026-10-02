@@ -108,6 +108,32 @@ h1, h2, h3 {color: #063465 !important;}
 }
 [data-testid="stExpander"] summary:hover p {color: #FE6A01;}
 }
+/* 처음 화면: 여백에 색 · 큰 글씨 · 큰 버튼 */
+.st-key-home-hero {background: linear-gradient(120deg, #EAF0F7 0%, #FFF1E6 100%); border-radius: 1.1rem; padding: 1.4rem 1.8rem 1.1rem;}
+.st-key-home-hero [data-testid="stMarkdownContainer"] p {font-size: 1.12rem;}
+.st-key-home-hero .st-key-slogan h3 {font-size: 1.7rem !important;}
+.st-key-home-buttons {background: #EEF3F9; border-radius: 1.1rem; padding: 1.2rem;}
+.st-key-home-guide {background: #FFF6EE; border-radius: 1.1rem; padding: 1.2rem 1.4rem;}
+.st-key-start-card {background: #FFFFFF; border: 2px solid #FE6A01; border-radius: .9rem; padding: .9rem 1rem;}
+[class*="st-key-how-to-"], [class*="st-key-feature-summary-"] {background: #FFFFFF; border-radius: .8rem; padding: .6rem .9rem; border: 1px solid #F3DCC8;}
+.st-key-home-buttons [data-testid="stMarkdownContainer"] p, .st-key-home-guide [data-testid="stMarkdownContainer"] p {font-size: 1.08rem;}
+.st-key-home-buttons [data-testid="stCaptionContainer"], .st-key-home-guide [data-testid="stCaptionContainer"] {font-size: .98rem;}
+.st-key-home-buttons button, .st-key-profile-features button {min-height: 3.2rem;}
+.st-key-home-buttons button p, .st-key-profile-features button p {font-size: 1.08rem !important; font-weight: 600;}
+/* 첫 화면: 색 배경으로 구역 나누기 · 큰 글자 · 큰 기능 버튼 */
+@media (min-width: 1024px) { html {font-size: 17px;} }
+.st-key-home-hero {background: linear-gradient(135deg, #EAF0F8 0%, #FFF3EA 100%); border-radius: 18px; padding: 1.4rem 1.8rem;}
+.st-key-home-hero [data-testid="stMarkdownContainer"] p {font-size: 1.08rem;}
+.st-key-start-card {background: #FFF4EC; border-left: 6px solid #FE6A01; border-radius: 14px; padding: 1rem 1.4rem;}
+[class*="st-key-feature-card-"] {background: #F5F8FC; border: 1px solid #D5DDE7; border-radius: 14px; padding: .9rem 1rem; height: 100%;}
+.st-key-feature-grid [data-testid="stBaseButton-primary"] {min-height: 3.6rem;}
+.st-key-feature-grid [data-testid="stBaseButton-primary"] p {font-size: 1.12rem; font-weight: 700;}
+.st-key-ai-banner {background: #063465; border-radius: 14px; padding: 1rem 1.4rem;}
+.st-key-ai-banner p, .st-key-ai-banner [data-testid="stCaptionContainer"], .st-key-ai-banner [data-testid="stCaptionContainer"] p {color: #FFFFFF !important;}
+.st-key-ai-banner [data-testid="stBaseButton-secondary"] {background-color: #FE6A01 !important; border-color: #FE6A01 !important; color: #FFFFFF !important;}
+.st-key-ai-banner [data-testid="stBaseButton-secondary"] p {color: #FFFFFF !important; font-weight: 700;}
+.st-key-ai-banner [data-testid="stBaseButton-secondary"]:disabled {background-color: #5B7393 !important; border-color: #5B7393 !important;}
+.st-key-home-notes, .st-key-home-contact {background: #F5F8FC; border-radius: 14px; padding: 1rem 1.3rem; height: 100%;}
 /* 잠긴(비활성) 버튼은 흐리게 */
 [data-testid="stBaseButton-primary"]:disabled {
     background-color: #C9D3E0 !important; border-color: #C9D3E0 !important; color: #FFFFFF !important; cursor: not-allowed;
@@ -178,7 +204,7 @@ FEATURE_2_TABS = {PAGE_JOURNEY: "정착 할 일 · 1~6개월 일정", PAGE_EXPLO
 # 사이드바 메뉴: (page, 버튼 이름)
 PAGE_LABELS = {
     PAGE_HOME: "처음 화면",
-    PAGE_PROFILE: "내 정보 입력",
+    PAGE_PROFILE: "나의 조건 입력",
     PAGE_ASK: ASK_LABEL,
     PAGE_POLICY: BUTTON_1,
     PAGE_JOURNEY: "└ " + FEATURE_2_TABS[PAGE_JOURNEY],
@@ -186,8 +212,8 @@ PAGE_LABELS = {
     PAGE_COMPLAINT: BUTTON_3,
     PAGE_DIALECT: BUTTON_4,
 }
+# 기획안 핵심기능 4개만 '기능 버튼'. 조건 입력(STEP 1)과 AI 코디(STEP 3)는 별도 안내 칸.
 FEATURE_BUTTONS = (
-    (PAGE_ASK, ASK_LABEL, "show-ask"),
     (PAGE_POLICY, BUTTON_1, "show-policy"),
     (PAGE_JOURNEY, BUTTON_2, "show-journey"),
     (PAGE_COMPLAINT, BUTTON_3, "show-complaint"),
@@ -285,67 +311,125 @@ saved_mission_notes = load_mission_notes(user_key) if user_key else {}
 saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 
 
-# --- 처음 화면: 사용 방법 + 기능 버튼 ------------------------------------------
+# --- 처음 화면: STEP 1 조건 입력 카드 + STEP 2 기능 버튼 5개 -------------------
+CONDITION_LABEL = "나의 조건 입력"
+APP_INTRO = (
+    "창원에 막 이사 온 청년이 처음 6개월 동안 놓치기 쉬운 혜택과 할 일을 한곳에서 챙길 수 있게 돕는 서비스예요. "
+    "팀이 공식 자료로 확인한 정책 23건·생활 정보 60곳·지역말 30개·접수 창구를 바탕으로, AI 코디가 내 조건에 맞춰 안내해요."
+)
 HOW_TO_STEPS = (
-    ("내 정보 입력하기", "닉네임·나이·창원 전입일 등을 적어요. 실명·연락처는 받지 않아요."),
-    ("기능 고르기", "받을 수 있는 혜택, 1~6개월 정착 할 일, 창원 생활 정보, 불편 접수 창구, 지역말 뜻을 확인해요."),
-    ("AI 코디에게 물어보기", "궁금한 것을 한 문장으로 물으면 팀이 검증한 자료로 답해 드려요."),
+    (CONDITION_LABEL, "나이·전입일 같은 조건만 적어요"),
+    ("기능 4개 중 고르기", "혜택·정착 일정·불편 접수·지역말"),
+    ("AI 코디에게 묻기", "궁금한 건 한 문장으로"),
+)
+FEATURE_SUMMARIES = {
+    PAGE_POLICY: "정책 23건을 내 조건과 비교해 해당 가능·조건부·신청 시기를 알려 줘요.",
+    PAGE_JOURNEY: "1~6개월 정착 할 일 체크와 창원 가볼 곳·행사를 안내해요.",
+    PAGE_COMPLAINT: "불편한 상황의 긴급도를 판단해 알맞은 접수 창구를 알려 줘요.",
+    PAGE_DIALECT: "직장·식당에서 들은 창원 말의 뜻과 쓰임을 알려 줘요.",
+}
+USAGE_NOTES = (
+    "실명·연락처 등 개인정보는 받지 않아요. 닉네임과 나이·전입일 같은 조건만 써요.",
+    "안내는 팀이 공식 자료로 확인한 정보(확인일 표시) 기준이에요. 지원 대상 여부의 최종 판단은 담당 기관에서 해요.",
+    "장소·행사는 방문 전 운영시간을 꼭 확인해 주세요. 특정 업체 홍보가 아니에요.",
+    "AI 답변은 검증 자료 안에서만 만들지만 틀릴 수 있어요. 중요한 내용은 링크로 원문을 확인해 주세요.",
+    "화재·사고 등 긴급 상황은 앱을 거치지 말고 바로 112·119에 신고하세요.",
 )
 
 
-def _feature_buttons(show_profile_button):
-    if show_profile_button:
+def _feature_buttons(with_descriptions=False):
+    # 기획안 핵심기능 4개(① 혜택 알림 ② 생활 정보·일정 편성 ③ 불편 접수 ④ 지역말 번역)
+    with st.container(key="feature-grid"):
+        rows = [FEATURE_BUTTONS[:2], FEATURE_BUTTONS[2:]]
+        for row in rows:
+            columns = st.columns(2, gap="small")
+            for column, (target_page, label, key) in zip(columns, row):
+                with column:
+                    with st.container(key=f"feature-card-{target_page}"):
+                        st.button(
+                            label,
+                            key=key,
+                            type="primary",
+                            disabled=not user_key,
+                            on_click=_go,
+                            args=(target_page,),
+                            width="stretch",
+                        )
+                        if with_descriptions:
+                            st.caption(FEATURE_SUMMARIES[target_page])
+
+
+def _ai_banner():
+    with st.container(key="ai-banner"):
+        st.markdown(f"**STEP 3 · 궁금한 건 {ASK_LABEL}**")
+        st.caption("“내가 받을 수 있는 지원 알려줘”, “버스로 갈 만한 야경 명소?”처럼 한 문장으로 물어보세요.")
         st.button(
-            "내 정보 입력하기" if not user_key else "내 정보 확인·수정",
-            key="show-profile",
-            type="secondary" if user_key else "primary",
-            on_click=_go,
-            args=(PAGE_PROFILE,),
-            width="stretch",
-        )
-    for target_page, label, key in FEATURE_BUTTONS:
-        st.button(
-            label,
-            key=key,
-            type="primary",
+            f"{ASK_LABEL} →",
+            key="show-ask",
             disabled=not user_key,
             on_click=_go,
-            args=(target_page,),
-            width="stretch",
+            args=(PAGE_ASK,),
         )
+
+
+def _condition_card():
+    with st.container(key="start-card"):
+        st.markdown(f"**STEP 1 · {CONDITION_LABEL}**")
+        if user_key:
+            st.caption(f"{user_key}님의 조건이 입력돼 있어요. 바꾸려면 눌러 주세요.")
+            st.button("조건 확인·수정", key="show-profile", on_click=_go, args=(PAGE_PROFILE,))
+        else:
+            st.caption("나이·창원 전입일 같은 조건만 적으면 4개 기능이 열려요. 개인정보는 받지 않아요.")
+            st.button(f"{CONDITION_LABEL}하기 →", key="show-profile", type="primary", on_click=_go, args=(PAGE_PROFILE,))
 
 
 def render_home_page():
-    st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
-    with st.container(key="slogan"):
-        st.subheader(SLOGAN, anchor=False)
-    st.write(
-        "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
-    )
-    st.info("처음이라면 이렇게: **내 정보 입력하기** → **기능 고르기** → 궁금한 건 **AI 코디에게 물어보기**")
-    st.divider()
-    # PC: 왼쪽 기능 버튼 · 오른쪽 자세한 사용 방법 / 모바일: 기능 버튼이 위
-    with st.container(key="home-layout"):
-        button_column, guide_column = st.columns([2, 3], gap="large")
-    with guide_column:
-        st.markdown("**처음이신가요? 이렇게 사용해요**")
-        for number, (title, text) in enumerate(HOW_TO_STEPS, start=1):
-            with st.container(border=True, key=f"how-to-{number}"):
-                st.markdown(f"**{number}. {title}**")
-                st.caption(text)
-        st.caption("먼저 둘러보고 싶다면 ‘내 정보 입력하기’에서 ‘예시 정보로 채우기’를 눌러 보세요.")
-    with button_column:
-        st.markdown("**무엇을 확인할까요?**")
-        _feature_buttons(show_profile_button=True)
-        if not user_key:
-            st.info("먼저 ‘내 정보 입력하기’를 눌러 닉네임을 적으면 기능 버튼을 쓸 수 있어요.")
+    with st.container(key="home-hero"):
+        hero_left, hero_right = st.columns([3, 2], gap="large")
+        with hero_left:
+            st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
+            with st.container(key="slogan"):
+                st.subheader(SLOGAN, anchor=False)
+            st.write(
+                "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
+            )
+        with hero_right:
+            st.markdown("**앱 소개**")
+            st.write(APP_INTRO)
+            st.markdown("**이렇게 이용해요**")
+            st.markdown(" → ".join(f"**{n}. {title}**" for n, (title, _) in enumerate(HOW_TO_STEPS, start=1)))
+
+    _condition_card()
+    st.markdown("**STEP 2 · 기능 4개 중 고르기**")
+    _feature_buttons(with_descriptions=True)
+    if not user_key:
+        st.caption(f"STEP 1 ‘{CONDITION_LABEL}’에서 닉네임을 적으면 기능 버튼이 열려요. 먼저 둘러보려면 ‘예시 정보로 채우기’를 눌러 보세요.")
+    _ai_banner()
+
+    notes_column, contact_column = st.columns([3, 2], gap="medium")
+    with notes_column:
+        with st.container(key="home-notes"):
+            st.markdown("**이용 시 참고사항**")
+            st.markdown("\n".join(f"- {note}" for note in USAGE_NOTES))
+    with contact_column:
+        with st.container(key="home-contact"):
+            st.markdown("**문의**")
+            st.markdown(
+                f"- 앱 이용 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})\n"
+                "- 창원시 행정·민원 문의: 창원시 콜센터 1899-1111\n"
+                "- 정책 원문: [창원청년정보플랫폼](https://www.changwon.go.kr/youth/05085/05105/05105.web)"
+            )
+            st.caption("제4회 경남 AI·SW 경진대회 · 팀 오이소창원")
 
 
-# --- 내 정보 입력 --------------------------------------------------------------
+# --- 나의 조건 입력 --------------------------------------------------------------
 def render_profile_page():
     _back_home_button("profile")
-    st.subheader("내 정보 입력", anchor=False)
-    st.caption("맞춤 혜택과 정착 일정을 계산하는 데만 써요. 칸 옆 물음표(?)를 누르면 쉬운 설명이 나와요.")
+    st.subheader(CONDITION_LABEL, anchor=False)
+    st.caption(
+        "맞춤 혜택과 정착 일정을 계산하기 위한 조건만 받아요. 실명·연락처 등 개인정보는 받지 않고, "
+        "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸 옆 물음표(?)를 누르면 쉬운 설명이 나와요."
+    )
     with st.container(horizontal=True, wrap=True):
         st.button(
             f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
@@ -403,12 +487,12 @@ def render_profile_page():
 
     st.divider()
     if user_key:
-        st.success(f"{user_key}님, 입력을 마쳤다면 원하는 기능을 눌러 주세요.")
+        st.success(f"{user_key}님, 입력을 마쳤다면 아래 기능 4개 중 원하는 것을 눌러 주세요.")
     else:
         st.info("닉네임을 입력하면 아래 기능 버튼을 쓸 수 있어요.")
-    st.markdown("**무엇을 확인할까요?**")
-    with st.container(key="profile-features"):
-        _feature_buttons(show_profile_button=False)
+    st.markdown("**STEP 2 · 기능 4개 중 고르기**")
+    _feature_buttons()
+    _ai_banner()
 
 
 move_in_date = st.session_state["move_in_date"]
@@ -617,7 +701,7 @@ def render_policy_page():
             for field in p01["missing_fields"]
         ]
         st.caption("확인할 항목: " + ", ".join(missing_labels))
-    st.caption("조건을 바꾸려면 ‘내 정보 입력’에서 고쳐 주세요.")
+    st.caption("조건을 바꾸려면 ‘나의 조건 입력’에서 고쳐 주세요.")
     _next_feature_button(PAGE_JOURNEY, f"{BUTTON_2} →")
 
 
@@ -640,7 +724,7 @@ def render_journey_page():
     _feature_2_header(PAGE_JOURNEY)
     if move_in_date is None:
         st.subheader("창원 정착 일정")
-        st.info("정착 일정과 할 일을 만들려면 ‘내 정보 입력’에서 창원 전입일을 입력해 주세요.")
+        st.info("정착 일정과 할 일을 만들려면 ‘나의 조건 입력’에서 창원 전입일을 입력해 주세요.")
         return
     settlement_plan = build_settlement_plan(move_in_date)
 
