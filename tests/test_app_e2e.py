@@ -362,7 +362,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "창원 생활 정보 안내 및 일정 편성", "불편사항 행정 접수안내", "창원 지역말 번역"])
+                self.assertEqual([b.label for b in app.main.button], ["AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "창원 생활 정보 안내 및 일정 편성", "불편사항 행정 접수안내", "창원 지역말 번역", "예시 정보로 채우기 (코디2026)", "입력 지우기"])
                 self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "└ 정착 할 일 · 1~6개월 일정", "└ 창원 생활 정보 둘러보기", "불편사항 행정 접수안내", "창원 지역말 번역"])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))

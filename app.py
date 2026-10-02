@@ -111,11 +111,6 @@ h1, h2, h3 {color: #063465 !important;}
 [data-testid="stBaseButton-primary"]:active, [data-testid="stBaseButton-primaryFormSubmit"]:active {
     background-color: #FE6A01 !important; border-color: #FE6A01 !important;
 }
-/* PC: 첫 화면 기능 버튼을 왼쪽에 */
-@media (min-width: 641px) {
-    .st-key-home-layout [data-testid="stHorizontalBlock"] {flex-direction: row-reverse;}
-    .st-key-home-layout [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] {flex-direction: row;}
-}
 /* 모바일: 큰 제목·할 일 글씨를 한 줄에 가깝게 */
 @media (max-width: 640px) {
     h2 {font-size: 1.45rem !important;}
@@ -292,9 +287,9 @@ def render_profile_page():
     )
     st.divider()
 
-    # PC: 왼쪽 기능 버튼 · 오른쪽 내 정보 / 모바일: 내 정보 아래에 기능 버튼(한 줄에 하나)
+    # PC: 왼쪽 기능 버튼 · 오른쪽 내 정보 / 모바일: 기능 버튼(한 줄에 하나)이 내 정보 위에
     with st.container(key="home-layout"):
-        profile_column, feature_column = st.columns([2, 1], gap="large")
+        feature_column, profile_column = st.columns([1, 2], gap="large")
     with profile_column:
         with st.container(horizontal=True, wrap=True):
             st.button(
