@@ -63,6 +63,7 @@ def _visible_text(app):
 def _demo_app():
     # 시연 페르소나(코디2026)를 채운 상태에서 시작한다.
     app = AppTest.from_file(str(APP_FILE)).run()
+    app.button(key="show-profile").click().run()
     app.button(key="fill-demo").click().run()
     return app
 
@@ -91,6 +92,12 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 self.assertFalse(app.exception)
+                self.assertEqual(app.session_state["page"], "home")
+                self.assertIn("처음이신가요? 이렇게 사용해요", _visible_text(app))
+                self.assertEqual(len(app.get("image")), 1)
+                self.assertFalse(app.button(key="show-profile").disabled)
+                self.assertTrue(all(b.disabled for b in app.main.button if b.key and b.key.startswith("show-") and b.key != "show-profile"))
+                app.button(key="show-profile").click().run()
                 self.assertEqual(app.text_input[0].value, "")
                 self.assertIsNone(app.number_input[0].value)
                 self.assertIsNone(app.date_input[0].value)
@@ -98,11 +105,15 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertTrue(all(b.disabled for b in app.main.button if b.key and b.key.startswith("show-")))
                 self.assertIn("창원 전입일을 입력하면", "\n".join(c.value for c in app.sidebar.caption))
                 app.button(key="fill-demo").click().run()
+                self.assertEqual(app.text_input[0].value, "코디2026")
+                self.assertIn("코디2026님, 입력을 마쳤다면", _visible_text(app))
+                self.assertFalse(any(b.disabled for b in app.main.button if b.key and b.key.startswith("show-")))
+                app.button(key="go-home-profile").click().run()
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
                 self.assertFalse(any("🌱" in t.value for t in app.title))
                 self.assertIn("창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.", [m.value for m in app.markdown])
-                self.assertEqual(app.text_input[0].value, "코디2026")
+                self.assertEqual(app.button(key="show-profile").label, "내 정보 확인·수정")
         assets = APP_FILE.parent / "assets"
         for name in ("logo_wide.png", "logo_icon.png"):
             self.assertTrue((assets / name).is_file(), name)
@@ -135,7 +146,8 @@ class ApplicationE2ETests(unittest.TestCase):
                             if other_page != page:
                                 self.assertNotIn(other_marker, "\n".join(h.value for h in app.main.subheader))
                 app.button(key="go-home-dialect").click().run()
-                self.assertEqual(app.session_state["page"], "profile")
+                self.assertEqual(app.session_state["page"], "home")
+                _visit(app, "profile")
                 self.assertEqual(app.text_input[0].value, "화면 전환 사용자")
                 self.assertEqual(app.selectbox(key="home_district").value, "진해구")
                 self.assertEqual(app.text_input(key="neighborhood").value, "석동")
@@ -169,8 +181,9 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 self.assertIn(contact, [c.value for c in app.sidebar.caption])
                 self.assertIn(contact, [c.value for c in app.main.caption])
+                _visit(app, "profile")
                 app.button(key="fill-demo").click().run()
-                for page in ("policy", "journey", "explore", "profile"):
+                for page in ("policy", "journey", "explore", "profile", "home"):
                     with self.subTest(page=page):
                         _visit(app, page)
                         self.assertFalse(app.exception)
@@ -362,9 +375,9 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "창원 생활 정보 안내 및 일정 편성", "불편사항 행정 접수안내", "창원 지역말 번역", "예시 정보로 채우기 (코디2026)", "입력 지우기"])
-                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "└ 정착 할 일 · 1~6개월 일정", "└ 창원 생활 정보 둘러보기", "불편사항 행정 접수안내", "창원 지역말 번역"])
-                self.assertEqual(len(app.get("image")), 1)
+                self.assertEqual([b.label for b in app.main.button], ["← 처음으로", "예시 정보로 채우기 (코디2026)", "입력 지우기", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "창원 생활 정보 안내 및 일정 편성", "불편사항 행정 접수안내", "창원 지역말 번역"])
+                self.assertEqual([b.label for b in app.sidebar.button], ["처음 화면", "내 정보 입력", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "└ 정착 할 일 · 1~6개월 일정", "└ 창원 생활 정보 둘러보기", "불편사항 행정 접수안내", "창원 지역말 번역"])
+                self.assertEqual(len(app.get("image")), 0)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
                 self.assertEqual(len(app.expander), 0)
                 self.assertFalse(any("확인 결과" in h.value for h in app.subheader))
@@ -383,7 +396,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertNotIn("창원에서 해볼 것", _visible_text(app))
                 app.run()
                 self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
-                app.button(key="go-home-policy").click().run()
+                _visit(app, "profile")
                 app.number_input[1].set_value(0).run()
                 _visit(app, "policy")
                 self.assertIn("현재 조건으로는 신청 대상이 아니에요", _visible_text(app))

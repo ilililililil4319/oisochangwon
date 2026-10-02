@@ -493,6 +493,55 @@ def _run_openai(client, model, question, profile, steps, tool_outputs, extra_ins
     raise RuntimeError("도구 호출 횟수 초과")
 
 
+# --- 도구 호출 기능이 없는 API용: AI가 JSON으로 도구를 고르는 방식 -------------------
+PLAN_INSTRUCTION = """지금은 도구를 직접 호출할 수 없어. 아래 도구 중 질문에 답하는 데 필요한 것을 골라
+JSON 배열로만 답해(설명 문장 없이). 형식: [{"tool": "도구이름", "args": {...}}] · 최대 3개 · 필요 없으면 []
+도구 목록:
+""" + "\n".join(f"- {t['name']}: {t['description']} 인자: {json.dumps(t['input_schema'].get('properties', {}), ensure_ascii=False)}" for t in TOOLS)
+
+
+def _complete(client, provider, model, system, user):
+    if provider == "anthropic":
+        response = client.messages.create(model=model, max_tokens=1024, system=system,
+                                          messages=[{"role": "user", "content": user}])
+        return "".join(getattr(b, "text", "") for b in response.content if getattr(b, "type", "") == "text").strip()
+    response = client.chat.completions.create(model=model, messages=[{"role": "system", "content": system},
+                                                                     {"role": "user", "content": user}])
+    return (response.choices[0].message.content or "").strip()
+
+
+def _parse_plan(text):
+    match = re.search(r"\[.*\]", text or "", re.S)
+    if not match:
+        return []
+    try:
+        plan = json.loads(match.group(0))
+    except ValueError:
+        return []
+    names = {t["name"] for t in TOOLS}
+    return [p for p in plan if isinstance(p, dict) and p.get("tool") in names][:3]
+
+
+def _run_plan_mode(client, provider, model, question, profile, steps, tool_outputs, extra_instruction=""):
+    plan_text = _complete(client, provider, model, SYSTEM_PROMPT + "\n\n" + PLAN_INSTRUCTION, question)
+    plan = _parse_plan(plan_text)
+    _step(steps, "계획(도구 선택)", ", ".join(p["tool"] for p in plan) or "도구 없이 답하기로 판단")
+    results = []
+    for item in plan:
+        args = item.get("args") if isinstance(item.get("args"), dict) else {}
+        output = run_tool(item["tool"], args, profile)
+        tool_outputs.append(output)
+        results.append({"tool": item["tool"], "args": args, "result": output})
+        _step(steps, "도구 호출", f"{item['tool']}({json.dumps(args, ensure_ascii=False)}) → {_summarize(output)}")
+    user = (f"질문: {question}\n\n도구 결과(팀 검증 DB):\n{json.dumps(results, ensure_ascii=False)}\n\n"
+            "위 도구 결과에 있는 내용으로만 규칙에 맞게 답해." + extra_instruction)
+    return _complete(client, provider, model, SYSTEM_PROMPT, user)
+
+
+# 키·권한·한도·연결 문제는 방식을 바꿔도 해결되지 않으므로 바로 규칙 기반으로 넘어간다.
+NO_RETRY_ERRORS = {"AuthenticationError", "PermissionDeniedError", "RateLimitError", "APIConnectionError", "APITimeoutError"}
+
+
 def make_client(provider, api_key, base_url=None):
     # base_url: 교육기관·프록시용 키처럼 기본 주소가 아닌 경우에만 Secrets의 LLM_BASE_URL로 지정
     options = {"api_key": api_key}
@@ -519,6 +568,19 @@ ERROR_HINTS = {
 }
 
 
+def _error_detail(error):
+    """서버가 돌려준 상태 코드와 오류 메시지(키 같은 비밀값은 가림)."""
+    status = getattr(error, "status_code", None)
+    message = getattr(error, "message", None) or str(error)
+    body = getattr(error, "body", None)
+    if isinstance(body, dict):
+        inner = body.get("error") if isinstance(body.get("error"), dict) else body
+        message = inner.get("message") or message
+    message = re.sub(r"(sk-[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+", r"\1…", str(message))
+    message = re.sub(r"\s+", " ", message).strip()[:220]
+    return f"상태 {status} · {message}" if status else message
+
+
 def run_agent(question, profile=None, provider=None, client=None, model=None):
     question = (question or "").strip()
     safe = safety_check(question)
@@ -533,7 +595,20 @@ def run_agent(question, profile=None, provider=None, client=None, model=None):
     _step(steps, "목표 인식", f"{MODEL_LABELS.get(model, model)}이(가) 질문을 이해하고 필요한 도구를 고름")
     tool_outputs = []
     try:
-        answer = runner(client, model, question, llm_profile, steps, tool_outputs)
+        try:
+            answer = runner(client, model, question, llm_profile, steps, tool_outputs)
+        except Exception as error:
+            name = type(error).__name__
+            if name in NO_RETRY_ERRORS:
+                raise
+            _step(steps, "도구 호출 방식 전환", f"{name} — {_error_detail(error) or '도구 호출 미지원'} → AI가 JSON으로 도구를 고르는 방식으로 다시 시도")
+            provider_name = provider
+
+            def runner(c, m, q, prof, st_, outs, extra_instruction=""):
+                return _run_plan_mode(c, provider_name, m, q, prof, st_, outs, extra_instruction)
+
+            tool_outputs.clear()
+            answer = runner(client, model, question, llm_profile, steps, tool_outputs)
         ok, unknown = verify_answer(answer, tool_outputs)
         if not ok:
             _step(steps, "답변 검증", f"도구 결과에 없는 값 {unknown} 발견 → 다시 작성 요청")
@@ -553,4 +628,7 @@ def run_agent(question, profile=None, provider=None, client=None, model=None):
     except Exception as error:  # API 키 오류·네트워크·한도 초과 등
         name = type(error).__name__
         _step(steps, "AI 연결 오류", f"{name} — {ERROR_HINTS.get(name, '원인 확인 필요')}")
+        detail = _error_detail(error)
+        if detail:
+            _step(steps, "오류 상세", detail)
         return rule_based_answer(question, profile, steps, reason="AI 연결 오류")

@@ -76,7 +76,8 @@ DEFAULT_NICKNAME = "코디2026"
 # Native heading and caption roles share one small typography layer.
 READABILITY_CSS = """
 <style>
-[data-testid="stMainBlockContainer"] {max-width: 48rem;}
+[data-testid="stMainBlockContainer"] {max-width: 74rem; padding-left: 2.5rem; padding-right: 2.5rem;}
+@media (max-width: 640px) {[data-testid="stMainBlockContainer"] {padding-left: 1rem; padding-right: 1rem;}}
 [data-testid="stText"], [data-testid="stMarkdownContainer"] p {
     line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap;
 }
@@ -107,6 +108,11 @@ h1, h2, h3 {color: #063465 !important;}
 }
 [data-testid="stExpander"] summary:hover p {color: #FE6A01;}
 }
+/* 잠긴(비활성) 버튼은 흐리게 */
+[data-testid="stBaseButton-primary"]:disabled {
+    background-color: #C9D3E0 !important; border-color: #C9D3E0 !important; color: #FFFFFF !important; cursor: not-allowed;
+}
+[data-testid="stBaseButton-secondary"]:disabled {color: #A9B4C2 !important; border-color: #D5DDE7 !important;}
 /* 터치 화면: 누르는 순간만 주황 */
 [data-testid="stBaseButton-primary"]:active, [data-testid="stBaseButton-primaryFormSubmit"]:active {
     background-color: #FE6A01 !important; border-color: #FE6A01 !important;
@@ -152,6 +158,7 @@ def _sync_activity_district():
 
 # --- 화면(page) 구성 -------------------------------------------------------
 # 한 번에 한 화면만 그린다. 화면 이동은 버튼의 on_click 콜백이 page 값을 바꾼다.
+PAGE_HOME = "home"
 PAGE_PROFILE = "profile"
 PAGE_POLICY = "policy"
 PAGE_JOURNEY = "journey"
@@ -170,7 +177,8 @@ BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4 = (name[2:] for name in (FEATURE_1, FEATU
 FEATURE_2_TABS = {PAGE_JOURNEY: "정착 할 일 · 1~6개월 일정", PAGE_EXPLORE: "창원 생활 정보 둘러보기"}
 # 사이드바 메뉴: (page, 버튼 이름)
 PAGE_LABELS = {
-    PAGE_PROFILE: "내 정보",
+    PAGE_HOME: "처음 화면",
+    PAGE_PROFILE: "내 정보 입력",
     PAGE_ASK: ASK_LABEL,
     PAGE_POLICY: BUTTON_1,
     PAGE_JOURNEY: "└ " + FEATURE_2_TABS[PAGE_JOURNEY],
@@ -240,7 +248,7 @@ def _back_home_button(position):
         "← 처음으로",
         key=f"go-home-{position}",
         on_click=_go,
-        args=(PAGE_PROFILE,),
+        args=(PAGE_HOME,),
     )
 
 
@@ -258,18 +266,18 @@ def _next_feature_button(target_page, label):
 st.set_page_config(
     page_title="오이소창원",
     page_icon=str(LOGO_ICON_PATH),
-    layout="centered",
+    layout="wide",
 )
 
 st.html(READABILITY_CSS)
 
 _keep_widget_values()
-st.session_state.setdefault("page", PAGE_PROFILE)
+st.session_state.setdefault("page", PAGE_HOME)
 
 nickname = st.session_state["nickname"]
 user_key = nickname.strip()
-if not user_key:
-    st.session_state["page"] = PAGE_PROFILE
+if not user_key and st.session_state["page"] not in (PAGE_HOME, PAGE_PROFILE):
+    st.session_state["page"] = PAGE_HOME
 page = st.session_state["page"]
 
 saved_mission_states = load_mission_states(user_key) if user_key else {}
@@ -277,83 +285,130 @@ saved_mission_notes = load_mission_notes(user_key) if user_key else {}
 saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 
 
-# --- ① 내 정보(첫 화면) -----------------------------------------------------
-def render_profile_page():
+# --- 처음 화면: 사용 방법 + 기능 버튼 ------------------------------------------
+HOW_TO_STEPS = (
+    ("내 정보 입력하기", "닉네임·나이·창원 전입일 등을 적어요. 실명·연락처는 받지 않아요."),
+    ("기능 고르기", "받을 수 있는 혜택, 1~6개월 정착 할 일, 창원 생활 정보, 불편 접수 창구, 지역말 뜻을 확인해요."),
+    ("AI 코디에게 물어보기", "궁금한 것을 한 문장으로 물으면 팀이 검증한 자료로 답해 드려요."),
+)
+
+
+def _feature_buttons(show_profile_button):
+    if show_profile_button:
+        st.button(
+            "내 정보 입력하기" if not user_key else "내 정보 확인·수정",
+            key="show-profile",
+            type="secondary" if user_key else "primary",
+            on_click=_go,
+            args=(PAGE_PROFILE,),
+            width="stretch",
+        )
+    for target_page, label, key in FEATURE_BUTTONS:
+        st.button(
+            label,
+            key=key,
+            type="primary",
+            disabled=not user_key,
+            on_click=_go,
+            args=(target_page,),
+            width="stretch",
+        )
+
+
+def render_home_page():
     st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
     with st.container(key="slogan"):
         st.subheader(SLOGAN, anchor=False)
     st.write(
         "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
     )
+    st.info("처음이라면 이렇게: **내 정보 입력하기** → **기능 고르기** → 궁금한 건 **AI 코디에게 물어보기**")
     st.divider()
-
-    # PC: 왼쪽 기능 버튼 · 오른쪽 내 정보 / 모바일: 기능 버튼(한 줄에 하나)이 내 정보 위에
+    # PC: 왼쪽 기능 버튼 · 오른쪽 자세한 사용 방법 / 모바일: 기능 버튼이 위
     with st.container(key="home-layout"):
-        feature_column, profile_column = st.columns([1, 2], gap="large")
-    with profile_column:
-        with st.container(horizontal=True, wrap=True):
-            st.button(
-                f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
-                key="fill-demo",
-                on_click=_fill_profile,
-                args=(DEMO_PROFILE,),
-            )
-            st.button(
-                "입력 지우기",
-                key="clear-profile",
-                on_click=_fill_profile,
-                args=(PROFILE_DEFAULTS,),
-            )
-        st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20)
-        st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이")
-        st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD")
-        st.selectbox(
-            "사는 지역",
-            [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
-            key="home_district",
-            on_change=_sync_activity_district,
-        )
-        st.text_input(
-            "동네 (선택)",
-            placeholder="예: 상남동",
-            max_chars=40,
-            key="neighborhood",
-        )
-        st.number_input(
-            "창원 전입 전 타지역 거주기간(년)",
-            min_value=0,
-            max_value=50,
-            key="previous_residence_years",
-            placeholder="예: 2",
-        )
-        st.radio(
-            "창원 소재 사업장 재직 여부",
-            EMPLOYMENT_OPTIONS,
-            key="employment_status",
-            horizontal=True,
-        )
-        st.radio(
-            "차량 소지 여부",
-            VEHICLE_OPTIONS,
-            key="vehicle",
-            horizontal=True,
-            help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
-        )
-
-    with feature_column:
+        button_column, guide_column = st.columns([2, 3], gap="large")
+    with guide_column:
+        st.markdown("**처음이신가요? 이렇게 사용해요**")
+        for number, (title, text) in enumerate(HOW_TO_STEPS, start=1):
+            with st.container(border=True, key=f"how-to-{number}"):
+                st.markdown(f"**{number}. {title}**")
+                st.caption(text)
+        st.caption("먼저 둘러보고 싶다면 ‘내 정보 입력하기’에서 ‘예시 정보로 채우기’를 눌러 보세요.")
+    with button_column:
         st.markdown("**무엇을 확인할까요?**")
-        for target_page, label, key in FEATURE_BUTTONS:
-            st.button(
-                label,
-                key=key,
-                type="primary",
-                disabled=not user_key,
-                on_click=_go,
-                args=(target_page,),
-                width="stretch",
-            )
+        _feature_buttons(show_profile_button=True)
         if not user_key:
-            st.info("닉네임을 입력하면 기능 버튼을 쓸 수 있어요. 시연할 때는 ‘예시 정보로 채우기’를 눌러 주세요.")
+            st.info("먼저 ‘내 정보 입력하기’를 눌러 닉네임을 적으면 기능 버튼을 쓸 수 있어요.")
+
+
+# --- 내 정보 입력 --------------------------------------------------------------
+def render_profile_page():
+    _back_home_button("profile")
+    st.subheader("내 정보 입력", anchor=False)
+    st.caption("맞춤 혜택과 정착 일정을 계산하는 데만 써요. 칸 옆 물음표(?)를 누르면 쉬운 설명이 나와요.")
+    with st.container(horizontal=True, wrap=True):
+        st.button(
+            f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
+            key="fill-demo",
+            on_click=_fill_profile,
+            args=(DEMO_PROFILE,),
+        )
+        st.button(
+            "입력 지우기",
+            key="clear-profile",
+            on_click=_fill_profile,
+            args=(PROFILE_DEFAULTS,),
+        )
+    st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20,
+                  help="실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.")
+    st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이",
+                    help="만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.")
+    st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD",
+                  help="전입일 = 새 주소로 전입신고를 한 날. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.")
+    st.selectbox(
+        "사는 지역",
+        [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
+        key="home_district",
+        on_change=_sync_activity_district,
+        help="사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
+    )
+    st.text_input(
+        "동네 (선택)",
+        placeholder="예: 상남동",
+        max_chars=40,
+        key="neighborhood",
+    )
+    st.number_input(
+        "창원 전입 전 타지역 거주기간(년)",
+        min_value=0,
+        max_value=50,
+        key="previous_residence_years",
+        placeholder="예: 2",
+        help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
+    )
+    st.radio(
+        "창원 소재 사업장 재직 여부",
+        EMPLOYMENT_OPTIONS,
+        key="employment_status",
+        horizontal=True,
+        help="창원에 있는 회사·가게에서 일하고 있는지예요. 근로자 대상 혜택을 판단할 때 써요.",
+    )
+    st.radio(
+        "차량 소지 여부",
+        VEHICLE_OPTIONS,
+        key="vehicle",
+        horizontal=True,
+        help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
+    )
+
+    st.divider()
+    if user_key:
+        st.success(f"{user_key}님, 입력을 마쳤다면 원하는 기능을 눌러 주세요.")
+    else:
+        st.info("닉네임을 입력하면 아래 기능 버튼을 쓸 수 있어요.")
+    st.markdown("**무엇을 확인할까요?**")
+    with st.container(key="profile-features"):
+        _feature_buttons(show_profile_button=False)
 
 
 move_in_date = st.session_state["move_in_date"]
@@ -395,7 +450,7 @@ with st.sidebar:
             label,
             key=f"nav-{target_page}",
             type="primary" if page == target_page else "secondary",
-            disabled=target_page != PAGE_PROFILE and not user_key,
+            disabled=target_page not in (PAGE_HOME, PAGE_PROFILE) and not user_key,
             on_click=_go,
             args=(target_page,),
             width="stretch",
@@ -562,7 +617,7 @@ def render_policy_page():
             for field in p01["missing_fields"]
         ]
         st.caption("확인할 항목: " + ", ".join(missing_labels))
-    st.caption("조건을 바꾸려면 ‘← 처음으로’에서 내 정보를 고쳐 주세요.")
+    st.caption("조건을 바꾸려면 ‘내 정보 입력’에서 고쳐 주세요.")
     _next_feature_button(PAGE_JOURNEY, f"{BUTTON_2} →")
 
 
@@ -585,7 +640,7 @@ def render_journey_page():
     _feature_2_header(PAGE_JOURNEY)
     if move_in_date is None:
         st.subheader("창원 정착 일정")
-        st.info("정착 일정과 할 일을 만들려면 ‘← 처음으로’에서 창원 전입일을 입력해 주세요.")
+        st.info("정착 일정과 할 일을 만들려면 ‘내 정보 입력’에서 창원 전입일을 입력해 주세요.")
         return
     settlement_plan = build_settlement_plan(move_in_date)
 
@@ -1072,12 +1127,13 @@ PAGE_RENDERERS = {
     PAGE_COMPLAINT: render_complaint_page,
     PAGE_DIALECT: render_dialect_page,
     PAGE_ASK: render_ask_page,
+    PAGE_HOME: render_home_page,
     PAGE_PROFILE: render_profile_page,
     PAGE_POLICY: render_policy_page,
     PAGE_JOURNEY: render_journey_page,
     PAGE_EXPLORE: render_explore_page,
 }
-PAGE_RENDERERS.get(page, render_profile_page)()
+PAGE_RENDERERS.get(page, render_home_page)()
 
 st.divider()
 st.caption(CONTACT_TEXT)
