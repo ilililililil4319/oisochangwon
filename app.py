@@ -54,6 +54,7 @@ HOME_DISTRICTS = ["의창구", "성산구", "마산합포구", "마산회원구"
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
 LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
+LOGO_WIDTH = 560  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
 SLOGAN = "창원에서 너의 내일을 응원해!"
 DEFAULT_NICKNAME = "코디2026"
 
@@ -120,14 +121,26 @@ FEATURE_BUTTONS = (
     (PAGE_EXPLORE, "창원 둘러보기", "show-explore"),
 )
 DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
+EMPLOYMENT_OPTIONS = ("재직 중", "재직 중 아님")
+# 실사용자 테스트용: 처음 화면은 빈 칸으로 시작한다.
 PROFILE_DEFAULTS = {
+    "nickname": "",
+    "age": None,
+    "move_in_date": None,
+    "home_district": DISTRICT_PLACEHOLDER,
+    "neighborhood": "",
+    "previous_residence_years": None,
+    "employment_status": None,
+}
+# 시연·팀 검수용 페르소나(코디2026) — 버튼을 눌렀을 때만 채운다.
+DEMO_PROFILE = {
     "nickname": DEFAULT_NICKNAME,
     "age": 28,
     "move_in_date": date(2026, 9, 20),
     "home_district": DISTRICT_PLACEHOLDER,
     "neighborhood": "",
     "previous_residence_years": 2,
-    "employed_in_changwon": True,
+    "employment_status": EMPLOYMENT_OPTIONS[0],
 }
 # 화면에 그려지지 않은 위젯 값도 지워지지 않게 지켜 둘 키
 PERSISTENT_KEYS = ("activity_district", "activity_category", "activity_selection")
@@ -136,6 +149,12 @@ PERSISTENT_PREFIXES = ("mission-progress:", "mission-note:")
 
 def _go(page):
     st.session_state["page"] = page
+
+
+def _fill_profile(values):
+    for key, value in values.items():
+        st.session_state[key] = value
+    _sync_activity_district()
 
 
 def _keep_widget_values():
@@ -191,16 +210,29 @@ saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 
 # --- ① 내 정보(첫 화면) -----------------------------------------------------
 def render_profile_page():
-    st.image(str(LOGO_WIDE_PATH), width=360)
+    st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
     st.subheader(SLOGAN, anchor=False)
     st.write(
         "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
     )
     st.divider()
 
-    st.text_input("닉네임", key="nickname")
-    st.number_input("나이", min_value=19, max_value=100, key="age")
-    st.date_input("창원 전입일", key="move_in_date")
+    with st.container(horizontal=True, wrap=True):
+        st.button(
+            f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
+            key="fill-demo",
+            on_click=_fill_profile,
+            args=(DEMO_PROFILE,),
+        )
+        st.button(
+            "입력 지우기",
+            key="clear-profile",
+            on_click=_fill_profile,
+            args=(PROFILE_DEFAULTS,),
+        )
+    st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20)
+    st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이")
+    st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD")
     st.selectbox(
         "사는 지역",
         [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
@@ -218,10 +250,13 @@ def render_profile_page():
         min_value=0,
         max_value=50,
         key="previous_residence_years",
+        placeholder="예: 2",
     )
-    st.checkbox(
-        "현재 창원 소재 사업장에 재직 중입니다.",
-        key="employed_in_changwon",
+    st.radio(
+        "창원 소재 사업장 재직 여부",
+        EMPLOYMENT_OPTIONS,
+        key="employment_status",
+        horizontal=True,
     )
 
     st.divider()
@@ -237,7 +272,7 @@ def render_profile_page():
                 args=(target_page,),
             )
     if not user_key:
-        st.info("할 일 진행 상황을 이어 보려면 닉네임을 입력해 주세요.")
+        st.info("닉네임을 입력하면 아래 기능을 쓸 수 있어요. 시연할 때는 ‘예시 정보로 채우기’를 눌러 주세요.")
 
 
 move_in_date = st.session_state["move_in_date"]
@@ -250,7 +285,7 @@ neighborhood = st.session_state["neighborhood"] or ""
 
 all_missions = load_missions()
 mission_groups = group_missions_by_month(all_missions)
-current_month = current_settlement_month(move_in_date)
+current_month = current_settlement_month(move_in_date) if move_in_date else None
 completion_states = {
     mission["ID"]: st.session_state.get(
         f"mission-progress:{user_key}:{mission['ID']}",
@@ -258,13 +293,14 @@ completion_states = {
     )
     for mission in all_missions
 }
-progress_summary = calculate_mission_progress(
-    all_missions,
-    completion_states,
-    current_month,
+progress_summary = (
+    calculate_mission_progress(all_missions, completion_states, current_month)
+    if current_month
+    else None
 )
 current_group = next(
-    group for group in mission_groups if group["month"] == current_month
+    (group for group in mission_groups if group["month"] == current_month),
+    None,
 )
 
 
@@ -290,26 +326,29 @@ with st.sidebar:
             if neighborhood.strip()
             else home_district
         )
-    st.write(f"지금은 창원 생활 {current_month}개월 차예요.")
-    st.caption(current_group["theme"])
-    st.write(
-        f"현재 단계: {progress_summary['stage_completed']} / "
-        f"{progress_summary['stage_total']} 완료"
-    )
-    st.progress(
-        progress_summary["stage_completed"] / progress_summary["stage_total"]
-        if progress_summary["stage_total"]
-        else 0.0
-    )
-    st.write(
-        f"전체 진행: {progress_summary['overall_completed']} / "
-        f"{progress_summary['overall_total']} 완료"
-    )
-    st.progress(
-        progress_summary["overall_completed"] / progress_summary["overall_total"]
-        if progress_summary["overall_total"]
-        else 0.0
-    )
+    if progress_summary is None:
+        st.caption("창원 전입일을 입력하면 정착 단계와 진행률을 보여 드려요.")
+    else:
+        st.write(f"지금은 창원 생활 {current_month}개월 차예요.")
+        st.caption(current_group["theme"])
+        st.write(
+            f"현재 단계: {progress_summary['stage_completed']} / "
+            f"{progress_summary['stage_total']} 완료"
+        )
+        st.progress(
+            progress_summary["stage_completed"] / progress_summary["stage_total"]
+            if progress_summary["stage_total"]
+            else 0.0
+        )
+        st.write(
+            f"전체 진행: {progress_summary['overall_completed']} / "
+            f"{progress_summary['overall_total']} 완료"
+        )
+        st.progress(
+            progress_summary["overall_completed"] / progress_summary["overall_total"]
+            if progress_summary["overall_total"]
+            else 0.0
+        )
     last_saved_at = (
         st.session_state.get("last_saved_at")
         if st.session_state.get("last_saved_nickname") == user_key
@@ -344,7 +383,11 @@ def render_policy_page():
         "home_district": home_district,
         "neighborhood": neighborhood.strip(),
         "previous_residence_years": st.session_state["previous_residence_years"],
-        "employed_in_changwon": st.session_state["employed_in_changwon"],
+        "employed_in_changwon": (
+            None
+            if st.session_state["employment_status"] is None
+            else st.session_state["employment_status"] == EMPLOYMENT_OPTIONS[0]
+        ),
     }
 
     result = evaluate_p01(profile)
@@ -392,6 +435,10 @@ def render_policy_page():
 # --- ③ 정착 할 일 ------------------------------------------------------------
 def render_journey_page():
     _back_home_button("journey")
+    if move_in_date is None:
+        st.subheader("창원 정착 일정")
+        st.info("정착 일정과 할 일을 만들려면 ‘← 처음으로’에서 창원 전입일을 입력해 주세요.")
+        return
     settlement_plan = build_settlement_plan(move_in_date)
 
     st.subheader("창원 정착 일정")

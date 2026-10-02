@@ -60,6 +60,13 @@ def _visible_text(app):
     return "\n".join(visible_values)
 
 
+def _demo_app():
+    # 시연 페르소나(코디2026)를 채운 상태에서 시작한다.
+    app = AppTest.from_file(str(APP_FILE)).run()
+    app.button(key="fill-demo").click().run()
+    return app
+
+
 def _visit(app, page):
     app.button(key=f"nav-{page}").click().run()
 
@@ -84,6 +91,13 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 self.assertFalse(app.exception)
+                self.assertEqual(app.text_input[0].value, "")
+                self.assertIsNone(app.number_input[0].value)
+                self.assertIsNone(app.date_input[0].value)
+                self.assertIsNone(app.radio(key="employment_status").value)
+                self.assertTrue(all(b.disabled for b in app.main.button if b.key and b.key.startswith("show-")))
+                self.assertIn("창원 전입일을 입력하면", "\n".join(c.value for c in app.sidebar.caption))
+                app.button(key="fill-demo").click().run()
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
                 self.assertFalse(any("🌱" in t.value for t in app.title))
@@ -96,7 +110,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_feature_pages_switch_one_at_a_time_and_keep_values(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.text_input[0].set_value("화면 전환 사용자").run()
                 app.selectbox(key="home_district").select("진해구").run()
                 app.text_input(key="neighborhood").set_value("석동").run()
@@ -129,7 +143,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_next_feature_buttons_and_empty_nickname_locks_menu(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.button(key="show-policy").click().run()
                 app.button(key="next-journey").click().run()
                 self.assertEqual(app.session_state["page"], "journey")
@@ -139,16 +153,34 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(app.session_state["page"], "policy")
                 _visit(app, "profile")
                 app.text_input[0].set_value("  ").run()
-                self.assertTrue(all(b.disabled for b in app.main.button))
+                self.assertTrue(all(b.disabled for b in app.main.button if b.key.startswith("show-")))
                 self.assertTrue(app.button(key="nav-journey").disabled)
                 self.assertFalse(app.button(key="nav-profile").disabled)
+
+    def test_clear_profile_and_journey_needs_move_in_date(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                app.button(key="clear-profile").click().run()
+                self.assertEqual(app.text_input[0].value, "")
+                self.assertIsNone(app.date_input[0].value)
+                app.text_input[0].set_value("새 사용자").run()
+                app.button(key="show-journey").click().run()
+                self.assertFalse(app.exception)
+                self.assertIn("창원 전입일을 입력해 주세요", _visible_text(app))
+                self.assertEqual(len(app.expander), 0)
+                _visit(app, "policy")
+                self.assertIn("정보를 조금 더 입력해 주세요", _visible_text(app))
+                _visit(app, "explore")
+                self.assertFalse(app.exception)
+                self.assertIn("창원에서 해볼 것", _visible_text(app))
 
     def test_typography_roles_and_literal_schedule_breaks(self):
         activity = dict(load_activities()[0])
         activity["일정·운영시간"] = "교육동 평일 10:00~20:00, 토 10:00~17:00 / 다목적동 하절기 09:00~20:00, 동절기 09:00~18:00"
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(activity_manager, "load_activities", return_value=[activity]):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 _visit(app, "policy")
                 self.assertFalse(app.exception)
                 self.assertIn("기업노동자 전입지원금", [h.value for h in app.header])
@@ -179,7 +211,7 @@ class ApplicationE2ETests(unittest.TestCase):
                         view.pop("introduction")
                     return view
                 with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(activity_manager, "activity_view", side_effect=convert):
-                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app = _demo_app()
                     app.button(key="show-explore").click().run()
                     app.selectbox(key="activity_selection").select("A40").run()
                     self.assertFalse(app.exception)
@@ -193,9 +225,9 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기", "창원 둘러보기"])
+                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기", "창원 둘러보기"])
                 self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "받을 수 있는 지원", "정착 할 일", "창원 둘러보기"])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
@@ -206,7 +238,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_policy_button_shows_only_policy_and_keeps_view_on_rerun(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.button(key="show-policy").click().run()
                 self.assertFalse(app.exception)
                 self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
@@ -225,7 +257,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_journey_button_shows_only_journey_and_preserves_drafts_with_policy(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.button(key="show-journey").click().run()
                 self.assertFalse(app.exception)
                 self.assertEqual(len(app.expander), 6)
@@ -248,7 +280,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_neutral_home_district_and_filter_sync_after_results(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 self.assertEqual(app.selectbox(key="home_district").value, "지역을 선택해 주세요")
                 _visit(app, "explore")
                 self.assertEqual(app.selectbox(key="activity_district").value, "창원 전체")
@@ -265,7 +297,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_resources_render_safely_and_failure_preserves_missions(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 _visit(app, "journey")
                 self.assertFalse(app.exception)
                 urls = [item.proto.url for item in app.get("link_button")]
@@ -281,7 +313,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 state_manager.save_mission_group("다른 사용자", {"M2-1": {"completed": True}})
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 _visit(app, "journey")
                 app.button(key="save-stage:코디2026:1").click().run()
                 self.assertEqual(app.session_state["last_saved_nickname"], "코디2026")
@@ -294,7 +326,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 rendered_text = "\n".join(
                     _page_text(app, page) for page in ("profile", "explore", "policy", "journey")
                 )
@@ -364,7 +396,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.number_input[1].set_value(0).run()
                 _visit(app, "policy")
 
@@ -390,7 +422,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 _visit(app, "explore")
                 app.selectbox(key="activity_district").select("성산구").run()
                 app.selectbox(key="activity_category").select("문화생활").run()
@@ -423,7 +455,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     "load_activities",
                     side_effect=ValueError("invalid data"),
                 ):
-                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app = _demo_app()
                     visible_text = _page_text(app, "explore")
                     visible_text += _page_text(app, "policy")
 
@@ -451,7 +483,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(
                     activity_manager, "activity_view", side_effect=stale_view
                 ), patch.object(activity_manager, "load_activities", return_value=[activity]):
-                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app = _demo_app()
                     app.button(key="show-explore").click().run()
                     self.assertFalse(app.exception)
                     link = next(x for x in app.get("link_button") if x.label == "네이버 지도에서 보기")
@@ -463,7 +495,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 _visit(app, "policy")
 
                 self.assertFalse(app.exception)
@@ -524,7 +556,7 @@ class ApplicationE2ETests(unittest.TestCase):
                             "load_activities",
                             return_value=[test_activity],
                         ):
-                            app = AppTest.from_file(str(APP_FILE)).run()
+                            app = _demo_app()
                             _visit(app, "explore")
 
                     self.assertFalse(app.exception)
@@ -558,7 +590,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     "load_activities",
                     return_value=[source_activity],
                 ):
-                    app = AppTest.from_file(str(APP_FILE)).run()
+                    app = _demo_app()
                     _visit(app, "explore")
 
             self.assertFalse(app.exception)
@@ -575,7 +607,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                first_session = AppTest.from_file(str(APP_FILE)).run()
+                first_session = _demo_app()
                 _visit(first_session, "journey")
                 first_session.checkbox(key="mission-progress:코디2026:M1-1").check().run()
                 first_session.button(key="save-stage:코디2026:1").click().run()
@@ -585,7 +617,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     load_mission_states("코디2026", database)["M1-1"]
                 )
 
-                restored_session = AppTest.from_file(str(APP_FILE)).run()
+                restored_session = _demo_app()
                 restored_session.button(key="show-journey").click().run()
                 self.assertFalse(restored_session.exception)
                 self.assertTrue(
@@ -617,7 +649,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.text_input[0].set_value("단계 확인 사용자").run()
                 app.selectbox(key="home_district").select("성산구").run()
                 app.text_input(key="neighborhood").set_value("상남동").run()
@@ -652,7 +684,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 for current_month in range(1, 7):
                     with self.subTest(current_month=current_month):
                         with patch.object(progress_manager, "current_settlement_month", return_value=current_month):
-                            app = AppTest.from_file(str(APP_FILE)).run()
+                            app = _demo_app()
                             _visit(app, "journey")
                         self.assertFalse(app.exception)
                         stages = list(app.expander)
@@ -668,7 +700,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.text_input[0].set_value(nickname).run()
                 app.date_input[0].set_value(date(2026, 8, 20)).run()
                 _visit(app, "journey")
@@ -685,7 +717,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.checkbox(key=f"mission-progress:{nickname}:M1-1").uncheck().run()
                 app.text_input(key=f"mission-note:{nickname}:M1-1").set_value("과거 기록 수정").run()
                 app.button(key=f"save-stage:{nickname}:1").click().run()
-                restored = AppTest.from_file(str(APP_FILE)).run()
+                restored = _demo_app()
                 restored.text_input[0].set_value(nickname).run()
                 restored.date_input[0].set_value(date(2026, 3, 20)).run()
                 restored.button(key="show-journey").click().run()
@@ -705,7 +737,7 @@ class ApplicationE2ETests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
             with patch.object(state_manager, "DB_PATH", database):
-                app = AppTest.from_file(str(APP_FILE)).run()
+                app = _demo_app()
                 app.text_input[0].set_value(nickname).run()
                 app.date_input[0].set_value(date(2026, 8, 20)).run()
                 _visit(app, "journey")
@@ -737,7 +769,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 )
 
             with patch.object(state_manager, "DB_PATH", database):
-                restored = AppTest.from_file(str(APP_FILE)).run()
+                restored = _demo_app()
                 restored.text_input[0].set_value(nickname).run()
                 restored.date_input[0].set_value(date(2026, 8, 20)).run()
                 restored.button(key="show-journey").click().run()
