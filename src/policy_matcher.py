@@ -17,7 +17,7 @@ from dateutil.relativedelta import relativedelta
 
 from policy_engine import evaluate_p01
 
-POLICIES_PATH = Path(__file__).resolve().parent / "data" / "policies_mvp.json"
+POLICIES_PATH = Path(__file__).resolve().parents[1] / "data" / "policies_mvp.json"
 YOUTH_PLATFORM_URL = "https://www.changwon.go.kr/youth/05085/05105/05105.web"
 LEVELS = ("해당 가능", "조건부 해당 가능", "직접 확인", "해당 없음")
 LEVEL_MESSAGES = {

@@ -6,7 +6,7 @@ from urllib.parse import urlencode, urlsplit
 from naver_map_links import build_naver_map_search_web_url, map_search_name, naver_map_web_url
 
 
-ACTIVITIES_PATH = Path(__file__).resolve().parent / "data" / "activities_mvp.json"
+ACTIVITIES_PATH = Path(__file__).resolve().parents[1] / "data" / "activities_mvp.json"
 _REQUIRED_FIELDS = (
     "ID",
     "이름",

@@ -7,6 +7,10 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 import os
 import re
+import sys
+
+# 개발 파일(모듈)은 src/ 폴더에 있다. 배포 시작 파일 app.py는 저장소 맨 위에 둔다.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
 from agent import DEFAULT_MODELS, MODEL_LABELS, make_client, run_agent
 from agent import _items as _agent_items

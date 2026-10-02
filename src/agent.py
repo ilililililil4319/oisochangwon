@@ -15,7 +15,7 @@ from pathlib import Path
 
 from dateutil.relativedelta import relativedelta
 
-DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 CALL_CENTER = "창원시 콜센터 1899-1111"
 YOUTH_PLATFORM_URL = "https://www.changwon.go.kr/youth/05085/05105/05105.web"
 DEFAULT_MODELS = {

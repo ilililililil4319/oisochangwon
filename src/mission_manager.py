@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 
-MISSIONS_PATH = Path(__file__).resolve().parent / "data" / "missions.json"
+MISSIONS_PATH = Path(__file__).resolve().parents[1] / "data" / "missions.json"
 _REQUIRED_FIELDS = (
     "ID",
     "개월",

@@ -8,22 +8,34 @@
 
 ## 폴더 구조
 
+```
+oiso_changwon/
+├─ app.py            배포 시작 파일(Streamlit) — 위치 변경 금지
+├─ src/              개발 파일(Agent·판정·일정·저장 모듈)
+├─ data/             팀 검증 데이터(JSON)
+├─ tests/            자동 테스트(unittest)
+├─ docs/             서류(기획안·자체 테스트·작업 과정 설명)
+├─ screenshots/      화면 캡처(자체 테스트·작업 과정)
+├─ handoff/          개발 인계 기록 — 대회 제출 전 GitHub에서 삭제(팀 PC에 별도 보관)
+├─ assets/           로고 이미지
+├─ .streamlit/       색 테마 설정
+└─ .devcontainer/    개발 컨테이너 설정
+```
+
 | 위치 | 내용 |
 |---|---|
-| `app.py` | Streamlit 화면(배포 시작 파일 — 위치 변경 금지) |
-| `agent.py` | AI Agent: 안전 확인 → LLM 도구 선택·호출 → 답변 검증 → 규칙 대체, 실행 기록 |
-| `policy_matcher.py` · `policy_engine.py` | 정책 24건 4단계 판정 · P01 결정론 판정 |
-| `settlement_engine.py` · `mission_manager.py` · `progress_manager.py` · `state_manager.py` | 정착 일정·미션·진행률·저장(SQLite) |
-| `activity_manager.py` · `naver_map_links.py` · `policy_resource_manager.py` | 지역활동·네이버 지도 링크·미션 공식 링크 검증 |
-| `data/` | 팀 검증 데이터(JSON): 정책 24 · 지역활동 60 · 미션 26 · 미션 링크 18 · 지역말 핵심 30 + 확장 2,223(`dialects_ext.json`, 국립국어원·경남방언사전 출처만) · 불편 접수 창구 6 · 시연 페르소나 |
-| `tests/` | 자동 테스트(unittest) |
-| `assets/` | 로고 이미지 |
-| `docs/기획안/` | 기획안 초안(10/1 PDF) · **최신 기획안(10/2 갱신, md·pdf)** · 그림(diagram_*.png) |
-| `docs/자체테스트/` | 대표 Test Case 6건 절차·결과(`자체테스트_TestCase.md`) · 캡처(`캡처_20261002/`) |
-| `docs/작업과정/` | 개발 과정 캡처 31장(수정 전·후 화면, 테스트 에러와 조치, 배포·공유 설정)과 설명(`작업과정_캡처_20261002.md`) |
-| `.devcontainer/` | 개발 컨테이너 설정(팀장) |
-| `.streamlit/config.toml` | 로고 색 테마(남색 #063465 · 주황 #FE6A01) |
-| `HANDOFF.md` | 개발 인계·변경 기록(기존 자산 / 8일 신규 개발 구분 근거) |
+| `app.py` | Streamlit 화면. 시작할 때 `src/`를 불러옴 |
+| `src/agent.py` | AI Agent: 안전 확인 → LLM 도구 선택·호출 → 답변 검증 → 규칙 대체, 실행 기록 |
+| `src/policy_matcher.py` · `src/policy_engine.py` | 정책 24건 4단계 판정 · 기업노동자 전입지원금 판정 |
+| `src/settlement_engine.py` · `src/mission_manager.py` · `src/progress_manager.py` · `src/state_manager.py` | 정착 일정·할 일·진행률·저장(SQLite) |
+| `src/activity_manager.py` · `src/naver_map_links.py` · `src/policy_resource_manager.py` | 생활 정보·네이버 지도 링크·할 일 공식 링크 검증 |
+| `data/` | 정책 24 · 생활 정보 60 · 할 일 26 · 할 일 링크 18 · 지역말 핵심 30 + 확장 2,223(`dialects_ext.json`, 국립국어원·경남방언사전 출처만) · 불편 접수 창구 6 · 시연 페르소나 |
+| `docs/기획안/` | 기획안 초안(10/1 PDF) · 최신 기획안(10/2 갱신, md·pdf) · 그림(diagram_*.png) |
+| `docs/자체테스트/` | 대표 Test Case 6건 절차·결과(`자체테스트_TestCase.md`) |
+| `docs/작업과정/` | 작업 과정 캡처 설명(`작업과정_캡처_20261002.md`) |
+| `screenshots/self_test_20261002/` | 자체 테스트 캡처 26장(PC·모바일) |
+| `screenshots/process_20261002/` | 작업 과정 캡처 31장(수정 전·후, 에러와 조치, 배포·공유) |
+| `handoff/` | 개발 인계·변경 기록(`HANDOFF.md`), 작업지시 인계서 — **제출 전 삭제** |
 
 ## AI 모델 연결(API 키)
 

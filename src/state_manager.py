@@ -5,7 +5,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 
-DB_PATH = Path(__file__).resolve().parent / "storage" / "progress.sqlite3"
+DB_PATH = Path(__file__).resolve().parents[1] / "storage" / "progress.sqlite3"
 KOREA_TIMEZONE = ZoneInfo("Asia/Seoul")
 
 

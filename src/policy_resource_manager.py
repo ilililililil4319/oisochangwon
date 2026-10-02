@@ -8,7 +8,7 @@ import activity_manager
 
 
 POLICY_RESOURCES_PATH = (
-    Path(__file__).resolve().parent / "data" / "mission_resources.json"
+    Path(__file__).resolve().parents[1] / "data" / "mission_resources.json"
 )
 OFFICIAL_POLICY_HOSTS = frozenset(
     {
