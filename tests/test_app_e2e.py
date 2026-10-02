@@ -157,6 +157,21 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertTrue(app.button(key="nav-journey").disabled)
                 self.assertFalse(app.button(key="nav-profile").disabled)
 
+    def test_contact_email_in_sidebar_and_footer_on_every_page(self):
+        contact = "앱 문의: [connect9114@gmail.com](mailto:connect9114@gmail.com)"
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                self.assertIn(contact, [c.value for c in app.sidebar.caption])
+                self.assertIn(contact, [c.value for c in app.main.caption])
+                app.button(key="fill-demo").click().run()
+                for page in ("policy", "journey", "explore", "profile"):
+                    with self.subTest(page=page):
+                        _visit(app, page)
+                        self.assertFalse(app.exception)
+                        self.assertEqual([c.value for c in app.main.caption][-1], contact)
+                        self.assertIn(contact, [c.value for c in app.sidebar.caption])
+
     def test_clear_profile_and_journey_needs_move_in_date(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):

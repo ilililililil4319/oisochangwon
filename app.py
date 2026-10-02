@@ -56,6 +56,8 @@ LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
 LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
 LOGO_WIDTH = 560  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
 SLOGAN = "창원에서 너의 내일을 응원해!"
+CONTACT_EMAIL = "connect9114@gmail.com"
+CONTACT_TEXT = f"앱 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})"
 DEFAULT_NICKNAME = "코디2026"
 
 
@@ -371,6 +373,8 @@ with st.sidebar:
         formatted_saved_at = format_korea_timestamp(last_saved_at)
         if formatted_saved_at:
             st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
+    st.divider()
+    st.caption(CONTACT_TEXT)
 
 
 # --- ② 받을 수 있는 지원 -----------------------------------------------------
@@ -674,6 +678,9 @@ PAGE_RENDERERS = {
     PAGE_EXPLORE: render_explore_page,
 }
 PAGE_RENDERERS.get(page, render_profile_page)()
+
+st.divider()
+st.caption(CONTACT_TEXT)
 
 
 def _scroll_to_top_on_page_change():
