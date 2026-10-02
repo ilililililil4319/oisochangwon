@@ -259,7 +259,9 @@ FEATURE_BUTTONS = (
     (PAGE_DIALECT, BUTTON_4, "show-dialect"),
 )
 DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
-EMPLOYMENT_OPTIONS = ("재직 중", "재직 중 아님")
+# 창원에서 하는 일 — 직장인·자영업은 창원 기업노동자 전입지원금(소상공인 사업장 포함) 판단에 쓰인다.
+EMPLOYMENT_OPTIONS = ("직장인", "자영업", "학생", "기타")
+WORKING_OPTIONS = ("직장인", "자영업")
 VEHICLE_OPTIONS = ("없음", "있음")
 VEHICLE_SUMMARY = {"없음": "차량 없음 · 대중교통·자전거로 이동", "있음": "차량 있음"}
 # 실사용자 테스트용: 처음 화면은 빈 칸으로 시작한다.
@@ -440,13 +442,19 @@ HOME_FEATURES = (
 )
 FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
 AGENT_FLOW = (
-    ("내 조건", "나이·전입일·재직·차량"),
+    ("내 조건", "나이·전입일·하는 일·차량"),
     ("조건 비교 · AI 판단", "정책 23건 규칙 비교, 질문은 AI 코디가 이해"),
     ("검증 자료 확인", "팀이 확인한 공식 자료만 사용"),
     ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구"),
     ("다음 할 일 저장", "체크하면 닉네임 기준으로 기록"),
 )
-EXAMPLE_CHECKS = (("✓", "새 주소로 전입신고 하기"), ("○", "무차량 교통 혜택 K-패스 확인"), ("○", "이번 주말 창원 둘러보기"))
+# 예시 카드: 창원·경남에서만 주는 혜택을 먼저, 그다음 청년이 많이 찾는 지원 (모두 data/policies_mvp.json에 있는 사업)
+EXAMPLE_CHECKS = (
+    ("✓", "새 주소로 전입신고 하기"),
+    ("○", "창원 기업노동자 전입지원금 확인"),
+    ("○", "창원시 청년월세 지원 알림 받기"),
+    ("○", "K-패스 대중교통비 환급 신청"),
+)
 
 
 def _start_demo():
@@ -645,11 +653,12 @@ def render_profile_page():
                 help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
             )
             st.radio(
-                "창원 소재 사업장 재직 여부",
+                "지금 하는 일 (창원 기준)",
                 EMPLOYMENT_OPTIONS,
                 key="employment_status",
                 horizontal=True,
-                help="창원에 있는 회사·가게에서 일하고 있는지예요. 근로자 대상 혜택을 판단할 때 써요.",
+                help="직장인·자영업 = 창원에 있는 회사·가게에서 일해요(기업노동자 전입지원금 등). "
+                "학생 = 대학·대학원 재학. 기타 = 구직 중·쉬는 중 등. 하는 일에 따라 받을 수 있는 혜택이 달라져요.",
             )
             st.radio(
                 "차량 소지 여부",
@@ -699,10 +708,11 @@ def _current_profile():
         "home_district": home_district,
         "neighborhood": neighborhood.strip(),
         "previous_residence_years": st.session_state["previous_residence_years"],
+        "job_type": st.session_state["employment_status"],
         "employed_in_changwon": (
             None
             if st.session_state["employment_status"] is None
-            else st.session_state["employment_status"] == EMPLOYMENT_OPTIONS[0]
+            else st.session_state["employment_status"] in WORKING_OPTIONS
         ),
         "vehicle": st.session_state["vehicle"],
     }

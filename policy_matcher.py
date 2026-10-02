@@ -149,7 +149,14 @@ def evaluate_policy(policy, profile, today=None):
     # 2) 취업 상태
     job_text = _text(policy.get("취업 상태"))
     rule = _employment_rule(job_text)
-    if rule:
+    job_type = profile.get("job_type")
+    if rule == "employed" and job_type == "자영업":
+        # 자영업은 '재직·근로' 대상 사업마다 인정 여부가 달라 기관 확인이 필요
+        unknown.append(f"취업 상태({job_text}) — 자영업 인정 여부")
+    elif rule == "unemployed" and job_type == "학생":
+        reasons.append(f"취업 조건({job_text}) — 재학생은 제외될 수 있어요")
+        unknown.append("재학생 참여 가능 여부")
+    elif rule:
         if employed is None:
             unknown.append(f"취업 상태({job_text})")
         elif rule == "unemployed" and employed:

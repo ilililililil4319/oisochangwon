@@ -145,7 +145,6 @@ def search_policies(keyword=""):
                 "지원 내용": _clean_text(p.get("지원 내용")),
                 "신청 방법": _clean_text(p.get("신청 방법")),
                 "상태": _clean_text(p.get("상태(9/30 기준)")),
-                "대표 사용자(코디2026) 해당": _clean_text(p.get("대표 사용자 해당")),
                 "신청 연계 안내": _clean_text(p.get("신청 연계 안내")),
                 "링크": p.get("link") or _clean_url(p.get("창원청년정보플랫폼 링크")) or _clean_url(p.get("공식 URL (원문 직접 확인)")),
                 "최종 확인일": p.get("최종 확인일"),
@@ -234,7 +233,8 @@ def get_my_situation(profile):
         "전입일": move_in_date.isoformat() if isinstance(move_in_date, date) else None,
         "사는 구": profile.get("home_district"),
         "전입 전 타지역 거주기간(년)": profile.get("previous_residence_years"),
-        "창원 사업장 재직": profile.get("employed_in_changwon"),
+        "하는 일": profile.get("job_type"),
+        "창원 사업장 재직(직장인·자영업)": profile.get("employed_in_changwon"),
         "차량": profile.get("vehicle"),
     }
     p01 = evaluate_p01(profile)
