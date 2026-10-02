@@ -15,14 +15,14 @@ class MissionManagerTests(unittest.TestCase):
         self.assertEqual(len(missions), 26)
         self.assertEqual(len({mission["ID"] for mission in missions}), 26)
         self.assertEqual(missions[0]["ID"], "M1-1")
-        self.assertEqual(missions[-1]["ID"], "M6-4")
+        self.assertEqual(missions[-1]["ID"], "M6-5")
         self.assertEqual(
             [group["month"] for group in groups],
             [1, 2, 3, 4, 5, 6],
         )
         self.assertEqual(
             [len(group["missions"]) for group in groups],
-            [5, 4, 5, 4, 4, 4],
+            [5, 3, 5, 4, 4, 5],
         )
         self.assertEqual(
             Counter(mission["연결 기능"] for mission in missions),

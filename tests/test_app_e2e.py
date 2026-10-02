@@ -512,7 +512,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     "status",
                     "D+",
                     "M1-1",
-                    "M6-4",
+                    "M6-5",
                     "mission",
                     "Tool",
                     "app.py",
@@ -814,7 +814,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 )
                 self.assertIn("창원 생활 2개월 차", sidebar_text)
                 self.assertIn("성산구 · 상남동", sidebar_text)
-                self.assertIn("0 / 4 완료", sidebar_text)
+                self.assertIn("0 / 3 완료", sidebar_text)
                 self.assertIn("0 / 26 완료", sidebar_text)
 
                 _visit(app, "explore")

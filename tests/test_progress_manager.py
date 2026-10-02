@@ -55,7 +55,7 @@ class ProgressManagerTests(unittest.TestCase):
                 "overall_completed": 3,
                 "overall_total": 26,
                 "stage_completed": 2,
-                "stage_total": 4,
+                "stage_total": 3,
             },
         )
         self.assertEqual(month_three_progress["stage_total"], 5)

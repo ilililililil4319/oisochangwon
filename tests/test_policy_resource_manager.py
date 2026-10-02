@@ -13,11 +13,11 @@ class PolicyResourceManagerTests(unittest.TestCase):
         self.assertEqual(len(resources), 18)
         self.assertEqual(
             set(resources),
-            {"M1-2", "M1-3", "M1-4", "M2-1", "M2-2", "M2-3", "M3-1", "M3-2", "M3-3", "M3-4", "M4-1", "M4-2", "M4-3", "M5-1", "M5-2", "M5-3", "M6-1", "M6-2"},
+            {"M1-2", "M1-3", "M1-4", "M2-1", "M2-2", "M3-1", "M3-2", "M3-3", "M3-4", "M4-1", "M4-2", "M4-3", "M5-1", "M5-2", "M5-3", "M6-1", "M6-2", "M6-4"},
         )
         self.assertEqual(resources["M6-1"]["details_status"], "verified")
-        self.assertEqual(resources["M2-3"]["details_status"], "unverified")
-        self.assertIsNone(resources["M2-3"]["verified_date"])
+        self.assertEqual(resources["M6-4"]["details_status"], "unverified")
+        self.assertIsNone(resources["M6-4"]["verified_date"])
 
     def test_rejects_unapproved_link_hosts(self):
         resource = load_mission_resources()["M6-1"]

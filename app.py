@@ -745,7 +745,7 @@ LEVEL_BOXES = {
 }
 # 지역말·불편 접수 미션 → ③·④ 화면 바로가기
 MISSION_FEATURE_PAGES = {
-    "M1-5": "dialect", "M2-4": "dialect", "M4-4": "dialect", "M6-3": "dialect",
+    "M1-5": "dialect", "M2-3": "dialect", "M4-4": "dialect", "M6-3": "dialect",
     "M5-4": "complaint",
 }
 POLICY_CARDS_SHOWN = 5
@@ -754,12 +754,12 @@ POLICY_NAMES = {p["ID"]: p["사업명"] for p in load_policies()}
 MISSION_POLICY_IDS = {
     "M1-2": (),
     "M1-3": ("P21",),
-    "M2-3": ("P06",),
     "M4-1": ("P20",),
     "M4-2": ("P19", "P11"),
     "M4-3": ("P09",),
     "M6-1": ("P01",),
     "M6-2": ("P03", "P04", "P05"),
+    "M6-4": ("P06",),
 }
 
 
