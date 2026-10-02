@@ -144,7 +144,7 @@ class LLMLoopTests(unittest.TestCase):
         self.assertEqual(result.mode, "rule")
         self.assertTrue(any(s["단계"] == "AI 연결 오류" for s in result.steps))
 
-    def test_codyssey_base_url_sends_anthropic_messages_format(self):
+    def test_custom_base_url_sends_anthropic_messages_format(self):
         import json as _json
         import anthropic
         try:
@@ -161,11 +161,11 @@ class LLMLoopTests(unittest.TestCase):
                                              "content": [{"type": "text", "text": "안녕하세요"}], "stop_reason": "end_turn",
                                              "stop_sequence": None, "usage": {"input_tokens": 1, "output_tokens": 1}})
 
-        client = anthropic.Anthropic(api_key="vk-test", base_url="https://copa.codyssey.kr",
+        client = anthropic.Anthropic(api_key="vk-test", base_url="https://llm-proxy.example.com",
                                      http_client=httpx.Client(transport=httpx.MockTransport(handler)))
         result = agent.run_agent("안녕하세요", PROFILE, provider="anthropic", client=client, model="claude-sonnet-4")
         self.assertEqual(result.mode, "llm")
-        self.assertEqual(seen["url"], "https://copa.codyssey.kr/v1/messages")
+        self.assertEqual(seen["url"], "https://llm-proxy.example.com/v1/messages")
         self.assertEqual(seen["key"], "vk-test")
         self.assertEqual(seen["version"], "2023-06-01")
         self.assertEqual(seen["body"]["model"], "claude-sonnet-4")

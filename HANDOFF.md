@@ -248,8 +248,8 @@ python -m unittest discover -s tests -v
 - 테스트 1개 추가, 전체 93개 통과. Chrome PC·모바일 오류 0건.
 
 ## 2026-10-02 결정 — LLM API 키 사용 방침
-- 코디세이 API 키는 교육용이라 **대회 제출용으로 사용 불가**. 제작·테스트 기간에만 사용하고, **제출 직전 개인 Anthropic API 키로 교체**(Streamlit Cloud → 앱 Settings → Secrets의 `ANTHROPIC_API_KEY` 값만 바꾸고 Save. 코드 변경 없음). 교체 후 ‘AI 코디에게 물어보기’에서 “AI 연결됨” + 답변 1건 확인.
-- 개인 키는 Anthropic Console에서 월 사용 한도(spend limit)를 낮게 설정 권장. 대회 후 키 삭제.
+- AI 키는 **팀원 개인 계정 키**만 사용, Streamlit Cloud → 앱 Settings → Secrets에만 저장(코드·GitHub·단톡 금지). 교체 후 ‘AI 코디에게 물어보기’에서 “AI 연결됨” + 답변 1건 확인.
+- 개인 키는 제공사 콘솔에서 월 사용 한도를 낮게 설정 권장. 대회 후 키 삭제.
 - 작업 순서(10/2 결정): 최신 배포본 확인 → 테스트(대표 Test Case 5건, `docs/자체테스트_TestCase5.md`) → 수정 → GitHub 업로드 → PC 저장용 묶음. 최종 기획안 md·pdf는 개발·자체 테스트 완료 후 수정.
 
 ## 2026-10-02 (이혜경) 자체 테스트(로컬) · UX 수정 · 폴더 정리
@@ -269,12 +269,8 @@ python -m unittest discover -s tests -v
 - 테스트 95개 통과, 대표 Test Case 5건 PC·모바일 재실행 모두 통과.
 - (19:55) 모바일에서도 기능 버튼을 내 정보 **위**로(열 순서를 기능 버튼 → 내 정보로 바꿔 PC는 왼쪽, 모바일은 위). 진해 해안도로(행암~명동, A259)도 `차량 권장` 추가 → 차량 권장 총 8곳. 테스트 95개 통과.
 
-## 2026-10-02 20:10 코디세이(교육용) API 연결 방법 — 제작·테스트 기간 전용
-- 코디세이 API는 **Anthropic Messages 규격**(Public API Base URL `https://copa.codyssey.kr`). 앱은 Anthropic SDK를 쓰므로 코드 변경 없이 Streamlit Secrets만 설정:
-  - `ANTHROPIC_API_KEY = "코디세이 virtual key"` · `LLM_BASE_URL = "https://copa.codyssey.kr"` · `LLM_MODEL = "claude-sonnet-4"`(코디세이에서 쓸 수 있는 모델 이름)
-  - SDK가 `https://copa.codyssey.kr/v1/messages`로 `x-api-key`·`anthropic-version: 2023-06-01`·`max_tokens`·최상위 `system`을 보내는 것을 가짜 서버로 확인(테스트 `test_codyssey_base_url_sends_anthropic_messages_format`).
-- 이전 AuthenticationError 원인: 코디세이 키를 Anthropic 기본 주소(api.anthropic.com)로 보냄.
-- **제출 직전 개인 Anthropic 키로 교체 시**: `ANTHROPIC_API_KEY`를 개인 키로 바꾸고 `LLM_BASE_URL`·`LLM_MODEL` 두 줄은 **삭제**(기본값 api.anthropic.com · Claude Haiku 4.5 사용).
+## 2026-10-02 20:10 프록시·사용자 지정 주소 지원
+- Secrets `LLM_BASE_URL`(선택)로 API 주소를 바꿀 수 있음. SDK 요청 형식은 가짜 서버로 확인(테스트 `test_custom_base_url_sends_anthropic_messages_format`). 기본 주소를 쓰면 이 줄은 넣지 않음.
 - 카카오 미리보기: Streamlit 미리보기 화면은 이미 새 디자인으로 갱신됨(카카오 URL 메타 정보 조회로 확인). 설명 문구는 README 첫 문장에서 오므로 업로드 후 하루 이내 갱신 → 카카오 캐시 다시 초기화.
 
 ## 2026-10-02 20:40 (이혜경 요청) 넓은 화면 · 처음 화면/내 정보 분리 · 사용 안내
@@ -282,7 +278,7 @@ python -m unittest discover -s tests -v
 - **처음 화면(`home`)**: 로고·슬로건·소개 → 한 줄 사용 안내(내 정보 입력하기 → 기능 고르기 → AI 코디) → [PC 왼쪽 / 모바일 위] 기능 버튼(‘내 정보 입력하기’ + 5개 기능) · [PC 오른쪽 / 모바일 아래] ‘처음이신가요? 이렇게 사용해요’ 3단계 카드.
 - **내 정보 입력(`profile`)**은 별도 화면: 예시 정보 채우기·입력 지우기, 입력칸마다 물음표(?) 쉬운 설명, 맨 아래 “○○님, 입력을 마쳤다면 원하는 기능을 눌러 주세요” + 기능 버튼 5개(모바일에서도 입력 후 바로 기능으로 이동).
 - 닉네임 전에는 기능 버튼이 **흐린 회색으로 잠김**, ‘내 정보 입력하기’만 진하게. 사이드바 메뉴 ‘처음 화면’·‘내 정보 입력’ 추가, ‘← 처음으로’는 처음 화면으로.
-- (보류 중) AI: 코디세이가 도구 호출(tools)을 거절할 경우 AI가 JSON으로 도구를 고르고 결과로 답하는 방식으로 자동 전환 + 실행 기록에 서버 오류 원문(상태 코드·메시지, 키는 가림) 표시. API 연결 확인은 사용자 요청으로 보류.
+- AI: 연결된 서버가 도구 호출(tools)을 거절할 경우 AI가 JSON으로 도구를 고르고 결과로 답하는 방식으로 자동 전환 + 실행 기록에 서버 오류 원문(상태 코드·메시지, 키는 가림) 표시. API 연결 확인은 사용자 요청으로 보류.
 - 테스트 96개 통과, Chrome PC(1600px)·모바일(390px) 확인.
 
 ## 2026-10-02 21:00 (이혜경 요청) 첫 화면 재구성 — 기능 버튼 4개 · 나의 조건 입력 · 앱 소개/참고사항/문의
@@ -309,3 +305,8 @@ python -m unittest discover -s tests -v
 - 사이드바: `render_sidebar()`로 바꿔 페이지 뒤에 그림 → 실제 계산값 표시(정착 N일째, 전체 진행, 맞춤 혜택 해당 가능 N건, 이번 단계 s/t). 메뉴: 홈 / 정착 코스(조건 입력·맞춤 혜택·정착 일정·생활 정보) / 도움받기(불편사항·지역말) / AI 코디. 키 `nav-*` 유지.
 - 색: 진행률 초록 #2E9E6B(완료·상태), CTA 주황, 기본 남색. 기능 화면 본문 최대 1200px 가운데.
 - 테스트 96개 통과(홈 섹션·사이드바 라벨 기대값만 새 화면에 맞게 갱신). PC 1600·모바일 390 확인: 가로 스크롤 없음, 모바일 첫 화면에 CTA 보임.
+
+## 2026-10-02 21:45 (이혜경) AI 키 확정 — 개인 계정 OpenAI 키
+- Streamlit Secrets에 **`OPENAI_API_KEY`(이혜경 개인 계정)** 저장 → 앱이 자동으로 OpenAI(기본 모델 **GPT-4.1 mini**) 사용. 코드 변경 없음.
+- Secrets에는 `OPENAI_API_KEY` 한 줄만 둠(이전 `ANTHROPIC_API_KEY`·`LLM_BASE_URL`·`LLM_MODEL`은 삭제 — 남아 있으면 Anthropic이 우선 선택되거나 주소·모델이 OpenAI에 잘못 적용됨).
+- 문서(README·HANDOFF·테스트 이름)에서 교육용 API 관련 언급 삭제.
