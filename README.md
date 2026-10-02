@@ -29,7 +29,6 @@
 
 ```toml
 OPENAI_API_KEY = "sk-..."          # 현재 배포본: 팀 개인 계정 OpenAI 키 (기본 모델 GPT-4.1 mini)
-# 또는 ANTHROPIC_API_KEY = "sk-ant-..." (Claude Haiku 4.5)
 # 선택: LLM_PROVIDER = "openai" / LLM_MODEL = "gpt-4.1-mini"
 ```
 
