@@ -73,6 +73,18 @@ class ToolTests(unittest.TestCase):
         self.assertNotIn("닉네임", str(situation))
 
 
+class TransitTests(unittest.TestCase):
+    def test_bus_question_moves_outskirts_to_car_list(self):
+        result = agent.search_activities("야경", by_transit=True)
+        names = [a["이름"] for a in result["activities"]]
+        self.assertFalse(any("귀산" in n or "저도" in n for n in names))
+        self.assertTrue(any("저도" in a["이름"] for a in result["car_recommended"]))
+        answer = agent.run_agent("이번 주말 버스로 갈 만한 야경 명소 추천해 줘", PROFILE).answer
+        self.assertIn("차로 가면 좋은 곳", answer)
+        with_car = agent.search_activities("야경", by_transit=False)
+        self.assertTrue(any("저도" in a["이름"] for a in with_car["activities"]))
+
+
 class SafetyAndRuleTests(unittest.TestCase):
     def test_emergency_and_crisis_skip_llm(self):
         client = FakeAnthropic([])

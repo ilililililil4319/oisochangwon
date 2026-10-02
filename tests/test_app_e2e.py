@@ -224,7 +224,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = _demo_app()
                 _visit(app, "journey")
                 text = _visible_text(app)
-                self.assertIn("‘① 창원 청년 맞춤형 혜택 알림’에서 확인해요", text)
+                self.assertIn("‘창원 청년 맞춤형 혜택 알림’에서 확인해요", text)
                 self.assertNotIn("현재 앱에서 입력한 정보로 확인하는 창원 전입 지원입니다.", text)
                 app.button(key="to-policy-M1-3").click().run()
                 self.assertEqual(app.session_state["page"], "policy")
@@ -279,6 +279,18 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertNotIn("K", app.header[0].value)
                 _visit(app, "explore")
                 self.assertNotIn("대중교통 경로로 안내해요", _visible_text(app))
+
+    def test_buttons_have_no_numbers_and_car_only_place_warning(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                labels = [b.label for b in app.button]
+                self.assertFalse(any(label[:1] in "①②③④" for label in labels))
+                _visit(app, "explore")
+                app.selectbox(key="activity_selection").select("A326").run()
+                text = _visible_text(app)
+                self.assertIn("차량으로 가는 것을 권장해요", text)
+                self.assertNotIn("대중교통 경로로 안내해요", text)
 
     def test_clear_profile_and_journey_needs_move_in_date(self):
         with TemporaryDirectory() as temp_dir:
@@ -350,8 +362,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "AI 코디에게 물어보기 (한 문장 질문)", "① 창원 청년 맞춤형 혜택 알림", "② 창원 생활 정보 안내 및 일정 편성", "③ 불편사항 행정 접수안내", "④ 창원 지역말 번역"])
-                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI 코디에게 물어보기", "① 창원 청년 맞춤형 혜택 알림", "└ 정착 할 일 · 1~6개월 일정", "└ 창원 생활 정보 둘러보기", "③ 불편사항 행정 접수안내", "④ 창원 지역말 번역"])
+                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "창원 생활 정보 안내 및 일정 편성", "불편사항 행정 접수안내", "창원 지역말 번역"])
+                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI 코디에게 물어보기", "창원 청년 맞춤형 혜택 알림", "└ 정착 할 일 · 1~6개월 일정", "└ 창원 생활 정보 둘러보기", "불편사항 행정 접수안내", "창원 지역말 번역"])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
                 self.assertEqual(len(app.expander), 0)

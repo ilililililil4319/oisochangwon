@@ -111,6 +111,11 @@ h1, h2, h3 {color: #063465 !important;}
 [data-testid="stBaseButton-primary"]:active, [data-testid="stBaseButton-primaryFormSubmit"]:active {
     background-color: #FE6A01 !important; border-color: #FE6A01 !important;
 }
+/* PC: 첫 화면 기능 버튼을 왼쪽에 */
+@media (min-width: 641px) {
+    .st-key-home-layout [data-testid="stHorizontalBlock"] {flex-direction: row-reverse;}
+    .st-key-home-layout [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] {flex-direction: row;}
+}
 /* 모바일: 큰 제목·할 일 글씨를 한 줄에 가깝게 */
 @media (max-width: 640px) {
     h2 {font-size: 1.45rem !important;}
@@ -165,23 +170,25 @@ FEATURE_2 = "② 창원 생활 정보 안내 및 일정 편성"
 FEATURE_3 = "③ 불편사항 행정 접수안내"
 FEATURE_4 = "④ 창원 지역말 번역"
 ASK_LABEL = "AI 코디에게 물어보기"
+# 버튼에는 순번 없이 이름만(제목에는 기획안 순번 유지)
+BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4 = (name[2:] for name in (FEATURE_1, FEATURE_2, FEATURE_3, FEATURE_4))
 FEATURE_2_TABS = {PAGE_JOURNEY: "정착 할 일 · 1~6개월 일정", PAGE_EXPLORE: "창원 생활 정보 둘러보기"}
 # 사이드바 메뉴: (page, 버튼 이름)
 PAGE_LABELS = {
     PAGE_PROFILE: "내 정보",
     PAGE_ASK: ASK_LABEL,
-    PAGE_POLICY: FEATURE_1,
+    PAGE_POLICY: BUTTON_1,
     PAGE_JOURNEY: "└ " + FEATURE_2_TABS[PAGE_JOURNEY],
     PAGE_EXPLORE: "└ " + FEATURE_2_TABS[PAGE_EXPLORE],
-    PAGE_COMPLAINT: FEATURE_3,
-    PAGE_DIALECT: FEATURE_4,
+    PAGE_COMPLAINT: BUTTON_3,
+    PAGE_DIALECT: BUTTON_4,
 }
 FEATURE_BUTTONS = (
-    (PAGE_ASK, f"{ASK_LABEL} (한 문장 질문)", "show-ask"),
-    (PAGE_POLICY, FEATURE_1, "show-policy"),
-    (PAGE_JOURNEY, FEATURE_2, "show-journey"),
-    (PAGE_COMPLAINT, FEATURE_3, "show-complaint"),
-    (PAGE_DIALECT, FEATURE_4, "show-dialect"),
+    (PAGE_ASK, ASK_LABEL, "show-ask"),
+    (PAGE_POLICY, BUTTON_1, "show-policy"),
+    (PAGE_JOURNEY, BUTTON_2, "show-journey"),
+    (PAGE_COMPLAINT, BUTTON_3, "show-complaint"),
+    (PAGE_DIALECT, BUTTON_4, "show-dialect"),
 )
 DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
 EMPLOYMENT_OPTIONS = ("재직 중", "재직 중 아님")
@@ -285,58 +292,61 @@ def render_profile_page():
     )
     st.divider()
 
-    with st.container(horizontal=True, wrap=True):
-        st.button(
-            f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
-            key="fill-demo",
-            on_click=_fill_profile,
-            args=(DEMO_PROFILE,),
+    # PC: 왼쪽 기능 버튼 · 오른쪽 내 정보 / 모바일: 내 정보 아래에 기능 버튼(한 줄에 하나)
+    with st.container(key="home-layout"):
+        profile_column, feature_column = st.columns([2, 1], gap="large")
+    with profile_column:
+        with st.container(horizontal=True, wrap=True):
+            st.button(
+                f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
+                key="fill-demo",
+                on_click=_fill_profile,
+                args=(DEMO_PROFILE,),
+            )
+            st.button(
+                "입력 지우기",
+                key="clear-profile",
+                on_click=_fill_profile,
+                args=(PROFILE_DEFAULTS,),
+            )
+        st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20)
+        st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이")
+        st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD")
+        st.selectbox(
+            "사는 지역",
+            [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
+            key="home_district",
+            on_change=_sync_activity_district,
         )
-        st.button(
-            "입력 지우기",
-            key="clear-profile",
-            on_click=_fill_profile,
-            args=(PROFILE_DEFAULTS,),
+        st.text_input(
+            "동네 (선택)",
+            placeholder="예: 상남동",
+            max_chars=40,
+            key="neighborhood",
         )
-    st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20)
-    st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이")
-    st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD")
-    st.selectbox(
-        "사는 지역",
-        [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
-        key="home_district",
-        on_change=_sync_activity_district,
-    )
-    st.text_input(
-        "동네 (선택)",
-        placeholder="예: 상남동",
-        max_chars=40,
-        key="neighborhood",
-    )
-    st.number_input(
-        "창원 전입 전 타지역 거주기간(년)",
-        min_value=0,
-        max_value=50,
-        key="previous_residence_years",
-        placeholder="예: 2",
-    )
-    st.radio(
-        "창원 소재 사업장 재직 여부",
-        EMPLOYMENT_OPTIONS,
-        key="employment_status",
-        horizontal=True,
-    )
-    st.radio(
-        "차량 소지 여부",
-        VEHICLE_OPTIONS,
-        key="vehicle",
-        horizontal=True,
-        help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
-    )
+        st.number_input(
+            "창원 전입 전 타지역 거주기간(년)",
+            min_value=0,
+            max_value=50,
+            key="previous_residence_years",
+            placeholder="예: 2",
+        )
+        st.radio(
+            "창원 소재 사업장 재직 여부",
+            EMPLOYMENT_OPTIONS,
+            key="employment_status",
+            horizontal=True,
+        )
+        st.radio(
+            "차량 소지 여부",
+            VEHICLE_OPTIONS,
+            key="vehicle",
+            horizontal=True,
+            help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
+        )
 
-    st.divider()
-    st.markdown("**무엇을 확인할까요?**")
-    with st.container(horizontal=True, wrap=True):
+    with feature_column:
+        st.markdown("**무엇을 확인할까요?**")
         for target_page, label, key in FEATURE_BUTTONS:
             st.button(
                 label,
@@ -345,9 +355,10 @@ def render_profile_page():
                 disabled=not user_key,
                 on_click=_go,
                 args=(target_page,),
+                width="stretch",
             )
-    if not user_key:
-        st.info("닉네임을 입력하면 아래 기능을 쓸 수 있어요. 시연할 때는 ‘예시 정보로 채우기’를 눌러 주세요.")
+        if not user_key:
+            st.info("닉네임을 입력하면 기능 버튼을 쓸 수 있어요. 시연할 때는 ‘예시 정보로 채우기’를 눌러 주세요.")
 
 
 move_in_date = st.session_state["move_in_date"]
@@ -384,7 +395,7 @@ with st.sidebar:
     st.subheader("메뉴")
     for target_page, label in PAGE_LABELS.items():
         if target_page == PAGE_JOURNEY:
-            st.caption(FEATURE_2)
+            st.caption(BUTTON_2)
         st.button(
             label,
             key=f"nav-{target_page}",
@@ -557,7 +568,7 @@ def render_policy_page():
         ]
         st.caption("확인할 항목: " + ", ".join(missing_labels))
     st.caption("조건을 바꾸려면 ‘← 처음으로’에서 내 정보를 고쳐 주세요.")
-    _next_feature_button(PAGE_JOURNEY, f"{FEATURE_2} →")
+    _next_feature_button(PAGE_JOURNEY, f"{BUTTON_2} →")
 
 
 # --- ③ 정착 할 일 ------------------------------------------------------------
@@ -666,7 +677,7 @@ def render_journey_page():
                     # 할 일은 '무엇을 할까'만 — 지원 내용·대상 여부는 지원 화면 카드로 연결
                     related = [POLICY_NAMES[pid] for pid in MISSION_POLICY_IDS[mission_id] if pid in POLICY_NAMES]
                     st.caption(
-                        f"지원 내용·대상 여부는 ‘{FEATURE_1}’에서 확인해요"
+                        f"지원 내용·대상 여부는 ‘{BUTTON_1}’에서 확인해요"
                         + (f" ({', '.join(related)})" if related else "")
                     )
                     with st.container(horizontal=True, wrap=True):
@@ -818,7 +829,10 @@ def render_explore_page():
 
             st.subheader("이동")
             no_car = st.session_state["vehicle"] == "없음"
-            if no_car:
+            selected_raw = activity_by_id[selected_activity_id]
+            if selected_raw.get("이동 권장") == "차량 권장":
+                st.warning("창원 외곽이라 시내버스로 가기 어려워요. 차량으로 가는 것을 권장해요.")
+            elif no_car:
                 st.info("차가 없으니 대중교통 경로로 안내해요. 시내버스를 자주 탄다면 K-패스로 교통비 일부를 돌려받을 수 있어요.")
             st.link_button(
                 "네이버 지도에서 보기",
@@ -842,7 +856,7 @@ def render_explore_page():
             "창원 활동 정보를 불러오지 못했어요. "
             "지원 확인과 정착 할 일은 계속 이용할 수 있어요."
         )
-    _next_feature_button(PAGE_COMPLAINT, f"{FEATURE_3} →")
+    _next_feature_button(PAGE_COMPLAINT, f"{BUTTON_3} →")
 
 
 # --- ⑤ AI에게 물어보기 ---------------------------------------------------------
@@ -883,8 +897,8 @@ def llm_settings():
 
 
 @st.cache_resource(show_spinner=False)
-def _llm_client(provider, api_key):
-    return make_client(provider, api_key)
+def _llm_client(provider, api_key, base_url=None):
+    return make_client(provider, api_key, base_url)
 
 
 def _queue_question(text):
@@ -893,7 +907,7 @@ def _queue_question(text):
 
 def _ask_agent(question):
     provider, api_key, model = llm_settings()
-    client = _llm_client(provider, api_key) if provider else None
+    client = _llm_client(provider, api_key, _setting("LLM_BASE_URL")) if provider else None
     with st.spinner("필요한 자료를 찾아보고 있어요…"):
         result = run_agent(question, _current_profile(), provider=provider, client=client, model=model)
     return {
@@ -1018,7 +1032,7 @@ def render_complaint_page():
             COMPLAINT_BOXES.get(item["단계"], st.info)(f"[{item['단계']}] {item['예시']}")
             st.text(item["안내"] + "\n연락처: " + ", ".join(item["연락처"]))
         st.caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
-    _next_feature_button(PAGE_DIALECT, f"{FEATURE_4} →")
+    _next_feature_button(PAGE_DIALECT, f"{BUTTON_4} →")
 
 
 # --- ④ 창원 지역말 번역 --------------------------------------------------------
@@ -1031,7 +1045,7 @@ def render_dialect_page():
     st.subheader(FEATURE_4)
     st.write("직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.")
     _ai_status_caption()
-    st.caption("뜻은 ‘문헌 기준 뜻’이에요(토박이 검수 생략). 사전에 없는 말은 ‘AI 추정 - 사람 검수 필요’로 표시해요.")
+    st.caption("뜻은 ‘문헌 기준 뜻’이에요. 사전에 없는 말은 ‘AI 추정 - 사람 검수 필요’로 표시해요.")
     dialects = load_dialects()
     demo = [d for d in dialects if d.get("시연 사용")][:6]
     with st.container(horizontal=True, wrap=True):

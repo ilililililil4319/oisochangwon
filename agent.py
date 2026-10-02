@@ -45,7 +45,8 @@ SYSTEM_PROMPT = """너는 '오이소창원'의 정착 코디네이터 Agent야. 
 8. 카페·식당 등 상업 시설은 "특정 업체 홍보 아님, 방문 전 운영시간 확인"을 덧붙인다.
 9. 쉬운 한국어로 5~8문장 이내, 필요하면 짧은 목록. 어려운 용어는 풀어 쓴다(예: 전입일 = 새 주소로 전입신고를 한 날).
 10. 사용자 정보가 필요하면 get_my_situation을 먼저 호출한다.
-11. 사용자가 차량이 '없음'이면 장소·이동 안내는 대중교통·자전거 기준으로 하고, 교통 혜택(K-패스)을 함께 알려 준다."""
+11. 사용자가 차량이 '없음'이거나 버스·대중교통으로 갈 곳을 물으면 search_activities에 by_transit=true를 주고, 대중교통 기준으로 안내하며 교통 혜택(K-패스)을 함께 알려 준다.
+12. '이동 권장'이 '차량 권장'인 곳(car_recommended, 귀산동·저도 등 외곽)은 버스 추천 목록에 넣지 말고 "차로 가면 좋은 곳"으로 따로 짧게 안내한다."""
 
 TOOLS = [
     {
@@ -70,6 +71,7 @@ TOOLS = [
                 "keyword": {"type": "string", "description": "관심사 단어(예: 카페, 야경, 축제, 반려견)"},
                 "district": {"type": "string", "description": "의창구·성산구·마산합포구·마산회원구·진해구 중 하나(선택)"},
                 "indoor_only": {"type": "boolean", "description": "실내 장소만(비 오는 날·실내로 바꿔 달라고 할 때)"},
+                "by_transit": {"type": "boolean", "description": "버스·대중교통으로 갈 곳을 찾을 때 true(차량 권장 외곽 장소는 따로 분리)"},
             },
         },
     },
@@ -152,7 +154,7 @@ def search_policies(keyword=""):
     }
 
 
-def search_activities(keyword="", district="", indoor_only=False):
+def search_activities(keyword="", district="", indoor_only=False, by_transit=False):
     activities = _items("activities_mvp.json")
     results = []
     for activity in activities:
@@ -164,10 +166,16 @@ def search_activities(keyword="", district="", indoor_only=False):
         score = _score(text, keyword) if keyword else 1
         if score:
             results.append((score, activity))
-    picked = [a for _, a in sorted(results, key=lambda pair: -pair[0])][:5]
+    ranked = [a for _, a in sorted(results, key=lambda pair: -pair[0])]
+    car_only = [a for a in ranked if a.get("이동 권장") == "차량 권장"] if by_transit else []
+    picked = [a for a in ranked if a not in car_only][:5]
     return {
         "count": len(picked),
         "note": "특정 업체 홍보 아님. 방문 전 운영시간을 확인하세요.",
+        "car_recommended": [
+            {"이름": a["이름"], "구": a.get("생활권(구)"), "이동 권장": "차량 권장", "이유": a.get("이동 메모")}
+            for a in car_only[:3]
+        ],
         "activities": [
             {
                 "ID": a["ID"],
@@ -176,7 +184,7 @@ def search_activities(keyword="", district="", indoor_only=False):
                 "분야": a.get("MVP 그룹"),
                 "실내·실외": a.get("실내·실외"),
                 "일정·운영시간": a.get("일정·운영시간"),
-                "대중교통": a.get("대중교통 접근(검수)"),
+                "이동 권장": a.get("이동 권장") or "",
                 "링크": _clean_url(a.get("공식 URL")),
                 "최종 확인일": a.get("최종 확인일"),
             }
@@ -200,7 +208,7 @@ def lookup_dialect(expression):
                     "표현": item["표현"],
                     "표준어 뜻": item["표준어 뜻"],
                     "사용 상황": item.get("사용 상황"),
-                    "표시": "문헌 기준 뜻(토박이 검수 생략)",
+                    "표시": "문헌 기준 뜻",
                     "출처": item.get("출처"),
                 }
     return {"found": False, "message": "지역말 핵심 30개 사전에 없는 표현입니다."}
@@ -253,7 +261,8 @@ def run_tool(name, args, profile=None):
     if name == "search_policies":
         return search_policies(args.get("keyword", ""))
     if name == "search_activities":
-        return search_activities(args.get("keyword", ""), args.get("district", ""), bool(args.get("indoor_only")))
+        by_transit = bool(args.get("by_transit")) or (profile or {}).get("vehicle") == "없음"
+        return search_activities(args.get("keyword", ""), args.get("district", ""), bool(args.get("indoor_only")), by_transit)
     if name == "lookup_dialect":
         return lookup_dialect(args.get("expression", ""))
     if name == "find_complaint_channel":
@@ -347,7 +356,11 @@ def _format_rule_answer(tool_name, output, question):
         if not output["activities"]:
             return f"조건에 맞는 장소를 확인된 정보에서 찾지 못했어요. ‘창원 둘러보기’ 화면에서 지역·분야를 바꿔 보세요."
         lines = [f"- {a['이름']} ({a['구']}, {a['분야']})" for a in output["activities"]]
-        return "확인된 장소 중 이런 곳이 있어요.\n" + "\n".join(lines) + "\n특정 업체 홍보가 아니며, 방문 전 운영시간을 확인해 주세요."
+        text = "확인된 장소 중 이런 곳이 있어요.\n" + "\n".join(lines)
+        if output.get("car_recommended"):
+            car = ", ".join(a["이름"] for a in output["car_recommended"])
+            text += f"\n차로 가면 좋은 곳(외곽이라 버스로는 어려워요): {car}"
+        return text + "\n특정 업체 홍보가 아니며, 방문 전 운영시간을 확인해 주세요."
     if tool_name == "search_policies":
         if not output["policies"]:
             return f"확인된 정책 정보에는 없어요. {CALL_CENTER} 또는 창원청년정보플랫폼({YOUTH_PLATFORM_URL})에서 확인해 주세요."
@@ -373,7 +386,8 @@ def rule_based_answer(question, profile=None, steps=None, reason=""):
         tool, args = "find_complaint_channel", {"level": _classify_complaint(q)}
     elif any(w in q for w in ("카페", "맛집", "먹을", "가볼", "갈 만한", "놀러", "산책", "야경", "축제", "행사", "주말", "데이트", "운동", "반려")):
         keyword = next((w for w in ("카페", "야경", "산책", "축제", "행사", "운동", "반려") if w in q), "")
-        tool, args = "search_activities", {"keyword": keyword, "indoor_only": "실내" in q or "비" in q}
+        transit = any(w in q for w in ("버스", "대중교통", "지하철", "걸어")) or (profile or {}).get("vehicle") == "없음"
+        tool, args = "search_activities", {"keyword": keyword, "indoor_only": "실내" in q or "비 오" in q, "by_transit": transit}
     elif any(w in q for w in ("내가", "나는", "받을 수", "해당")):
         tool, args = "get_my_situation", {}
     elif any(w in q for w in ("지원", "혜택", "정책", "월세", "통장", "적금", "교통", "패스", "수당")):
@@ -478,14 +492,30 @@ def _run_openai(client, model, question, profile, steps, tool_outputs, extra_ins
     raise RuntimeError("도구 호출 횟수 초과")
 
 
-def make_client(provider, api_key):
+def make_client(provider, api_key, base_url=None):
+    # base_url: 교육기관·프록시용 키처럼 기본 주소가 아닌 경우에만 Secrets의 LLM_BASE_URL로 지정
+    options = {"api_key": api_key}
+    if base_url:
+        options["base_url"] = base_url
     if provider == "anthropic":
         import anthropic
-        return anthropic.Anthropic(api_key=api_key)
+        return anthropic.Anthropic(**options)
     if provider == "openai":
         import openai
-        return openai.OpenAI(api_key=api_key)
+        return openai.OpenAI(**options)
     raise ValueError(provider)
+
+
+ERROR_HINTS = {
+    "AuthenticationError": "API 키가 맞지 않아요(키 값·종류 확인)",
+    "PermissionDeniedError": "이 키로는 해당 모델을 쓸 권한이 없어요",
+    "NotFoundError": "모델 이름이나 API 주소를 찾지 못했어요(LLM_MODEL·LLM_BASE_URL 확인)",
+    "RateLimitError": "사용 한도를 넘었어요(잠시 후 다시 또는 크레딧 확인)",
+    "BadRequestError": "요청 형식 오류(크레딧 부족·모델 이름 등 확인)",
+    "APIConnectionError": "AI 서버에 연결하지 못했어요(네트워크·API 주소 확인)",
+    "APITimeoutError": "AI 응답 시간이 초과됐어요",
+    "InternalServerError": "AI 서버 쪽 일시 오류예요",
+}
 
 
 def run_agent(question, profile=None, provider=None, client=None, model=None):
@@ -520,5 +550,6 @@ def run_agent(question, profile=None, provider=None, client=None, model=None):
         return AgentResult(answer=answer, mode="llm", steps=steps, verified=True, model=model,
                            links=collect_links(tool_outputs))
     except Exception as error:  # API 키 오류·네트워크·한도 초과 등
-        _step(steps, "AI 연결 오류", type(error).__name__)
+        name = type(error).__name__
+        _step(steps, "AI 연결 오류", f"{name} — {ERROR_HINTS.get(name, '원인 확인 필요')}")
         return rule_based_answer(question, profile, steps, reason="AI 연결 오류")
