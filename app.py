@@ -93,6 +93,20 @@ READABILITY_CSS = """
 @media (max-width: 640px) {[class*="st-key-home-card-"] {min-height: 0;}}
 [class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled {background: #F5F8FC !important; border: 1px dashed #9FB0C6 !important; color: #3F5672 !important; opacity: 1;}
 [class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled p {color: #3F5672 !important;}
+[class*="st-key-profile-group-"] {background: #FFFFFF; border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.2rem; height: 100%;}
+.st-key-profile-next {background: #EEF4FB; border: 1px solid #C9D8EA; border-left: 5px solid #FE6A01; border-radius: 14px; padding: 1.1rem 1.4rem; margin-top: .8rem;}
+.st-key-profile-next h3 {font-size: 1.3rem !important; color: #063465;}
+.st-key-profile-next-main [data-testid="stBaseButton-primary"]:not(:disabled) {background-color: #FE6A01 !important; border-color: #FE6A01 !important;}
+.st-key-profile-next-main button {min-height: 2.9rem; padding: 0 1.3rem;}
+.st-key-profile-next [data-testid="stBaseButton-secondary"]:disabled, .st-key-profile-next [data-testid="stBaseButton-primary"]:disabled {background: #F5F8FC !important; border: 1px dashed #9FB0C6 !important; opacity: 1;}
+.st-key-profile-next button:disabled p {color: #5A6E88 !important;}
+.st-key-profile-next-more [data-testid="stBaseButton-tertiary"] p {text-decoration: underline; text-underline-offset: 3px;}
+.st-key-profile-next-more > [data-testid="stElementContainer"] {width: auto !important; flex: 0 0 auto !important;}
+.st-key-profile-next-more > [data-testid="stElementContainer"] {width: auto !important; flex: 0 0 auto !important;}
+@media (max-width: 640px) {
+    .st-key-profile-next-main > [data-testid="stElementContainer"], .st-key-profile-next-main .stButton, .st-key-profile-next-main button {width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important;}
+    .st-key-profile-next-more {gap: .2rem 1rem !important;}
+}
 [class*="st-key-flow-step-"] {background: #F3F8F5; border-radius: 12px; padding: .7rem .9rem; height: 100%; border: 1px solid #D6E9DE;}
 .st-key-home-body {padding-top: 1.2rem;}
 @media (max-width: 640px) {
@@ -536,79 +550,115 @@ def render_home_page():
 
 
 # --- 나의 조건 입력 --------------------------------------------------------------
+PROFILE_NEXT_STEPS = (
+    (PAGE_POLICY, "show-policy", "내 맞춤 혜택 확인하기 →", "primary"),
+    (PAGE_JOURNEY, "show-journey", "정착 일정 만들기", "secondary"),
+    (PAGE_ASK, "show-ask", "AI 코디에게 바로 물어보기", "secondary"),
+)
+PROFILE_MORE_STEPS = (
+    (PAGE_COMPLAINT, "show-complaint", BUTTON_3),
+    (PAGE_DIALECT, "show-dialect", BUTTON_4),
+)
+
+
+def _profile_next_card():
+    with st.container(key="profile-next"):
+        if user_key:
+            st.markdown(f"### {user_key}님, 준비됐어요.")
+            st.caption("다음에 할 일을 골라 주세요. 조건은 언제든 이 화면에서 바꿀 수 있어요.")
+        else:
+            st.markdown("### 닉네임을 입력하면 다음 단계가 열려요")
+            st.caption("닉네임만 있어도 시작할 수 있어요. 나이·전입일을 넣으면 혜택과 일정이 더 정확해져요.")
+        with st.container(key="profile-next-main", horizontal=True, wrap=True):
+            for target_page, key, label, button_type in PROFILE_NEXT_STEPS:
+                st.button(label, key=key, type=button_type, disabled=not user_key,
+                          on_click=_go, args=(target_page,))
+        with st.container(key="profile-next-more", horizontal=True, wrap=True, vertical_alignment="center"):
+            st.caption("다른 기능:")
+            for target_page, key, label in PROFILE_MORE_STEPS:
+                st.button(label, key=key, type="tertiary", disabled=not user_key,
+                          on_click=_go, args=(target_page,))
+
+
 def render_profile_page():
     _back_home_button("profile")
-    st.subheader(CONDITION_LABEL, anchor=False)
-    st.caption(
-        "맞춤 혜택과 정착 일정을 계산하기 위한 조건만 받아요. 실명·연락처 등 개인정보는 받지 않고, "
-        "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸 옆 물음표(?)를 누르면 쉬운 설명이 나와요."
-    )
-    with st.container(horizontal=True, wrap=True):
-        st.button(
-            f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
-            key="fill-demo",
-            on_click=_fill_profile,
-            args=(DEMO_PROFILE,),
-        )
-        st.button(
-            "입력 지우기",
-            key="clear-profile",
-            on_click=_fill_profile,
-            args=(PROFILE_DEFAULTS,),
-        )
+    with st.container(key="profile-head", horizontal=True, wrap=True, vertical_alignment="bottom"):
+        with st.container():
+            st.caption(CONDITION_LABEL)
+            st.subheader("먼저, 코디가 알아야 할 조건을 알려주세요.", anchor=False)
+            st.markdown(
+                "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. **실명과 연락처는 받지 않아요.**"
+            )
+            st.caption(
+                "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸 옆 물음표(?)를 누르면 쉬운 설명이 나와요."
+            )
+        with st.container(horizontal=True, wrap=True, horizontal_alignment="right", width="content"):
+            st.button(
+                f"예시 정보로 채우기 ({DEFAULT_NICKNAME})",
+                key="fill-demo",
+                type="secondary",
+                on_click=_fill_profile,
+                args=(DEMO_PROFILE,),
+            )
+            st.button(
+                "입력 지우기",
+                key="clear-profile",
+                type="tertiary",
+                on_click=_fill_profile,
+                args=(PROFILE_DEFAULTS,),
+            )
     left_inputs, right_inputs = st.columns(2, gap="large")
     with left_inputs:
-        st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20,
-                      help="실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.")
-        st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이",
-                        help="만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.")
-        st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD",
-                      help="전입일 = 새 주소로 전입신고를 한 날. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.")
-        st.selectbox(
-            "사는 지역",
-            [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
-            key="home_district",
-            on_change=_sync_activity_district,
-            help="사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
-        )
-        st.text_input(
-            "동네 (선택)",
-            placeholder="예: 상남동",
-            max_chars=40,
-            key="neighborhood",
-        )
+        with st.container(key="profile-group-basic"):
+            st.markdown("**기본 조건**")
+            st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20,
+                          help="실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.")
+            st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이",
+                            help="만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.")
+            st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD",
+                          help="전입일 = 새 주소로 전입신고를 한 날. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.")
+            district_col, town_col = st.columns(2, gap="small")
+            with district_col:
+                st.selectbox(
+                    "사는 지역",
+                    [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
+                    key="home_district",
+                    on_change=_sync_activity_district,
+                    help="사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
+                )
+            with town_col:
+                st.text_input(
+                    "동네 (선택)",
+                    placeholder="예: 상남동",
+                    max_chars=40,
+                    key="neighborhood",
+                )
     with right_inputs:
-        st.number_input(
-            "창원 전입 전 타지역 거주기간(년)",
-            min_value=0,
-            max_value=50,
-            key="previous_residence_years",
-            placeholder="예: 2",
-            help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
-        )
-        st.radio(
-            "창원 소재 사업장 재직 여부",
-            EMPLOYMENT_OPTIONS,
-            key="employment_status",
-            horizontal=True,
-            help="창원에 있는 회사·가게에서 일하고 있는지예요. 근로자 대상 혜택을 판단할 때 써요.",
-        )
-        st.radio(
-            "차량 소지 여부",
-            VEHICLE_OPTIONS,
-            key="vehicle",
-            horizontal=True,
-            help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
-        )
-
-    st.divider()
-    if user_key:
-        st.success(f"{user_key}님, 입력을 마쳤다면 아래 기능 4개 중 원하는 것을 눌러 주세요.")
-    else:
-        st.info("닉네임을 입력하면 아래 기능 버튼을 쓸 수 있어요.")
-    st.markdown("**STEP 2 · 기능 4개 중 고르기**")
-    _feature_buttons()
-    _ai_banner()
+        with st.container(key="profile-group-life"):
+            st.markdown("**생활 조건**")
+            st.number_input(
+                "창원 전입 전 타지역 거주기간(년)",
+                min_value=0,
+                max_value=50,
+                key="previous_residence_years",
+                placeholder="예: 2",
+                help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
+            )
+            st.radio(
+                "창원 소재 사업장 재직 여부",
+                EMPLOYMENT_OPTIONS,
+                key="employment_status",
+                horizontal=True,
+                help="창원에 있는 회사·가게에서 일하고 있는지예요. 근로자 대상 혜택을 판단할 때 써요.",
+            )
+            st.radio(
+                "차량 소지 여부",
+                VEHICLE_OPTIONS,
+                key="vehicle",
+                horizontal=True,
+                help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
+            )
+    _profile_next_card()
 
 
 move_in_date = st.session_state["move_in_date"]
