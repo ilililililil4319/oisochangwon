@@ -378,3 +378,4 @@ python -m unittest discover -s tests -v
 - README 폴더 구조 다시 작성. 테스트 101개 통과, 로컬 앱 실행 확인.
 - (00:45) README에 ‘개발 작업 과정(9/29~10/3)’ 표 추가.
 - (00:55) README 새로 작성(소개·핵심기능·폴더 구조·실행·데이터 원칙·개발 작업 과정·10/3 할 일), 인계서 4장을 10/3 할 일로 갱신.
+- (01:00) 자체 테스트 문서·캡처 26장을 `tests/self_test/`로 이동(docs/자체테스트·screenshots/self_test 정리). app.py·requirements.txt는 배포 설정 때문에 최상위 유지.

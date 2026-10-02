@@ -29,9 +29,9 @@ oiso_changwon/
 ├─ app.py            배포 시작 파일(Streamlit) — 위치 변경 금지
 ├─ src/              개발 파일(Agent·판정·일정·저장 모듈)
 ├─ data/             팀 검증 데이터(JSON)
-├─ tests/            자동 테스트(unittest)
-├─ docs/             문서: 기획안 · 자체 테스트 · 작업 과정 설명
-├─ screenshots/      화면 캡처: self_test_20261002 · process_20261002
+├─ tests/            자동 테스트(unittest) · self_test/(대표 Test Case 문서·캡처)
+├─ docs/             문서: 기획안 · 작업 과정 설명
+├─ screenshots/      작업 과정 캡처(process_20261002)
 ├─ handoff/          개발 인계 기록 — 대회 제출 전 GitHub에서 삭제(팀 PC에 별도 보관)
 ├─ assets/           로고 이미지
 ├─ .streamlit/       색 테마(남색 #063465 · 주황 #FE6A01)
@@ -46,9 +46,9 @@ oiso_changwon/
 | `src/activity_manager.py` · `src/naver_map_links.py` · `src/policy_resource_manager.py` | 생활 정보·네이버 지도 링크·할 일 공식 링크 검증 |
 | `data/` | 정책 24 · 생활 정보 60(차량 권장 8) · 할 일 26 · 할 일 링크 18 · 지역말 핵심 30 + 확장 2,223 · 불편 접수 창구 6 · 시연 페르소나 |
 | `docs/기획안/` | 기획안 초안(10/1 PDF) · 최신 기획안(10/2 갱신, md·pdf) · 그림 |
-| `docs/자체테스트/` | 대표 Test Case 6건 절차·기대 결과 |
 | `docs/작업과정/` | 작업 과정 캡처 설명 |
-| `screenshots/` | 자체 테스트 캡처 26장 · 작업 과정 캡처 31장 |
+| `tests/` | 자동 테스트 101개(`test_*.py`) · `self_test/`: 대표 Test Case 6건 절차·기대 결과(`자체테스트_TestCase.md`)와 캡처 26장(`screenshots_20261002/`) |
+| `screenshots/` | 작업 과정 캡처 31장(수정 전·후, 에러와 조치, 배포·공유) |
 | `handoff/` | 개발 변경 기록(`HANDOFF.md`) · 작업지시 인계서 — **제출 전 삭제** |
 
 > 폴더 구조는 10/3에 팀 확인 후 확정합니다.
