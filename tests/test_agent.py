@@ -137,6 +137,11 @@ class LLMLoopTests(unittest.TestCase):
         self.assertNotIn("055-999-0000", result.answer)
         self.assertTrue(any("규칙 기반" in s["내용"] for s in result.steps))
 
+    def test_night_view_search_skips_closed_museum_and_includes_jinhaeru(self):
+        names = [a["이름"] for a in agent.search_activities("야경", by_transit=True)["activities"]]
+        self.assertFalse(any("문신미술관" in name for name in names))
+        self.assertTrue(any("진해루" in name for name in names))
+
     def test_api_error_falls_back_to_rules(self):
         class Broken:
             messages = SimpleNamespace(create=lambda **kw: (_ for _ in ()).throw(RuntimeError("401")))
