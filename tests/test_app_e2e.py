@@ -198,6 +198,32 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.button(key="ask-clear").click().run()
                 self.assertEqual(len(app.expander), 0)
 
+    def test_policy_page_shows_five_cards_then_more_and_excluded(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                _visit(app, "policy")
+                self.assertFalse(app.exception)
+                link_keys = [l for l in app.get("link_button") if l.label == "안내·신청 링크 열기"]
+                self.assertEqual(len(link_keys), 23)
+                labels = [e.label for e in app.expander]
+                self.assertTrue(any(label.startswith("더 보기") for label in labels))
+                self.assertTrue(any(label.startswith("해당 없음") for label in labels))
+                text = _visible_text(app)
+                self.assertIn("해당 가능", text)
+                self.assertIn("단정하지 않아요", text)
+
+    def test_journey_policy_missions_link_to_support_cards(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                _visit(app, "journey")
+                text = _visible_text(app)
+                self.assertIn("‘받을 수 있는 지원’ 화면에서 확인해요", text)
+                self.assertNotIn("현재 앱에서 입력한 정보로 확인하는 창원 전입 지원입니다.", text)
+                app.button(key="to-policy-M1-3").click().run()
+                self.assertEqual(app.session_state["page"], "policy")
+
     def test_clear_profile_and_journey_needs_move_in_date(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
@@ -283,7 +309,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.button(key="show-policy").click().run()
                 self.assertFalse(app.exception)
                 self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
-                self.assertEqual(len(app.expander), 0)
+                self.assertFalse(any("창원 생활" in e.label for e in app.expander))
                 self.assertTrue(any(l.url == "https://www.changwon.go.kr/youth/05085/05105/05105.web" for l in app.get("link_button")))
                 self.assertEqual(len(app.number_input), 0)
                 self.assertNotIn("창원에서 해볼 것", _visible_text(app))
@@ -293,7 +319,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.number_input[1].set_value(0).run()
                 _visit(app, "policy")
                 self.assertIn("현재 조건으로는 신청 대상이 아니에요", _visible_text(app))
-                self.assertEqual(len(app.expander), 0)
+                self.assertFalse(any("창원 생활" in e.label for e in app.expander))
 
     def test_journey_button_shows_only_journey_and_preserves_drafts_with_policy(self):
         with TemporaryDirectory() as temp_dir:
@@ -307,7 +333,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.checkbox(key="mission-progress:코디2026:M1-1").check().run()
                 app.text_input(key="mission-note:코디2026:M1-1").set_value("저장 전 기록").run()
                 _visit(app, "policy")
-                self.assertEqual(len(app.expander), 0)
+                self.assertFalse(any("창원 생활" in e.label for e in app.expander))
                 self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
                 _visit(app, "journey")
                 self.assertEqual(len(app.expander), 6)
@@ -398,7 +424,6 @@ class ApplicationE2ETests(unittest.TestCase):
                     "Mission Tool",
                     "status",
                     "D+",
-                    "180일",
                     "M1-1",
                     "M6-4",
                     "mission",

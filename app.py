@@ -14,6 +14,7 @@ from activity_manager import (
 )
 from naver_map_links import naver_map_web_url
 from policy_engine import evaluate_p01
+from policy_matcher import LEVELS, load_policies, match_policies
 from mission_manager import group_missions_by_month, load_missions
 from policy_resource_manager import load_mission_resources
 from progress_manager import (
@@ -77,6 +78,7 @@ h3 {font-size: 1.25rem !important; font-weight: 600 !important;}
 [data-testid="stExpander"] [data-testid="stTextInput"] label p {font-size: .85rem; font-weight: 400;}
 [data-testid="stExpander"] [data-testid="stCheckbox"] {margin-top: 1.25rem;}
 [data-testid="stLinkButton"], [data-testid="stButton"] {margin-block: .35rem;}
+[class*="st-key-policy-card-"] h2 {font-size: 1.35rem !important;}
 </style>
 """
 
@@ -399,48 +401,84 @@ def _current_profile():
     }
 
 
+LEVEL_BOXES = {
+    "해당 가능": st.success,
+    "조건부 해당 가능": st.info,
+    "직접 확인": st.warning,
+    "해당 없음": st.error,
+}
+POLICY_CARDS_SHOWN = 5
+POLICY_NAMES = {p["ID"]: p["사업명"] for p in load_policies()}
+# 정착 할 일 중 '지원'과 연결된 미션 → 관련 정책(지원 화면 카드)
+MISSION_POLICY_IDS = {
+    "M1-2": (),
+    "M1-3": ("P21",),
+    "M2-3": ("P06",),
+    "M4-1": ("P20",),
+    "M4-2": ("P19", "P11"),
+    "M4-3": ("P09",),
+    "M6-1": ("P01",),
+    "M6-2": ("P03", "P04", "P05"),
+}
+
+
+def _policy_card(match):
+    with st.container(border=True, key=f"policy-card-{match['id']}"):
+        _content_title(match["name"])
+        LEVEL_BOXES[match["level"]](f"[{match['level']}] {match['message']}")
+        if match["support"]:
+            _detail("지원 내용", match["support"])
+        schedule = list(match["schedule"])
+        if match["eligible_date"]:
+            schedule.insert(0, f"계속 거주 6개월 기준일: {match['eligible_date']}")
+        if schedule:
+            _detail("신청 시점", "\n".join(schedule))
+        if match["reasons"]:
+            _detail("판단 이유", "\n".join(f"· {reason}" for reason in match["reasons"]))
+        if match["how_to_apply"]:
+            _detail("신청 방법", match["how_to_apply"])
+        st.link_button("안내·신청 링크 열기", match["link"], key=f"policy-link-{match['id']}")
+        st.caption(" · ".join(v for v in (f"{match['checked']} 확인" if match["checked"] else "", match["status"]) if v))
+
+
 def render_policy_page():
     _back_home_button("policy")
     profile = _current_profile()
-
-    result = evaluate_p01(profile)
+    matches = match_policies(profile)
+    candidates = [m for m in matches if m["level"] != "해당 없음"]
+    excluded = [m for m in matches if m["level"] == "해당 없음"]
+    counts = {level: sum(1 for m in matches if m["level"] == level) for level in LEVELS}
 
     st.caption(f"{nickname}님을 위한 확인 결과")
     st.subheader("받을 수 있는 지원")
-    _content_title(result["policy_name"])
+    st.write(" · ".join(f"{level} {count}개" for level, count in counts.items()))
+    st.caption(
+        f"팀이 검증한 창원·청년 정책 {len(matches)}건과 입력한 정보를 비교했어요. "
+        "받을 수 있다고 단정하지 않아요 — 최종 판단은 담당 기관에서 해요."
+    )
 
-    status = result["status"]
-
-    if status == "eligible_now":
-        st.success("현재 신청할 수 있어요.")
-
-    elif status == "eligible_later":
-        st.info("조금 뒤 신청할 수 있어요.")
-
-    elif status == "needs_info":
-        st.warning("정보를 조금 더 입력해 주세요.")
-
-    elif status == "not_eligible":
-        st.error("현재 조건으로는 신청 대상이 아니에요.")
-
-    if result["eligible_date"]:
-        _detail("신청 시점", f"계속 거주 6개월 기준일: {result['eligible_date']}")
-    _detail("핵심 조건", result["reason"])
+    for match in candidates[:POLICY_CARDS_SHOWN]:
+        _policy_card(match)
+    if len(candidates) > POLICY_CARDS_SHOWN:
+        with st.expander(f"더 보기 · 다른 지원 {len(candidates) - POLICY_CARDS_SHOWN}개"):
+            for match in candidates[POLICY_CARDS_SHOWN:]:
+                _policy_card(match)
+    if excluded:
+        with st.expander(f"해당 없음 {len(excluded)}개 · 이유 보기"):
+            for match in excluded:
+                _policy_card(match)
 
     st.link_button(
         "창원시 청년정책 전체 보기",
         CITY_YOUTH_POLICY_URL,
     )
-
-    if result["missing_fields"]:
+    p01 = evaluate_p01(profile)
+    if p01["missing_fields"]:
         missing_labels = [
             PROFILE_FIELD_LABELS.get(field, "추가 정보")
-            for field in result["missing_fields"]
+            for field in p01["missing_fields"]
         ]
-        st.caption(
-            "확인할 항목: "
-            + ", ".join(missing_labels)
-        )
+        st.caption("확인할 항목: " + ", ".join(missing_labels))
     st.caption("조건을 바꾸려면 ‘← 처음으로’에서 내 정보를 고쳐 주세요.")
     _next_feature_button(PAGE_JOURNEY, "나의 정착 할 일 보기 →")
 
@@ -525,7 +563,23 @@ def render_journey_page():
                 )
                 st.caption(f"완료 기준: {mission['완료 기준']}")
                 resource = mission_resources.get(mission_id)
-                if resource:
+                if mission_id in MISSION_POLICY_IDS:
+                    # 할 일은 '무엇을 할까'만 — 지원 내용·대상 여부는 지원 화면 카드로 연결
+                    related = [POLICY_NAMES[pid] for pid in MISSION_POLICY_IDS[mission_id] if pid in POLICY_NAMES]
+                    st.caption(
+                        "지원 내용·대상 여부는 ‘받을 수 있는 지원’ 화면에서 확인해요"
+                        + (f" ({', '.join(related)})" if related else "")
+                    )
+                    with st.container(horizontal=True, wrap=True):
+                        st.button(
+                            "지원 카드 보기",
+                            key=f"to-policy-{mission_id}",
+                            on_click=_go,
+                            args=(PAGE_POLICY,),
+                        )
+                        for link in (resource or {}).get("official_links", []):
+                            st.link_button(f"신청·안내 링크 · {link['label']}", link["url"])
+                elif resource:
                     st.text(resource["summary"])
                     _detail("신청기간·이용 일정", resource["application_period"])
                     for link in resource["official_links"]:
