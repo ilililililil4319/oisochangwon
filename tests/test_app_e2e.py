@@ -115,9 +115,10 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.selectbox(key="home_district").select("진해구").run()
                 app.text_input(key="neighborhood").set_value("석동").run()
                 for key, page, marker in (
-                    ("show-policy", "policy", "받을 수 있는 지원"),
+                    ("show-policy", "policy", "받을 수 있는 혜택"),
                     ("show-journey", "journey", "이번에 할 일"),
-                    ("show-explore", "explore", "창원에서 해볼 것"),
+                    ("show-complaint", "complaint", "③ 불편사항 행정 접수안내"),
+                    ("show-dialect", "dialect", "④ 창원 지역말 번역"),
                 ):
                     with self.subTest(page=page):
                         _visit(app, "profile")
@@ -129,11 +130,11 @@ class ApplicationE2ETests(unittest.TestCase):
                         self.assertFalse(any(t.key == "neighborhood" for t in app.text_input))
                         self.assertEqual(len(app.date_input), 0)
                         self.assertEqual(len(app.get("image")), 0)
-                        others = {"받을 수 있는 지원": "policy", "이번에 할 일": "journey", "창원에서 해볼 것": "explore"}
+                        others = {"① 창원 청년 맞춤형 혜택 알림": "policy", "이번에 할 일": "journey", "③ 불편사항 행정 접수안내": "complaint", "④ 창원 지역말 번역": "dialect"}
                         for other_marker, other_page in others.items():
                             if other_page != page:
                                 self.assertNotIn(other_marker, "\n".join(h.value for h in app.main.subheader))
-                app.button(key="go-home-explore").click().run()
+                app.button(key="go-home-dialect").click().run()
                 self.assertEqual(app.session_state["page"], "profile")
                 self.assertEqual(app.text_input[0].value, "화면 전환 사용자")
                 self.assertEqual(app.selectbox(key="home_district").value, "진해구")
@@ -149,8 +150,12 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(app.session_state["page"], "journey")
                 app.button(key="next-explore").click().run()
                 self.assertEqual(app.session_state["page"], "explore")
-                app.button(key="next-policy").click().run()
-                self.assertEqual(app.session_state["page"], "policy")
+                app.button(key="next-complaint").click().run()
+                self.assertEqual(app.session_state["page"], "complaint")
+                app.button(key="next-dialect").click().run()
+                self.assertEqual(app.session_state["page"], "dialect")
+                app.button(key="next-ask").click().run()
+                self.assertEqual(app.session_state["page"], "ask")
                 _visit(app, "profile")
                 app.text_input[0].set_value("  ").run()
                 self.assertTrue(all(b.disabled for b in app.main.button if b.key.startswith("show-")))
@@ -219,10 +224,41 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = _demo_app()
                 _visit(app, "journey")
                 text = _visible_text(app)
-                self.assertIn("‘받을 수 있는 지원’ 화면에서 확인해요", text)
+                self.assertIn("‘① 창원 청년 맞춤형 혜택 알림’에서 확인해요", text)
                 self.assertNotIn("현재 앱에서 입력한 정보로 확인하는 창원 전입 지원입니다.", text)
                 app.button(key="to-policy-M1-3").click().run()
                 self.assertEqual(app.session_state["page"], "policy")
+
+    def test_complaint_and_dialect_pages_use_agent_and_reference_lists(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), \
+                    patch.dict("os.environ", {"ANTHROPIC_API_KEY": "", "OPENAI_API_KEY": "", "LLM_PROVIDER": ""}):
+                app = _demo_app()
+                app.button(key="show-complaint").click().run()
+                self.assertFalse(app.exception)
+                self.assertIn("③ 불편사항 행정 접수안내", [h.value for h in app.subheader])
+                app.button(key="complaint-example-0").click().run()
+                text = _visible_text(app)
+                self.assertIn("[높음]", text)
+                self.assertIn("1899-1111", text)
+                self.assertTrue(any("단계별 접수 창구" in e.label for e in app.expander))
+                app.button(key="show-dialect").click().run() if False else _visit(app, "dialect")
+                self.assertIn("④ 창원 지역말 번역", [h.value for h in app.subheader])
+                app.button(key="dialect-example-0").click().run()
+                self.assertIn("문헌 기준 뜻", _visible_text(app))
+                self.assertTrue(any("핵심 지역말 30개" in e.label for e in app.expander))
+
+    def test_feature_2_tabs_and_mission_shortcuts(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                app.button(key="show-journey").click().run()
+                self.assertIn("② 창원 생활 정보 안내 및 일정 편성", [h.value for h in app.subheader])
+                app.button(key="tab-explore").click().run()
+                self.assertEqual(app.session_state["page"], "explore")
+                app.button(key="tab-journey").click().run()
+                app.button(key="to-feature-M1-5").click().run()
+                self.assertEqual(app.session_state["page"], "dialect")
 
     def test_clear_profile_and_journey_needs_move_in_date(self):
         with TemporaryDirectory() as temp_dir:
@@ -251,7 +287,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 _visit(app, "policy")
                 self.assertFalse(app.exception)
                 self.assertIn("기업노동자 전입지원금", [h.value for h in app.header])
-                self.assertIn("받을 수 있는 지원", [h.value for h in app.subheader])
+                self.assertIn("① 창원 청년 맞춤형 혜택 알림", [h.value for h in app.subheader])
                 _visit(app, "explore")
                 self.assertIn("**운영시간**", [m.value for m in app.markdown])
                 self.assertIn("**참여 방법**", [m.value for m in app.markdown])
@@ -279,7 +315,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     return view
                 with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(activity_manager, "activity_view", side_effect=convert):
                     app = _demo_app()
-                    app.button(key="show-explore").click().run()
+                    _visit(app, "explore")
                     app.selectbox(key="activity_selection").select("A40").run()
                     self.assertFalse(app.exception)
                     self.assertTrue(any("창동쪽샘길" in h.value for h in app.header))
@@ -294,8 +330,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "AI에게 한 문장으로 물어보기", "받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기", "창원 둘러보기"])
-                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI에게 물어보기", "받을 수 있는 지원", "정착 할 일", "창원 둘러보기"])
+                self.assertEqual([b.label for b in app.main.button], ["예시 정보로 채우기 (코디2026)", "입력 지우기", "AI 코디에게 물어보기 (한 문장 질문)", "① 창원 청년 맞춤형 혜택 알림", "② 창원 생활 정보 안내 및 일정 편성", "③ 불편사항 행정 접수안내", "④ 창원 지역말 번역"])
+                self.assertEqual([b.label for b in app.sidebar.button], ["내 정보", "AI 코디에게 물어보기", "① 창원 청년 맞춤형 혜택 알림", "└ 정착 할 일 · 1~6개월 일정", "└ 창원 생활 정보 둘러보기", "③ 불편사항 행정 접수안내", "④ 창원 지역말 번역"])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
                 self.assertEqual(len(app.expander), 0)
@@ -400,7 +436,7 @@ class ApplicationE2ETests(unittest.TestCase):
 
                 self.assertFalse(app.exception)
                 self.assertIn("조금 뒤 신청할 수 있어요", rendered_text)
-                self.assertIn("받을 수 있는 지원", rendered_text)
+                self.assertIn("받을 수 있는 혜택", rendered_text)
                 self.assertIn("창원 정착 일정", rendered_text)
                 self.assertIn("이번에 할 일", rendered_text)
                 self.assertIn("2027-03-20", rendered_text)
@@ -550,7 +586,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     activity_manager, "activity_view", side_effect=stale_view
                 ), patch.object(activity_manager, "load_activities", return_value=[activity]):
                     app = _demo_app()
-                    app.button(key="show-explore").click().run()
+                    _visit(app, "explore")
                     self.assertFalse(app.exception)
                     link = next(x for x in app.get("link_button") if x.label == "네이버 지도에서 보기")
                     self.assertTrue(link.url.startswith("https://map.naver.com/p/search/"))

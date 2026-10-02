@@ -6,6 +6,15 @@ import os
 import re
 
 from agent import DEFAULT_MODELS, MODEL_LABELS, make_client, run_agent
+from agent import _items as _agent_items
+
+
+def load_complaint_channels():
+    return _agent_items("complaint_channels.json")
+
+
+def load_dialects():
+    return _agent_items("dialects_core30.json")
 from activity_manager import (
     activity_view,
     filter_activities,
@@ -78,7 +87,8 @@ h3 {font-size: 1.25rem !important; font-weight: 600 !important;}
 [data-testid="stExpander"] [data-testid="stTextInput"] label p {font-size: .85rem; font-weight: 400;}
 [data-testid="stExpander"] [data-testid="stCheckbox"] {margin-top: 1.25rem;}
 [data-testid="stLinkButton"], [data-testid="stButton"] {margin-block: .35rem;}
-[class*="st-key-policy-card-"] h2 {font-size: 1.35rem !important;}
+[class*="st-key-policy-card-"] h2 {font-size: 1.3rem !important;}
+[data-testid="stChatMessage"] [data-testid="stExpander"] summary p {font-size: 1rem; font-weight: 600;}
 </style>
 """
 
@@ -116,18 +126,31 @@ PAGE_POLICY = "policy"
 PAGE_JOURNEY = "journey"
 PAGE_EXPLORE = "explore"
 PAGE_ASK = "ask"
+PAGE_COMPLAINT = "complaint"
+PAGE_DIALECT = "dialect"
+# 기획안 핵심기능 ①~④와 같은 이름을 쓴다.
+FEATURE_1 = "① 창원 청년 맞춤형 혜택 알림"
+FEATURE_2 = "② 창원 생활 정보 안내 및 일정 편성"
+FEATURE_3 = "③ 불편사항 행정 접수안내"
+FEATURE_4 = "④ 창원 지역말 번역"
+ASK_LABEL = "AI 코디에게 물어보기"
+FEATURE_2_TABS = {PAGE_JOURNEY: "정착 할 일 · 1~6개월 일정", PAGE_EXPLORE: "창원 생활 정보 둘러보기"}
+# 사이드바 메뉴: (page, 버튼 이름)
 PAGE_LABELS = {
     PAGE_PROFILE: "내 정보",
-    PAGE_ASK: "AI에게 물어보기",
-    PAGE_POLICY: "받을 수 있는 지원",
-    PAGE_JOURNEY: "정착 할 일",
-    PAGE_EXPLORE: "창원 둘러보기",
+    PAGE_ASK: ASK_LABEL,
+    PAGE_POLICY: FEATURE_1,
+    PAGE_JOURNEY: "└ " + FEATURE_2_TABS[PAGE_JOURNEY],
+    PAGE_EXPLORE: "└ " + FEATURE_2_TABS[PAGE_EXPLORE],
+    PAGE_COMPLAINT: FEATURE_3,
+    PAGE_DIALECT: FEATURE_4,
 }
 FEATURE_BUTTONS = (
-    (PAGE_ASK, "AI에게 한 문장으로 물어보기", "show-ask"),
-    (PAGE_POLICY, "받을 수 있는 지원 확인하기", "show-policy"),
-    (PAGE_JOURNEY, "나의 정착 할 일 확인하기", "show-journey"),
-    (PAGE_EXPLORE, "창원 둘러보기", "show-explore"),
+    (PAGE_ASK, f"{ASK_LABEL} (한 문장 질문)", "show-ask"),
+    (PAGE_POLICY, FEATURE_1, "show-policy"),
+    (PAGE_JOURNEY, FEATURE_2, "show-journey"),
+    (PAGE_COMPLAINT, FEATURE_3, "show-complaint"),
+    (PAGE_DIALECT, FEATURE_4, "show-dialect"),
 )
 DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
 EMPLOYMENT_OPTIONS = ("재직 중", "재직 중 아님")
@@ -317,6 +340,8 @@ current_group = next(
 with st.sidebar:
     st.subheader("메뉴")
     for target_page, label in PAGE_LABELS.items():
+        if target_page == PAGE_JOURNEY:
+            st.caption(FEATURE_2)
         st.button(
             label,
             key=f"nav-{target_page}",
@@ -407,6 +432,11 @@ LEVEL_BOXES = {
     "직접 확인": st.warning,
     "해당 없음": st.error,
 }
+# 지역말·불편 접수 미션 → ③·④ 화면 바로가기
+MISSION_FEATURE_PAGES = {
+    "M1-5": "dialect", "M2-4": "dialect", "M4-4": "dialect", "M6-3": "dialect",
+    "M5-4": "complaint",
+}
 POLICY_CARDS_SHOWN = 5
 POLICY_NAMES = {p["ID"]: p["사업명"] for p in load_policies()}
 # 정착 할 일 중 '지원'과 연결된 미션 → 관련 정책(지원 화면 카드)
@@ -450,7 +480,8 @@ def render_policy_page():
     counts = {level: sum(1 for m in matches if m["level"] == level) for level in LEVELS}
 
     st.caption(f"{nickname}님을 위한 확인 결과")
-    st.subheader("받을 수 있는 지원")
+    st.subheader(FEATURE_1)
+    st.markdown("**받을 수 있는 혜택**")
     st.write(" · ".join(f"{level} {count}개" for level, count in counts.items()))
     st.caption(
         f"팀이 검증한 창원·청년 정책 {len(matches)}건과 입력한 정보를 비교했어요. "
@@ -480,12 +511,26 @@ def render_policy_page():
         ]
         st.caption("확인할 항목: " + ", ".join(missing_labels))
     st.caption("조건을 바꾸려면 ‘← 처음으로’에서 내 정보를 고쳐 주세요.")
-    _next_feature_button(PAGE_JOURNEY, "나의 정착 할 일 보기 →")
+    _next_feature_button(PAGE_JOURNEY, f"{FEATURE_2} →")
 
 
 # --- ③ 정착 할 일 ------------------------------------------------------------
+def _feature_2_header(current):
+    st.subheader(FEATURE_2)
+    with st.container(horizontal=True, wrap=True):
+        for target_page, label in FEATURE_2_TABS.items():
+            st.button(
+                label,
+                key=f"tab-{target_page}",
+                type="primary" if current == target_page else "secondary",
+                on_click=_go,
+                args=(target_page,),
+            )
+
+
 def render_journey_page():
     _back_home_button("journey")
+    _feature_2_header(PAGE_JOURNEY)
     if move_in_date is None:
         st.subheader("창원 정착 일정")
         st.info("정착 일정과 할 일을 만들려면 ‘← 처음으로’에서 창원 전입일을 입력해 주세요.")
@@ -563,16 +608,24 @@ def render_journey_page():
                 )
                 st.caption(f"완료 기준: {mission['완료 기준']}")
                 resource = mission_resources.get(mission_id)
+                feature_page = MISSION_FEATURE_PAGES.get(mission_id)
+                if feature_page:
+                    st.button(
+                        f"{PAGE_LABELS[feature_page]} 열기",
+                        key=f"to-feature-{mission_id}",
+                        on_click=_go,
+                        args=(feature_page,),
+                    )
                 if mission_id in MISSION_POLICY_IDS:
                     # 할 일은 '무엇을 할까'만 — 지원 내용·대상 여부는 지원 화면 카드로 연결
                     related = [POLICY_NAMES[pid] for pid in MISSION_POLICY_IDS[mission_id] if pid in POLICY_NAMES]
                     st.caption(
-                        "지원 내용·대상 여부는 ‘받을 수 있는 지원’ 화면에서 확인해요"
+                        f"지원 내용·대상 여부는 ‘{FEATURE_1}’에서 확인해요"
                         + (f" ({', '.join(related)})" if related else "")
                     )
                     with st.container(horizontal=True, wrap=True):
                         st.button(
-                            "지원 카드 보기",
+                            "혜택 카드 보기",
                             key=f"to-policy-{mission_id}",
                             on_click=_go,
                             args=(PAGE_POLICY,),
@@ -629,12 +682,13 @@ def render_journey_page():
             ]
             if stage_timestamps:
                 st.caption(f"마지막 저장: {max(stage_timestamps)} (한국시간)")
-    _next_feature_button(PAGE_EXPLORE, "창원 둘러보기 →")
+    _next_feature_button(PAGE_EXPLORE, f"{FEATURE_2_TABS[PAGE_EXPLORE]} →")
 
 
 # --- ④ 창원 둘러보기 ----------------------------------------------------------
 def render_explore_page():
     _back_home_button("explore")
+    _feature_2_header(PAGE_EXPLORE)
     st.subheader("창원에서 해볼 것")
     st.write("동네와 관심 분야를 골라 가볼 곳과 참여할 일을 찾아보세요.")
 
@@ -731,7 +785,7 @@ def render_explore_page():
             "창원 활동 정보를 불러오지 못했어요. "
             "지원 확인과 정착 할 일은 계속 이용할 수 있어요."
         )
-    _next_feature_button(PAGE_POLICY, "받을 수 있는 지원 보기 →")
+    _next_feature_button(PAGE_COMPLAINT, f"{FEATURE_3} →")
 
 
 # --- ⑤ AI에게 물어보기 ---------------------------------------------------------
@@ -780,9 +834,50 @@ def _queue_question(text):
     st.session_state["ask_pending"] = text
 
 
+def _ask_agent(question):
+    provider, api_key, model = llm_settings()
+    client = _llm_client(provider, api_key) if provider else None
+    with st.spinner("필요한 자료를 찾아보고 있어요…"):
+        result = run_agent(question, _current_profile(), provider=provider, client=client, model=model)
+    return {
+        "question": question,
+        "answer": result.answer,
+        "mode": result.mode,
+        "model": MODEL_LABELS.get(result.model, result.model),
+        "verified": result.verified,
+        "steps": result.steps,
+        "links": result.links,
+    }
+
+
+def _render_agent_item(item, key_prefix):
+    with st.chat_message("user"):
+        st.text(item["question"])
+    with st.chat_message("assistant"):
+        st.text(item["answer"])
+        badge = MODE_LABELS[item["mode"]]
+        if item["mode"] == "llm":
+            badge += f" · {item['model']}"
+        badge += " · 검증 통과" if item["verified"] else " · 검증 필요"
+        st.caption(badge)
+        for link_index, (label, url) in enumerate(item.get("links", [])):
+            st.link_button(label, url, key=f"{key_prefix}-link-{link_index}")
+        with st.expander("Agent 실행 기록 보기"):
+            for number, step in enumerate(item["steps"], start=1):
+                st.text(f"{number}. [{step['단계']}] {step['내용']}")
+
+
+def _ai_status_caption():
+    provider, _, model = llm_settings()
+    if provider:
+        st.caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료로만 답해요.")
+    else:
+        st.caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
+
+
 def render_ask_page():
     _back_home_button("ask")
-    st.subheader("AI에게 물어보기")
+    st.subheader(ASK_LABEL)
     provider, api_key, model = llm_settings()
     if provider:
         st.caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료(정책·장소·지역말·접수 창구)로만 답해요.")
@@ -799,39 +894,93 @@ def render_ask_page():
     question = st.chat_input("창원 정착에 관해 한 문장으로 물어보세요", key="ask_input")
     question = question or st.session_state.pop("ask_pending", None)
     if question:
-        client = _llm_client(provider, api_key) if provider else None
-        with st.spinner("필요한 자료를 찾아보고 있어요…"):
-            result = run_agent(question, _current_profile(), provider=provider, client=client, model=model)
-        history.append({
-            "question": question,
-            "answer": result.answer,
-            "mode": result.mode,
-            "model": MODEL_LABELS.get(result.model, result.model),
-            "verified": result.verified,
-            "steps": result.steps,
-            "links": result.links,
-        })
+        history.append(_ask_agent(question))
 
     for index, item in enumerate(history):
-        with st.chat_message("user"):
-            st.text(item["question"])
-        with st.chat_message("assistant"):
-            st.text(item["answer"])
-            badge = MODE_LABELS[item["mode"]]
-            if item["mode"] == "llm":
-                badge += f" · {item['model']}"
-            badge += " · 검증 통과" if item["verified"] else " · 검증 필요"
-            st.caption(badge)
-            for link_index, (label, url) in enumerate(item.get("links", [])):
-                st.link_button(label, url, key=f"ask-link-{index}-{link_index}")
-            with st.expander("Agent 실행 기록 보기"):
-                for number, step in enumerate(item["steps"], start=1):
-                    st.text(f"{number}. [{step['단계']}] {step['내용']}")
+        _render_agent_item(item, f"ask-{index}")
     if history:
         st.button("대화 지우기", key="ask-clear", on_click=lambda: st.session_state.update(ask_history=[]))
 
 
+# --- ③ 불편사항 행정 접수안내 ---------------------------------------------------
+COMPLAINT_EXAMPLES = (
+    "집 앞 가로등이 며칠째 꺼져 있어요",
+    "출퇴근 버스 배차 간격이 너무 길어요",
+    "창원 청년 정책 아이디어를 제안하고 싶어요",
+    "요즘 너무 외롭고 우울해요",
+)
+COMPLAINT_BOXES = {"긴급": st.error, "위기": st.error, "높음": st.warning, "보통": st.info, "제안": st.success, "마음 건강": st.info}
+
+
+def _queue_complaint(text):
+    st.session_state["complaint_pending"] = text
+
+
+def render_complaint_page():
+    _back_home_button("complaint")
+    st.subheader(FEATURE_3)
+    st.write("불편한 상황을 한 문장으로 적으면 AI가 긴급도를 판단하고 알맞은 접수 창구를 안내해요.")
+    _ai_status_caption()
+    st.caption("민원을 대신 접수하거나 개인정보를 받지 않아요. 화재·사고 같은 긴급 상황은 바로 112·119에 신고하세요.")
+    with st.container(horizontal=True, wrap=True):
+        for index, example in enumerate(COMPLAINT_EXAMPLES):
+            st.button(example, key=f"complaint-example-{index}", on_click=_queue_complaint, args=(example,))
+    with st.form("complaint-form", clear_on_submit=True, border=False):
+        text = st.text_input("어떤 불편이 있나요?", placeholder="예: 우리 동네 인도 블록이 깨져서 위험해요", max_chars=200)
+        submitted = st.form_submit_button("접수 창구 찾기", type="primary")
+    question = (text if submitted and text.strip() else None) or st.session_state.pop("complaint_pending", None)
+    if question:
+        st.session_state["complaint_result"] = _ask_agent(f"[불편사항 접수 안내] {question}")
+        st.session_state["complaint_result"]["question"] = question
+    if st.session_state.get("complaint_result"):
+        _render_agent_item(st.session_state["complaint_result"], "complaint")
+
+    with st.expander("단계별 접수 창구 한눈에 보기"):
+        for item in load_complaint_channels():
+            COMPLAINT_BOXES.get(item["단계"], st.info)(f"[{item['단계']}] {item['예시']}")
+            st.text(item["안내"] + "\n연락처: " + ", ".join(item["연락처"]))
+        st.caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
+    _next_feature_button(PAGE_DIALECT, f"{FEATURE_4} →")
+
+
+# --- ④ 창원 지역말 번역 --------------------------------------------------------
+def _queue_dialect(text):
+    st.session_state["dialect_pending"] = text
+
+
+def render_dialect_page():
+    _back_home_button("dialect")
+    st.subheader(FEATURE_4)
+    st.write("직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.")
+    _ai_status_caption()
+    st.caption("뜻은 ‘문헌 기준 뜻’이에요(토박이 검수 생략). 사전에 없는 말은 ‘AI 추정 - 사람 검수 필요’로 표시해요.")
+    dialects = load_dialects()
+    demo = [d for d in dialects if d.get("시연 사용")][:6]
+    with st.container(horizontal=True, wrap=True):
+        for index, item in enumerate(demo):
+            st.button(item["표현"], key=f"dialect-example-{index}", on_click=_queue_dialect, args=(item["표현"],))
+    with st.form("dialect-form", clear_on_submit=True, border=False):
+        text = st.text_input("들은 말", placeholder="예: 단디 해래이", max_chars=60)
+        submitted = st.form_submit_button("뜻 찾기", type="primary")
+    expression = (text if submitted and text.strip() else None) or st.session_state.pop("dialect_pending", None)
+    if expression:
+        result = _ask_agent(f"창원 지역말 ‘{expression.strip()}’이(가) 무슨 뜻이에요?")
+        result["question"] = expression.strip()
+        st.session_state["dialect_result"] = result
+    if st.session_state.get("dialect_result"):
+        _render_agent_item(st.session_state["dialect_result"], "dialect")
+
+    with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기"):
+        for item in dialects:
+            st.markdown(f"**{item['표현']}**")
+            st.text(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
+        st.caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
+    _next_feature_button(PAGE_ASK, f"{ASK_LABEL} →")
+
+
 PAGE_RENDERERS = {
+    PAGE_COMPLAINT: render_complaint_page,
+    PAGE_DIALECT: render_dialect_page,
     PAGE_ASK: render_ask_page,
     PAGE_PROFILE: render_profile_page,
     PAGE_POLICY: render_policy_page,
