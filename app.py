@@ -1,3 +1,4 @@
+import html
 import streamlit as st
 import streamlit.components.v1 as components
 from datetime import date, datetime
@@ -69,6 +70,7 @@ LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
 LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
 LOGO_WIDTH = 560  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
 SLOGAN = "창원에서 너의 내일을 응원해!"
+POLICY_COUNT = len(load_policies())
 CONTACT_EMAIL = "whwnstn9294@gmail.com"
 CONTACT_TEXT = f"앱 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})"
 DEFAULT_NICKNAME = "코디2026"
@@ -93,6 +95,23 @@ READABILITY_CSS = """
 @media (max-width: 640px) {[class*="st-key-home-card-"] {min-height: 0;}}
 [class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled {background: #F5F8FC !important; border: 1px dashed #9FB0C6 !important; color: #3F5672 !important; opacity: 1;}
 [class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled p {color: #3F5672 !important;}
+[class*="st-key-level-count-"] {border-radius: 12px; padding: .6rem .9rem; border: 1px solid #D5DDE7; background: #FFFFFF; border-top-width: 4px; gap: .1rem;}
+[class*="st-key-level-count-"] .lvl-name {font-weight: 700; font-size: .95rem;}
+[class*="st-key-level-count-"] .lvl-num {font-size: 2rem; font-weight: 800; color: #063465; line-height: 1.3;}
+[class*="st-key-level-count-"] .lvl-hint {font-size: .8rem; color: #5A6E88; padding-bottom: .5rem;}
+@media (max-width: 640px) {
+    .st-key-level-counts [data-testid="stHorizontalBlock"] {flex-flow: row wrap !important; gap: .5rem !important;}
+    .st-key-level-counts [data-testid="stColumn"] {width: calc(50% - .25rem) !important; flex: 1 1 calc(50% - .25rem) !important; min-width: calc(50% - .25rem) !important;}
+    [class*="st-key-level-count-"] .lvl-num {font-size: 1.6rem;}
+}
+[class*="st-key-policy-card-"] .pc-label {font-weight: 700; margin-top: .3rem;}
+[class*="st-key-policy-card-"] .pc-body {margin-bottom: .5rem;}
+.st-key-level-count-level-ok {border-top-color: #2E9E6B;}
+.st-key-level-count-level-cond {border-top-color: #063465;}
+.st-key-level-count-level-check {border-top-color: #FE6A01;}
+.st-key-level-count-level-no {border-top-color: #9FB0C6;}
+[class*="st-key-policy-card-"] {border-radius: 14px !important;}
+[class*="st-key-policy-card-"] [data-testid="stHeadingWithActionElements"] h2 {font-size: 1.35rem !important; padding: .2rem 0 0 0 !important;}
 [class*="st-key-profile-group-"] {background: #FFFFFF; border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.2rem; height: 100%;}
 .st-key-profile-next {background: #EEF4FB; border: 1px solid #C9D8EA; border-left: 5px solid #FE6A01; border-radius: 14px; padding: 1.1rem 1.4rem; margin-top: .8rem;}
 .st-key-profile-next h3 {font-size: 1.3rem !important; color: #063465;}
@@ -356,7 +375,7 @@ saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 CONDITION_LABEL = "나의 조건 입력"
 APP_INTRO = (
     "창원에 막 이사 온 청년이 처음 6개월 동안 놓치기 쉬운 혜택과 할 일을 한곳에서 챙길 수 있게 돕는 서비스예요. "
-    "팀이 공식 자료로 확인한 정책 23건·생활 정보 60곳·지역말 30개·접수 창구를 바탕으로, AI 코디가 내 조건에 맞춰 안내해요."
+    f"팀이 공식 자료로 확인한 정책 {POLICY_COUNT}건·생활 정보 60곳·지역말 30개·접수 창구를 바탕으로, AI 코디가 내 조건에 맞춰 안내해요."
 )
 HOW_TO_STEPS = (
     (CONDITION_LABEL, "나이·전입일 같은 조건만 적어요"),
@@ -364,7 +383,7 @@ HOW_TO_STEPS = (
     ("AI 코디에게 묻기", "궁금한 건 한 문장으로"),
 )
 FEATURE_SUMMARIES = {
-    PAGE_POLICY: "정책 23건을 내 조건과 비교해 해당 가능·조건부·신청 시기를 알려 줘요.",
+    PAGE_POLICY: f"정책 {POLICY_COUNT}건을 내 조건과 비교해 해당 가능·조건부·신청 시기를 알려 줘요.",
     PAGE_JOURNEY: "1~6개월 정착 할 일 체크와 창원 가볼 곳·행사를 안내해요.",
     PAGE_COMPLAINT: "불편한 상황의 긴급도를 판단해 알맞은 접수 창구를 알려 줘요.",
     PAGE_DIALECT: "직장·식당에서 들은 창원 말의 뜻과 쓰임을 알려 줘요.",
@@ -435,7 +454,7 @@ def _condition_card():
 
 
 HOME_FEATURES = (
-    (PAGE_POLICY, BUTTON_1, "내 조건과 정책 23건을 비교해 먼저 확인할 혜택을 찾아요."),
+    (PAGE_POLICY, BUTTON_1, f"내 조건과 정책 {POLICY_COUNT}건을 비교해 먼저 확인할 혜택을 찾아요."),
     (PAGE_JOURNEY, BUTTON_2, "첫 180일의 할 일과 창원 생활을 함께 계획해요."),
     (PAGE_COMPLAINT, BUTTON_3, "상황에 맞는 행정 접수 창구를 찾아요."),
     (PAGE_DIALECT, BUTTON_4, "낯선 창원·경상 지역 표현을 문헌 자료 기준으로 풀어드려요."),
@@ -443,7 +462,7 @@ HOME_FEATURES = (
 FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
 AGENT_FLOW = (
     ("내 조건", "나이·전입일·하는 일·차량"),
-    ("조건 비교 · AI 판단", "정책 23건 규칙 비교, 질문은 AI 코디가 이해"),
+    ("조건 비교 · AI 판단", f"정책 {POLICY_COUNT}건 규칙 비교, 질문은 AI 코디가 이해"),
     ("검증 자료 확인", "팀이 확인한 공식 자료만 사용"),
     ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구"),
     ("다음 할 일 저장", "체크하면 닉네임 기준으로 기록"),
@@ -744,23 +763,77 @@ MISSION_POLICY_IDS = {
 }
 
 
+LEVEL_STYLE = {
+    "해당 가능": "level-ok",
+    "조건부 해당 가능": "level-cond",
+    "직접 확인": "level-check",
+    "해당 없음": "level-no",
+}
+WHY_LABELS = {
+    "해당 가능": "왜 먼저 보여드리나요?",
+    "조건부 해당 가능": "확인할 조건",
+    "직접 확인": "확인할 조건",
+    "해당 없음": "왜 해당하지 않나요?",
+}
+LEVEL_HINTS = {
+    "해당 가능": "지금 조건과 맞아요",
+    "조건부 해당 가능": "시기·조건이 되면",
+    "직접 확인": "담당 창구 확인",
+    "해당 없음": "지금 조건과 달라요",
+}
+
+
+def _first_sentence(text, limit=70):
+    first = re.split(r"(?<=[.다요])\s|\n| / ", text or "", maxsplit=1)[0].strip()
+    return first if len(first) <= limit else first[: limit - 1] + "…"
+
+
+def _policy_why(match):
+    # 판정 로직이 만든 이유만 사용 (새로 지어내지 않음)
+    reasons = [r for r in match["reasons"] if r]
+    if match["priority"] and reasons:
+        return reasons[0]
+    return reasons[0] if reasons else match["message"]
+
+
+def _policy_todo(match):
+    schedule = list(match["schedule"])
+    if match["eligible_date"]:
+        schedule.insert(0, f"계속 거주 6개월 기준일: {match['eligible_date']}")
+    if schedule:
+        return schedule[0]
+    return _first_sentence(match["action"]) if match["action"] else "안내 링크에서 신청 조건과 기간을 확인해 주세요."
+
+
 def _policy_card(match):
+    style = LEVEL_STYLE[match["level"]]
     with st.container(border=True, key=f"policy-card-{match['id']}"):
+        st.badge(match["level"], color={"level-ok": "green", "level-cond": "blue", "level-check": "orange", "level-no": "gray"}[style])
         _content_title(match["name"])
-        LEVEL_BOXES[match["level"]](f"[{match['level']}] {match['message']}")
+        st.caption(match["message"])
         if match["support"]:
-            _detail("지원 내용", match["support"])
-        schedule = list(match["schedule"])
-        if match["eligible_date"]:
-            schedule.insert(0, f"계속 거주 6개월 기준일: {match['eligible_date']}")
-        if schedule:
-            _detail("신청 시점", "\n".join(schedule))
-        if match["reasons"]:
-            _detail("판단 이유", "\n".join(f"· {reason}" for reason in match["reasons"]))
-        if match["how_to_apply"]:
-            _detail("신청 방법", match["how_to_apply"])
-        st.link_button("안내·신청 링크 열기", match["link"], key=f"policy-link-{match['id']}")
-        st.caption(" · ".join(v for v in (f"{match['checked']} 확인" if match["checked"] else "", match["status"]) if v))
+            st.markdown(f"**지원** · {_first_sentence(match['support'], 90)}")
+        why_label = WHY_LABELS[match["level"]]
+        st.markdown(
+            f"<div class='pc-label'>{html.escape(why_label)}</div><div class='pc-body'>{html.escape(_policy_why(match))}</div>"
+            f"<div class='pc-label'>지금 할 일</div><div class='pc-body'>{html.escape(_policy_todo(match))}</div>",
+            unsafe_allow_html=True,
+        )
+        with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
+            st.link_button("안내·신청 링크 열기", match["link"], key=f"policy-link-{match['id']}")
+            with st.popover("자세히 보기"):
+                if match["support"]:
+                    _detail("지원 내용", match["support"])
+                schedule = list(match["schedule"])
+                if match["eligible_date"]:
+                    schedule.insert(0, f"계속 거주 6개월 기준일: {match['eligible_date']}")
+                if schedule:
+                    _detail("신청 시점", "\n".join(schedule))
+                if match["reasons"]:
+                    _detail("판단 이유", "\n".join(f"· {reason}" for reason in match["reasons"]))
+                if match["how_to_apply"]:
+                    _detail("신청 방법", match["how_to_apply"])
+                st.caption(" · ".join(v for v in (f"{match['checked']} 확인" if match["checked"] else "", match["status"]) if v))
 
 
 def _policy_grid(matches, per_row=2):
@@ -780,15 +853,32 @@ def render_policy_page():
     excluded = [m for m in matches if m["level"] == "해당 없음"]
     counts = {level: sum(1 for m in matches if m["level"] == level) for level in LEVELS}
 
-    st.caption(f"{nickname}님을 위한 확인 결과")
     st.subheader(FEATURE_1)
-    st.markdown("**받을 수 있는 혜택**")
-    st.write(" · ".join(f"{level} {count}개" for level, count in counts.items()))
+    st.markdown(f"### {nickname}님이 먼저 확인하면 좋은 혜택")
+    st.caption("받을 수 있는 혜택 한눈에 보기 · 실제 판정 결과 기준")
+    with st.container(key="level-counts"):
+        count_columns = st.columns(len(LEVELS), gap="small")
+    for column, level in zip(count_columns, LEVELS):
+        with column:
+            with st.container(key=f"level-count-{LEVEL_STYLE[level]}"):
+                st.markdown(
+                    f"<div class='lvl-name'>{level}</div><div class='lvl-num'>{counts[level]}</div>"
+                    f"<div class='lvl-hint'>{LEVEL_HINTS[level]}</div>",
+                    unsafe_allow_html=True,
+                )
     st.caption(
-        f"팀이 검증한 창원·청년 정책 {len(matches)}건과 입력한 정보를 비교했어요. "
+        f"팀이 검증한 창원·청년 정책 {len(matches)}건과 입력한 조건을 규칙으로 비교했어요. "
         "받을 수 있다고 단정하지 않아요 — 최종 판단은 담당 기관에서 해요."
     )
+    p01 = evaluate_p01(profile)
+    if p01["missing_fields"]:
+        missing_labels = [
+            PROFILE_FIELD_LABELS.get(field, "추가 정보")
+            for field in p01["missing_fields"]
+        ]
+        st.info("더 정확히 보려면 입력해 주세요: " + ", ".join(missing_labels))
 
+    st.markdown("**코디가 먼저 볼 혜택을 정리했어요.**")
     _policy_grid(candidates[:POLICY_CARDS_SHOWN])
     if len(candidates) > POLICY_CARDS_SHOWN:
         with st.expander(f"더 보기 · 다른 지원 {len(candidates) - POLICY_CARDS_SHOWN}개"):
@@ -797,18 +887,12 @@ def render_policy_page():
         with st.expander(f"해당 없음 {len(excluded)}개 · 이유 보기"):
             _policy_grid(excluded)
 
-    st.link_button(
-        "창원시 청년정책 전체 보기",
-        CITY_YOUTH_POLICY_URL,
-    )
-    p01 = evaluate_p01(profile)
-    if p01["missing_fields"]:
-        missing_labels = [
-            PROFILE_FIELD_LABELS.get(field, "추가 정보")
-            for field in p01["missing_fields"]
-        ]
-        st.caption("확인할 항목: " + ", ".join(missing_labels))
-    st.caption("조건을 바꾸려면 ‘나의 조건 입력’에서 고쳐 주세요.")
+    with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
+        st.link_button(
+            "창원시 청년정책 전체 보기",
+            CITY_YOUTH_POLICY_URL,
+        )
+        st.caption("조건을 바꾸려면 ‘나의 조건 입력’에서 고쳐 주세요.")
     _next_feature_button(PAGE_JOURNEY, f"{BUTTON_2} →")
 
 
@@ -1180,6 +1264,9 @@ def _render_agent_item(item, key_prefix):
             badge += f" · {item['model']}"
         badge += " · 검증 통과" if item["verified"] else " · 검증 필요"
         st.caption(badge)
+        error_step = next((step for step in item["steps"] if step["단계"] == "AI 연결 오류"), None)
+        if error_step:
+            st.caption(f"AI가 답하지 못한 이유: {error_step['내용']} — ‘Agent 실행 기록 보기’의 ‘오류 상세’ 줄을 확인해 주세요.")
         for link_index, (label, url) in enumerate(item.get("links", [])):
             st.link_button(label, url, key=f"{key_prefix}-link-{link_index}")
         with st.expander("Agent 실행 기록 보기"):

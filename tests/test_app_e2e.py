@@ -10,6 +10,7 @@ import activity_manager
 import progress_manager
 from naver_map_links import map_search_name
 from policy_engine import evaluate_p01
+from policy_matcher import load_policies
 from state_manager import (
     format_korea_timestamp,
     load_mission_notes,
@@ -228,7 +229,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 _visit(app, "policy")
                 self.assertFalse(app.exception)
                 link_keys = [l for l in app.get("link_button") if l.label == "안내·신청 링크 열기"]
-                self.assertEqual(len(link_keys), 23)
+                self.assertEqual(len(link_keys), len(load_policies()))
                 labels = [e.label for e in app.expander]
                 self.assertTrue(any(label.startswith("더 보기") for label in labels))
                 self.assertTrue(any(label.startswith("해당 없음") for label in labels))

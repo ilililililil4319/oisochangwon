@@ -1,4 +1,4 @@
-"""정책 23건(policies_mvp.json)을 사용자 프로필과 비교해 4단계로 판정한다.
+"""정책 DB(policies_mvp.json)을 사용자 프로필과 비교해 4단계로 판정한다.
 
 단계: 해당 가능 / 조건부 해당 가능 / 직접 확인 / 해당 없음
 - '받을 수 있다'고 단정하지 않는다. 최종 판단은 담당 기관.
@@ -150,7 +150,15 @@ def evaluate_policy(policy, profile, today=None):
     job_text = _text(policy.get("취업 상태"))
     rule = _employment_rule(job_text)
     job_type = profile.get("job_type")
-    if rule == "employed" and job_type == "자영업":
+    if "재학" in job_text:
+        # 대학(원) 재학생 대상 사업 — '지금 하는 일'이 학생인지로 판단
+        if job_type is None:
+            unknown.append(f"하는 일({job_text})")
+        elif job_type != "학생":
+            return _result(policy, "해당 없음", LEVEL_MESSAGES["해당 없음"], [f"{job_text} 대상이에요."], move_in_date)
+        else:
+            reasons.append(f"재학 조건({job_text}) 충족")
+    elif rule == "employed" and job_type == "자영업":
         # 자영업은 '재직·근로' 대상 사업마다 인정 여부가 달라 기관 확인이 필요
         unknown.append(f"취업 상태({job_text}) — 자영업 인정 여부")
     elif rule == "unemployed" and job_type == "학생":
@@ -165,8 +173,16 @@ def evaluate_policy(policy, profile, today=None):
             return _result(policy, "해당 없음", LEVEL_MESSAGES["해당 없음"], [f"{job_text} 대상이에요."], move_in_date)
         else:
             reasons.append(f"취업 조건({job_text}) 충족")
-    # 3) 거주 요건 — 'N년 이상 거주', '2025.7.1 이후 계속 거주'
+    # 3) 거주 요건 — 'N년 이상 거주', '2025.7.1 이후 계속 거주', '전입 전 타 시·군·구 1년 이상'
     residence = _text(policy.get("거주 요건"))
+    if "타 시·군·구 1년 이상" in residence:
+        previous = profile.get("previous_residence_years")
+        if previous is None:
+            unknown.append("창원 전입 전 타지역 거주기간")
+        elif previous < 1:
+            return _result(policy, "해당 없음", LEVEL_MESSAGES["해당 없음"], ["창원 전입 전 타지역 1년 이상 거주 조건을 충족하지 않아요."], move_in_date)
+        else:
+            reasons.append("전입 전 타지역 1년 이상 거주 조건 충족")
     years = re.search(r"창원시?\s*(\d+)년 이상 거주", residence)
     since = re.search(r"(\d{4})\.(\d{1,2})\.(\d{1,2}) 이후 계속 거주", residence)
     conditional = []

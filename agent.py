@@ -57,7 +57,7 @@ TOOLS = [
     },
     {
         "name": "search_policies",
-        "description": "팀이 검증한 창원·청년 정책 DB(23건)에서 키워드로 정책을 찾는다. 예: 월세, 교통, 통장, 적금, 전입, 취업, 자격증, 운동.",
+        "description": "팀이 검증한 창원·청년 정책 DB에서 키워드로 정책을 찾는다. 예: 월세, 교통, 통장, 적금, 전입, 취업, 자격증, 운동.",
         "input_schema": {
             "type": "object",
             "properties": {"keyword": {"type": "string", "description": "찾을 단어(한두 단어). 비우면 핵심 정책 목록"}},
@@ -359,9 +359,9 @@ def _format_rule_answer(tool_name, output, question):
         lines = [f"- {a['이름']} ({a['구']}, {a['분야']})" for a in output["activities"]]
         text = "확인된 장소 중 이런 곳이 있어요.\n" + "\n".join(lines)
         if output.get("car_recommended"):
-            car = ", ".join(a["이름"] for a in output["car_recommended"])
-            text += f"\n차로 가면 좋은 곳(외곽이라 버스로는 어려워요): {car}"
-        return text + "\n특정 업체 홍보가 아니며, 방문 전 운영시간을 확인해 주세요."
+            car = "\n".join(f"- {a['이름']}" for a in output["car_recommended"])
+            text += f"\n\n차로 가면 좋은 곳(외곽이라 버스로는 어려워요)\n{car}"
+        return text + "\n\n특정 업체 홍보가 아니며, 방문 전 운영시간을 확인해 주세요."
     if tool_name == "search_policies":
         if not output["policies"]:
             return f"확인된 정책 정보에는 없어요. {CALL_CENTER} 또는 창원청년정보플랫폼({YOUTH_PLATFORM_URL})에서 확인해 주세요."

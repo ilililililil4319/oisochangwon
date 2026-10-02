@@ -14,7 +14,7 @@ def by_id(results):
 class PolicyMatcherTests(unittest.TestCase):
     def test_all_23_policies_get_one_of_four_levels_sorted(self):
         results = match_policies(PERSONA, TODAY)
-        self.assertEqual(len(results), 23)
+        self.assertEqual(len(results), len(load_policies()))
         self.assertTrue(all(r["level"] in LEVELS for r in results))
         ranks = [LEVELS.index(r["level"]) for r in results]
         self.assertEqual(ranks, sorted(ranks))
@@ -51,6 +51,15 @@ class PolicyMatcherTests(unittest.TestCase):
         self.assertEqual(owner["P09"]["level"], "직접 확인")
         self.assertEqual(student["P07"]["level"], "직접 확인")
         self.assertNotEqual(other["P07"]["level"], "해당 없음")
+
+    def test_transfer_student_support_p32(self):
+        student = by_id(match_policies(dict(PERSONA, job_type="학생", employed_in_changwon=False), TODAY))
+        worker = by_id(match_policies(dict(PERSONA, job_type="직장인"), TODAY))
+        short = by_id(match_policies(dict(PERSONA, job_type="학생", employed_in_changwon=False, previous_residence_years=0), TODAY))
+        self.assertEqual(student["P32"]["level"], "해당 가능")
+        self.assertEqual(worker["P32"]["level"], "해당 없음")
+        self.assertEqual(short["P32"]["level"], "해당 없음")
+        self.assertEqual(by_id(match_policies(PERSONA, TODAY))["P32"]["level"], "직접 확인")
 
     def test_no_vehicle_puts_k_pass_first(self):
         results = match_policies(dict(PERSONA, vehicle="없음"), TODAY)
