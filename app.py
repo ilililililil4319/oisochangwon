@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import date
+from pathlib import Path
 import re
 
 from activity_manager import (
@@ -49,6 +50,11 @@ PROFILE_FIELD_LABELS = {
 }
 CITY_YOUTH_POLICY_URL = "https://www.changwon.go.kr/youth/05085/05105/05105.web"
 HOME_DISTRICTS = ["의창구", "성산구", "마산합포구", "마산회원구", "진해구"]
+ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
+LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
+SLOGAN = "창원에서 너의 내일을 응원해!"
+DEFAULT_NICKNAME = "코디2026"
 
 
 # Native heading and caption roles share one small typography layer.
@@ -96,14 +102,14 @@ def _sync_activity_district():
 
 st.set_page_config(
     page_title="오이소창원",
-    page_icon="🌱",
+    page_icon=str(LOGO_ICON_PATH),
     layout="centered",
 )
 
 st.html(READABILITY_CSS)
 
-st.title("🌱 오이소창원")
-st.subheader("창원 생활, 하나씩 준비해요")
+st.image(str(LOGO_WIDE_PATH), width=360)
+st.subheader(SLOGAN, anchor=False)
 
 st.write(
     "내 상황에 맞는 지원과 이사 후 챙길 일을 확인할 수 있어요."
@@ -111,7 +117,7 @@ st.write(
 
 st.divider()
 
-nickname = st.text_input("닉네임", value="코디세이")
+nickname = st.text_input("닉네임", value=DEFAULT_NICKNAME)
 user_key = nickname.strip()
 saved_mission_states = load_mission_states(user_key) if user_key else {}
 saved_mission_notes = load_mission_notes(user_key) if user_key else {}

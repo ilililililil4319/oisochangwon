@@ -20,11 +20,11 @@ class MissionStateStorageTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             database = Path(temp_dir) / "storage" / "progress.sqlite3"
 
-            save_mission_state("  코디세이 ", "confirm-move-in-date", True, database)
+            save_mission_state("  코디2026 ", "confirm-move-in-date", True, database)
 
             self.assertTrue(database.is_file())
             self.assertEqual(
-                load_mission_states("코디세이", database),
+                load_mission_states("코디2026", database),
                 {"confirm-move-in-date": True},
             )
 

@@ -75,6 +75,19 @@ class ApplicationE2ETests(unittest.TestCase):
         clock_patch.start()
         self.addCleanup(clock_patch.stop)
 
+    def test_brand_logo_slogan_and_default_nickname(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                self.assertFalse(app.exception)
+                self.assertEqual(len(app.get("image")), 1)
+                self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
+                self.assertFalse(any("🌱" in t.value for t in app.title))
+                self.assertEqual(app.text_input[0].value, "코디2026")
+        assets = APP_FILE.parent / "assets"
+        for name in ("logo_wide.png", "logo_icon.png"):
+            self.assertTrue((assets / name).is_file(), name)
+
     def test_typography_roles_and_literal_schedule_breaks(self):
         activity = dict(load_activities()[0])
         activity["일정·운영시간"] = "교육동 평일 10:00~20:00, 토 10:00~17:00 / 다목적동 하절기 09:00~20:00, 동절기 09:00~18:00"
@@ -122,7 +135,7 @@ class ApplicationE2ETests(unittest.TestCase):
     def test_initial_view_hides_results_even_with_saved_records(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
-                state_manager.save_mission_group("코디세이", {"M1-1": {"completed": True, "note": "기존 기록"}})
+                state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = AppTest.from_file(str(APP_FILE)).run()
                 self.assertFalse(app.exception)
                 self.assertEqual([b.label for b in app.button], ["받을 수 있는 지원 확인하기", "나의 정착 할 일 확인하기"])
@@ -153,15 +166,15 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(len(app.expander), 6)
                 self.assertTrue(app.expander[0].proto.expanded)
                 self.assertFalse(any("확인 결과" in h.value for h in app.subheader))
-                app.checkbox(key="mission-progress:코디세이:M1-1").check().run()
-                app.text_input(key="mission-note:코디세이:M1-1").set_value("저장 전 기록").run()
+                app.checkbox(key="mission-progress:코디2026:M1-1").check().run()
+                app.text_input(key="mission-note:코디2026:M1-1").set_value("저장 전 기록").run()
                 app.button(key="show-policy").click().run()
                 self.assertEqual(len(app.expander), 6)
-                self.assertTrue(app.checkbox(key="mission-progress:코디세이:M1-1").value)
-                self.assertEqual(app.text_input(key="mission-note:코디세이:M1-1").value, "저장 전 기록")
-                app.button(key="save-stage:코디세이:1").click().run()
-                self.assertEqual(load_mission_notes("코디세이")["M1-1"], "저장 전 기록")
-                self.assertTrue(load_mission_states("코디세이")["M1-1"])
+                self.assertTrue(app.checkbox(key="mission-progress:코디2026:M1-1").value)
+                self.assertEqual(app.text_input(key="mission-note:코디2026:M1-1").value, "저장 전 기록")
+                app.button(key="save-stage:코디2026:1").click().run()
+                self.assertEqual(load_mission_notes("코디2026")["M1-1"], "저장 전 기록")
+                self.assertTrue(load_mission_states("코디2026")["M1-1"])
                 self.assertIn("조금 뒤 신청할 수 있어요", _visible_text(app))
 
     def test_neutral_home_district_and_filter_sync_after_results(self):
@@ -198,8 +211,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("다른 사용자", {"M2-1": {"completed": True}})
                 app = AppTest.from_file(str(APP_FILE)).run()
                 _show_both(app)
-                app.button(key="save-stage:코디세이:1").click().run()
-                self.assertEqual(app.session_state["last_saved_nickname"], "코디세이")
+                app.button(key="save-stage:코디2026:1").click().run()
+                self.assertEqual(app.session_state["last_saved_nickname"], "코디2026")
                 app.text_input[0].set_value("다른 사용자").run()
                 self.assertFalse(app.exception)
                 self.assertFalse(any("저장한 단계:" in c.value for c in app.sidebar.caption))
@@ -496,12 +509,12 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", database):
                 first_session = AppTest.from_file(str(APP_FILE)).run()
                 _show_both(first_session)
-                first_session.checkbox(key="mission-progress:코디세이:M1-1").check().run()
-                first_session.button(key="save-stage:코디세이:1").click().run()
+                first_session.checkbox(key="mission-progress:코디2026:M1-1").check().run()
+                first_session.button(key="save-stage:코디2026:1").click().run()
 
                 self.assertFalse(first_session.exception)
                 self.assertTrue(
-                    load_mission_states("코디세이", database)["M1-1"]
+                    load_mission_states("코디2026", database)["M1-1"]
                 )
 
                 restored_session = AppTest.from_file(str(APP_FILE)).run()
@@ -509,12 +522,12 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertFalse(restored_session.exception)
                 self.assertTrue(
                     restored_session.checkbox(
-                        key="mission-progress:코디세이:M1-1"
+                        key="mission-progress:코디2026:M1-1"
                     ).value
                 )
                 self.assertFalse(
                     restored_session.checkbox(
-                        key="mission-progress:코디세이:M1-2"
+                        key="mission-progress:코디2026:M1-2"
                     ).value
                 )
 
