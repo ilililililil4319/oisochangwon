@@ -7,6 +7,7 @@
 
 import json
 import re
+from urllib.parse import quote
 from dataclasses import dataclass, field
 from datetime import date
 from functools import lru_cache
@@ -39,7 +40,7 @@ SYSTEM_PROMPT = """너는 '오이소창원'의 정착 코디네이터 Agent야. 
 1. 답은 반드시 도구(tool) 결과에 있는 내용으로만 한다. 정책명·금액·기간·조건·연락처·링크는 도구 결과의 값을 그대로 쓰고 추측하지 않는다.
 2. 도구 결과에 없으면 "확인된 정보에는 없어요"라고 말하고 창원시 콜센터 1899-1111 또는 창원청년정보플랫폼(https://www.changwon.go.kr/youth/05085/05105/05105.web)을 안내한다. 단, 지역말(사투리) 질문에는 콜센터·플랫폼을 안내하지 않는다(4번 규칙).
 3. 지원 대상 여부는 단정하지 않는다. '해당 가능 / 조건부 해당 가능 / 직접 확인 필요' 같은 표현을 쓴다.
-4. 지역말이 사전(lookup_dialect)에 없으면 "핵심 30개 사전에는 없는 말이에요"라고 먼저 말하고, 짐작한 뜻은 맨 앞에 "[AI 추정 - 사람 검수 필요]"를 붙여 한두 문장으로만 쓴다. 확실하지 않으면 모른다고 말하고 "말한 분께 한 번 더 여쭤보세요"라고 안내한다. 지역말에는 콜센터·청년정보플랫폼·링크를 붙이지 않는다. 사전에 있으면 '문헌 기준 뜻'이라고 밝힌다.
+4. 지역말은 lookup_dialect 결과로만 답한다. 사전에 있으면 '문헌 기준 뜻'이라고 밝히고 출처를 말한다. 사전에 없으면(found=false) 뜻을 짐작하지 말고 "팀이 확인한 지역말 사전에 없는 말이에요. 별도 확인이 필요해요."라고 말한 뒤, 아래 링크 버튼(국립국어원 우리말샘)에서 찾아보거나 말한 분께 한 번 더 여쭤보라고 안내한다. 지역말에는 콜센터·청년정보플랫폼을 안내하지 않고, 답 본문에 주소(URL)를 쓰지 않는다.
 5. 불편·민원은 find_complaint_channel로 단계(긴급·높음·보통·제안·마음 건강)를 골라 창구를 안내한다. 민원 대리 제출·제안서 작성은 하지 않는다.
 6. 외로움·우울 같은 마음 건강 이야기는 진단하지 않고 공감 한 문장 후 상담 창구를 안내한다.
 7. 의학·법률 판단, 창원 정착과 무관한 질문(주식·숙제 등)은 정중히 거절하고 할 수 있는 일(지원·할 일·장소·지역말·불편 접수)을 알려 준다.
@@ -78,7 +79,7 @@ TOOLS = [
     },
     {
         "name": "lookup_dialect",
-        "description": "창원(경남) 지역말 핵심 30개 사전에서 표현의 뜻을 찾는다.",
+        "description": "창원(경남) 지역말 사전(핵심 30개 → 공식 출처 확장 사전 약 3천 개)에서 표현의 뜻을 찾는다. 낱말 하나나 짧은 표현으로 넣는다.",
         "input_schema": {
             "type": "object",
             "properties": {"expression": {"type": "string", "description": "뜻이 궁금한 지역말 표현"}},
@@ -197,8 +198,36 @@ def _normalize(text):
     return re.sub(r"[\s'\"‘’“”?？!.,~]", "", text or "")
 
 
+DIALECT_SEARCH_LABEL = "국립국어원 우리말샘에서 찾아보기"
+# 국립국어원 우리말샘 검색 결과 주소(방언 표제어 포함). 사전에 없는 말일 때만 안내한다.
+DIALECT_SEARCH_URL = "https://opendict.korean.go.kr/search/searchResult?focus_name_top=query&query="
+PARTICLES = ("이라는", "라는", "이가", "이는", "이란", "란", "이", "가", "은", "는", "을", "를", "도")
+
+
+def dialect_search_link(word):
+    return DIALECT_SEARCH_URL + quote((word or "").strip())
+
+
+def _dialect_candidates(expression):
+    """질문 속 낱말 후보(조사 뗀 형태 포함)."""
+    words = [w for w in re.split(r"[\s'\"‘’“”?？!.,~]+", expression or "") if w]
+    candidates = []
+    for word in words:
+        candidates.append(word)
+        for particle in PARTICLES:
+            if word.endswith(particle) and len(word) - len(particle) >= 2:
+                candidates.append(word[: -len(particle)])
+    return [c for c in candidates if len(c) >= 2]
+
+
+@lru_cache(maxsize=None)
+def _extended_dialects():
+    return {_normalize(item["표현"]): item for item in _items("dialects_ext.json")}
+
+
 def lookup_dialect(expression):
     target = _normalize(expression)
+    # 1) 핵심 30개(문장형) — 부분 일치
     for item in _items("dialects_core30.json"):
         for candidate in (item.get("표현"), item.get("DB 표제어")):
             norm = _normalize(candidate)
@@ -211,7 +240,26 @@ def lookup_dialect(expression):
                     "표시": "문헌 기준 뜻",
                     "출처": item.get("출처"),
                 }
-    return {"found": False, "message": "지역말 핵심 30개 사전에 없는 표현입니다."}
+    # 2) 확장 사전(공식 출처 3천여 개) — 짧은 낱말이 엉뚱하게 걸리지 않도록 정확히 같은 말만
+    extended = _extended_dialects()
+    for candidate in [expression, *_dialect_candidates(expression)]:
+        item = extended.get(_normalize(candidate))
+        if item:
+            return {
+                "found": True,
+                "표현": item["표현"],
+                "표준어 뜻": item["표준어 뜻"],
+                "사용 상황": item.get("상황"),
+                "표시": "문헌 기준 뜻",
+                "출처": item.get("출처"),
+            }
+    word = (_dialect_candidates(expression) or [expression.strip()])[0]
+    return {
+        "found": False,
+        "message": "팀이 확인한 지역말 사전(핵심 30개·공식 출처 확장 사전)에 없는 표현입니다. 별도 확인 필요.",
+        "확인 링크": dialect_search_link(word),
+        "링크 이름": DIALECT_SEARCH_LABEL,
+    }
 
 
 def find_complaint_channel(level):
@@ -302,6 +350,8 @@ def collect_links(tool_outputs, limit=5):
             url = _clean_url(contact)
             if url:
                 add("국민신문고" if "epeople" in url else "접수 창구", url)
+        if output.get("확인 링크"):
+            add(output.get("링크 이름") or "확인 링크", output["확인 링크"])
         if "기업노동자 전입지원금 판정" in output:
             add("창원청년정보플랫폼 청년지원 서비스", YOUTH_PLATFORM_URL)
     return links
@@ -350,7 +400,10 @@ def _format_rule_answer(tool_name, output, question):
     if tool_name == "lookup_dialect":
         if output.get("found"):
             return f"‘{output['표현']}’은(는) “{output['표준어 뜻']}”라는 뜻이에요({output['표시']}). 주로 {output.get('사용 상황') or '일상'}에서 써요."
-        return f"‘{_quoted(question)}’은(는) 제가 가진 지역말 사전(핵심 30개)에 없어요. 정확한 뜻은 주변 창원 분께 여쭤보세요."
+        return (
+            f"‘{_quoted(question)}’은(는) 팀이 확인한 지역말 사전에 없는 말이에요. 별도 확인이 필요해요.\n"
+            f"아래 ‘{DIALECT_SEARCH_LABEL}’에서 찾아보거나, 말한 분께 한 번 더 여쭤보세요."
+        )
     if tool_name == "find_complaint_channel":
         return f"[{output['단계']}] {output['안내']}\n연락처: " + ", ".join(output["연락처"])
     if tool_name == "search_activities":
@@ -394,6 +447,9 @@ def rule_based_answer(question, profile=None, steps=None, reason=""):
     elif any(w in q for w in ("지원", "혜택", "정책", "월세", "통장", "적금", "교통", "패스", "수당")):
         keyword = next((w for w in ("월세", "통장", "적금", "교통", "패스", "수당", "전입", "자격증") if w in q), "")
         tool, args = "search_policies", {"keyword": keyword}
+    elif lookup_dialect(q).get("found"):
+        # '정구지가 뭐야', '욕봤데이'처럼 지역말만 물은 경우
+        tool, args = "lookup_dialect", {"expression": q}
     else:
         _step(steps, "목표 인식(규칙)", "창원 정착 관련 기능과 맞는 질문을 찾지 못함")
         return AgentResult(

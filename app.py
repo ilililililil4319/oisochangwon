@@ -1,4 +1,5 @@
 import html
+import json
 import streamlit as st
 import streamlit.components.v1 as components
 from datetime import date, datetime
@@ -1383,6 +1384,9 @@ def _queue_dialect(text):
     st.session_state["dialect_pending"] = text
 
 
+DIALECT_EXT_COUNT = len(json.loads((Path(__file__).parent / "data" / "dialects_ext.json").read_text(encoding="utf-8"))["items"])
+
+
 def render_dialect_page():
     _back_home_button("dialect")
     st.subheader(FEATURE_4)
@@ -1392,7 +1396,10 @@ def render_dialect_page():
     with input_column:
         st.write("직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.")
         _ai_status_caption()
-        st.caption("뜻은 ‘문헌 기준 뜻’이에요. 사전에 없는 말은 ‘AI 추정 - 사람 검수 필요’로 표시해요.")
+        st.caption(
+            f"핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) 확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드려요. "
+            "사전에 없는 말은 짐작하지 않고 ‘별도 확인 필요’와 우리말샘 찾아보기 링크를 드려요."
+        )
         with st.form("dialect-form", clear_on_submit=True, border=False):
             text = st.text_input("들은 말", placeholder="예: 단디 해래이", max_chars=60)
             submitted = st.form_submit_button("뜻 찾기", type="primary")

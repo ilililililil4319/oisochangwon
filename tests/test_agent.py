@@ -142,6 +142,31 @@ class LLMLoopTests(unittest.TestCase):
         self.assertFalse(any("문신미술관" in name for name in names))
         self.assertTrue(any("진해루" in name for name in names))
 
+    def test_dialect_extended_dictionary_and_unknown_word(self):
+        found = agent.lookup_dialect("정구지가 뭐야")
+        self.assertTrue(found["found"])
+        self.assertEqual(found["표준어 뜻"], "부추")
+        self.assertEqual(found["표시"], "문헌 기준 뜻")
+        # 팀 제보만 있고 공식 출처가 없는 말은 확장 사전에 넣지 않는다
+        missing = agent.lookup_dialect("오찬물")
+        self.assertFalse(missing["found"])
+        self.assertIn("별도 확인 필요", missing["message"])
+        self.assertTrue(missing["확인 링크"].startswith("https://opendict.korean.go.kr/search/searchResult"))
+        self.assertFalse(agent.lookup_dialect("가")["found"])  # 한 글자는 엉뚱하게 걸리지 않음
+        result = agent.run_agent("창원 지역말 ‘오찬물’이(가) 무슨 뜻이에요?", PROFILE)
+        self.assertIn("별도 확인", result.answer)
+        self.assertNotIn("1899-1111", result.answer)
+        self.assertIn("국립국어원 우리말샘에서 찾아보기", [label for label, _ in result.links])
+        # 지역말만 물어도 사전에서 찾는다
+        self.assertIn("부추", agent.run_agent("정구지가 뭐야", PROFILE).answer)
+
+    def test_dialect_extended_dictionary_excludes_low_reliability_layers(self):
+        import json
+        items = json.loads((agent.DATA_DIR / "dialects_ext.json").read_text(encoding="utf-8"))["items"]
+        layers = {item.get("데이터 층위") for item in items}
+        self.assertFalse(any(str(layer).startswith("핵심 후보") or "능력고사" in str(layer) for layer in layers))
+        self.assertFalse(any("제보" in item["출처"] for item in items))
+
     def test_api_error_falls_back_to_rules(self):
         class Broken:
             messages = SimpleNamespace(create=lambda **kw: (_ for _ in ()).throw(RuntimeError("401")))
