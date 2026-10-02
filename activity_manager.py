@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 
-from naver_map_links import build_naver_map_search_web_url, naver_map_web_url
+from naver_map_links import build_naver_map_search_web_url, map_search_name, naver_map_web_url
 
 
 ACTIVITIES_PATH = Path(__file__).resolve().parent / "data" / "activities_mvp.json"
@@ -300,6 +300,7 @@ def activity_view(activity, app_name):
         "official_url": source_link["url"],
         "official_link_label": source_link["label"],
         "link_classification": source_link["classification"],
+        "map_search_name": map_search_name(activity["이름"]),
         "naver_map_url": naver_map_web_url(activity),
         "naver_map_search_app_url": build_naver_map_search_app_url(
             activity["이름"],

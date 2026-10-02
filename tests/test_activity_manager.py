@@ -17,6 +17,9 @@ from activity_manager import (
 )
 
 
+from naver_map_links import map_search_name
+
+
 class ActivityManagerTests(unittest.TestCase):
     def test_loads_all_curated_activities_with_unique_ids(self):
         activities = load_activities()
@@ -72,26 +75,26 @@ class ActivityManagerTests(unittest.TestCase):
                 self.assertEqual(parsed.scheme, "https")
                 self.assertEqual(parsed.hostname, "map.naver.com")
                 self.assertTrue(url.startswith("https://map.naver.com/p/search/"))
-                self.assertIn(quote(activity["이름"], safe=""), url)
+                self.assertIn(quote(map_search_name(activity["이름"]), safe=""), url)
                 self.assertFalse(parsed.query)
         for name in ("경남도립미술관", "시민생활체육관 (창원)", "창원 청년비전센터"):
             with self.subTest(name=name):
                 activity = dict(activities[0], 이름=name)
                 url = activity_view(activity, "http://localhost:8501")["naver_map_url"]
-                self.assertIn(quote(name, safe=""), url)
+                self.assertIn(quote(map_search_name(name), safe=""), url)
                 self.assertNotIn(" ", url)
-                self.assertIn(name, unquote(url))
+                self.assertIn(map_search_name(name), unquote(url))
 
     def test_representative_search_queries_and_no_invented_coordinates(self):
         for name, district in (("시민생활체육관", "성산구"), ("스파더스페이스", "마산합포구"), ("경남도립미술관", "의창구")):
             parsed = urlsplit(build_naver_map_search_web_url(name, district))
             self.assertEqual(parsed.scheme, "https")
             self.assertTrue(parsed.path.startswith("/p/search/"))
-            self.assertEqual(parsed.path, "/p/search/" + quote(f"{name} 창원 {district}", safe=""))
+            self.assertEqual(parsed.path, "/p/search/" + quote(f"{name} 창원", safe=""))
             query = unquote(parsed.path.removeprefix("/p/search/"))
             self.assertIn(name, query)
             self.assertIn("창원", query)
-            self.assertIn(district, query)
+            self.assertNotIn(district, query)
             self.assertFalse(parsed.query)
             self.assertFalse(parsed.fragment)
         self.assertEqual(build_naver_map_search_web_url(""), "https://map.naver.com/p/")
@@ -103,6 +106,28 @@ class ActivityManagerTests(unittest.TestCase):
         self.assertEqual(activity_view(activity, "http://localhost:8501")["naver_map_url"], activity["대중교통 접근(검수)"])
         activity["대중교통 접근(검수)"] = "https://map.naver.com/p/"
         self.assertIn("/p/search/", activity_view(activity, "http://localhost:8501")["naver_map_url"])
+
+    def test_short_map_names_preserve_display_names_and_use_recorded_venues(self):
+        expected = {"A29": "스펀지파크", "A31": "3·15해양누리공원", "A35": "경남도립미술관",
+                    "A39": "창원체육관", "A40": "창동예술촌", "A83": "스펀지파크",
+                    "A140": "용지문화공원", "A151": "도계부부시장", "A165": "창원컨벤션센터"}
+        for activity in load_activities():
+            with self.subTest(activity=activity["ID"]):
+                view = activity_view(activity, "http://localhost:8501")
+                name = view["map_search_name"]
+                self.assertTrue(name)
+                self.assertEqual(view["name"], activity["이름"])
+                self.assertNotIn("(", name)
+                self.assertLessEqual(len(name), 30)
+                if activity["ID"] in expected:
+                    self.assertEqual(name, expected[activity["ID"]])
+                    evidence = " ".join(str(activity.get(k, "")) for k in ("이름", "메모", "생활권(구)", "연락처", "출처"))
+                    self.assertIn(name, evidence)
+                query = unquote(urlsplit(view["naver_map_url"]).path.removeprefix("/p/search/"))
+                self.assertEqual(query, name if "창원" in name else name + " 창원")
+        self.assertEqual(map_search_name("스펀지파크(청년문화예술복합공간)"), "스펀지파크")
+        self.assertEqual(map_search_name("장소 (설명 (추가))"), "장소")
+        self.assertEqual(map_search_name(None), "")
 
     def test_introductions_only_use_recorded_tags_and_types(self):
         for activity in load_activities():
@@ -200,7 +225,7 @@ class ActivityManagerTests(unittest.TestCase):
         self.assertEqual(query["appname"], ["http://localhost:8501"])
         self.assertNotIn("lat", query)
         self.assertNotIn("lng", query)
-        self.assertIn(activity["이름"], unquote(view["naver_map_url"]))
+        self.assertIn(map_search_name(activity["이름"]), unquote(view["naver_map_url"]))
 
     def test_nonofficial_links_are_never_returned_as_official(self):
         untrusted_urls = (

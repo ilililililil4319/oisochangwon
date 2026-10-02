@@ -8,6 +8,7 @@ from unittest.mock import patch
 import state_manager
 import activity_manager
 import progress_manager
+from naver_map_links import map_search_name
 from policy_engine import evaluate_p01
 from state_manager import (
     format_korea_timestamp,
@@ -363,8 +364,8 @@ class ApplicationE2ETests(unittest.TestCase):
         activities = load_activities()
         # Civic gym is not in the curated 58: use a named fixture without adding data.
         civic = dict(activities[0], 이름="시민생활체육관", **{"생활권(구)": "성산구"})
-        samples = [civic] + [a for a in activities if a["이름"] in ("스파더스페이스", "경남도립미술관")]
-        self.assertEqual(len(samples), 3)
+        samples = [civic] + [a for a in activities if a["이름"] in ("스파더스페이스", "경남도립미술관", "스펀지파크(청년문화예술복합공간)", "창동예술촌 '창동쪽샘길' 플리마켓·아트클래스")]
+        self.assertEqual(len(samples), 5)
         for activity in samples:
             with self.subTest(name=activity["이름"]), TemporaryDirectory() as temp_dir:
                 with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), patch.object(
@@ -376,7 +377,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     link = next(x for x in app.get("link_button") if x.label == "네이버 지도에서 보기")
                     self.assertTrue(link.url.startswith("https://map.naver.com/p/search/"))
                     self.assertEqual(unquote(link.url.split("/p/search/", 1)[1]),
-                                     f'{activity["이름"]} 창원 {activity["생활권(구)"]}')
+                                     f'{map_search_name(activity["이름"])} 창원')
 
     def test_youth_policy_and_activity_links_use_their_verified_labels(self):
         with TemporaryDirectory() as temp_dir:
@@ -423,7 +424,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 ]
                 self.assertEqual(len(map_links), 1)
                 self.assertTrue(map_links[0].startswith("https://map.naver.com/p/search/"))
-                self.assertIn(selected_activity["이름"], unquote(map_links[0]))
+                self.assertIn(map_search_name(selected_activity["이름"]), unquote(map_links[0]))
                 self.assertIn(activity_view(selected_activity, "http://localhost:8501")["introduction"], [t.value for t in app.text])
                 self.assertFalse(any(item.url.startswith("nmap://") for item in app.get("link_button")))
 
