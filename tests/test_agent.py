@@ -144,6 +144,34 @@ class LLMLoopTests(unittest.TestCase):
         self.assertEqual(result.mode, "rule")
         self.assertTrue(any(s["단계"] == "AI 연결 오류" for s in result.steps))
 
+    def test_codyssey_base_url_sends_anthropic_messages_format(self):
+        import json as _json
+        import anthropic
+        try:
+            import httpx2 as httpx
+        except ImportError:  # 다른 SDK 버전
+            import httpx
+        seen = {}
+
+        def handler(request):
+            body = _json.loads(request.content)
+            seen.update(url=str(request.url), key=request.headers.get("x-api-key"),
+                        version=request.headers.get("anthropic-version"), body=body)
+            return httpx.Response(200, json={"id": "m", "type": "message", "role": "assistant", "model": body["model"],
+                                             "content": [{"type": "text", "text": "안녕하세요"}], "stop_reason": "end_turn",
+                                             "stop_sequence": None, "usage": {"input_tokens": 1, "output_tokens": 1}})
+
+        client = anthropic.Anthropic(api_key="vk-test", base_url="https://copa.codyssey.kr",
+                                     http_client=httpx.Client(transport=httpx.MockTransport(handler)))
+        result = agent.run_agent("안녕하세요", PROFILE, provider="anthropic", client=client, model="claude-sonnet-4")
+        self.assertEqual(result.mode, "llm")
+        self.assertEqual(seen["url"], "https://copa.codyssey.kr/v1/messages")
+        self.assertEqual(seen["key"], "vk-test")
+        self.assertEqual(seen["version"], "2023-06-01")
+        self.assertEqual(seen["body"]["model"], "claude-sonnet-4")
+        self.assertIn("max_tokens", seen["body"])
+        self.assertIn("system", seen["body"])
+
     def test_openai_tool_loop(self):
         client = FakeOpenAI([oa_tool("lookup_dialect", '{"expression": "욕봤데이"}'), oa_text("문헌 기준 뜻으로 '수고했다'예요.")])
         result = agent.run_agent("욕봤데이 뜻?", PROFILE, provider="openai", client=client)

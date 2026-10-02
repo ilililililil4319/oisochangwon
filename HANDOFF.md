@@ -268,3 +268,11 @@ python -m unittest discover -s tests -v
 - 배포본 확인 결과(10/2 19:45 캡처): “AI 연결됨”인데 답변이 ‘기본 안내(AI 미연결·대체)’ → 키는 읽히지만 AI 호출 실패. 배포 후 실행 기록의 오류 원인으로 확인 필요.
 - 테스트 95개 통과, 대표 Test Case 5건 PC·모바일 재실행 모두 통과.
 - (19:55) 모바일에서도 기능 버튼을 내 정보 **위**로(열 순서를 기능 버튼 → 내 정보로 바꿔 PC는 왼쪽, 모바일은 위). 진해 해안도로(행암~명동, A259)도 `차량 권장` 추가 → 차량 권장 총 8곳. 테스트 95개 통과.
+
+## 2026-10-02 20:10 코디세이(교육용) API 연결 방법 — 제작·테스트 기간 전용
+- 코디세이 API는 **Anthropic Messages 규격**(Public API Base URL `https://copa.codyssey.kr`). 앱은 Anthropic SDK를 쓰므로 코드 변경 없이 Streamlit Secrets만 설정:
+  - `ANTHROPIC_API_KEY = "코디세이 virtual key"` · `LLM_BASE_URL = "https://copa.codyssey.kr"` · `LLM_MODEL = "claude-sonnet-4"`(코디세이에서 쓸 수 있는 모델 이름)
+  - SDK가 `https://copa.codyssey.kr/v1/messages`로 `x-api-key`·`anthropic-version: 2023-06-01`·`max_tokens`·최상위 `system`을 보내는 것을 가짜 서버로 확인(테스트 `test_codyssey_base_url_sends_anthropic_messages_format`).
+- 이전 AuthenticationError 원인: 코디세이 키를 Anthropic 기본 주소(api.anthropic.com)로 보냄.
+- **제출 직전 개인 Anthropic 키로 교체 시**: `ANTHROPIC_API_KEY`를 개인 키로 바꾸고 `LLM_BASE_URL`·`LLM_MODEL` 두 줄은 **삭제**(기본값 api.anthropic.com · Claude Haiku 4.5 사용).
+- 카카오 미리보기: Streamlit 미리보기 화면은 이미 새 디자인으로 갱신됨(카카오 URL 메타 정보 조회로 확인). 설명 문구는 README 첫 문장에서 오므로 업로드 후 하루 이내 갱신 → 카카오 캐시 다시 초기화.

@@ -24,6 +24,7 @@ DEFAULT_MODELS = {
 MODEL_LABELS = {
     "claude-haiku-4-5-20251001": "Claude Haiku 4.5",
     "gpt-4.1-mini": "GPT-4.1 mini",
+    "claude-sonnet-4": "Claude Sonnet 4",
 }
 MAX_TOOL_ROUNDS = 4
 # 도구 결과가 아니어도 답에 쓸 수 있는 공용 연락처·링크(팀 확인값)
