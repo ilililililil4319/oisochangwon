@@ -1,0 +1,10 @@
+# 오이소창원 로고 색: 남색 #063465 · 주황 #FE6A01
+[theme]
+base = "light"
+primaryColor = "#063465"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F5F9"
+textColor = "#1C2733"
+linkColor = "#063465"
+borderColor = "#D5DDE7"
+baseRadius = "0.6rem"

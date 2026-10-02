@@ -89,6 +89,25 @@ h3 {font-size: 1.25rem !important; font-weight: 600 !important;}
 [data-testid="stLinkButton"], [data-testid="stButton"] {margin-block: .35rem;}
 [class*="st-key-policy-card-"] h2 {font-size: 1.3rem !important;}
 [data-testid="stChatMessage"] [data-testid="stExpander"] summary p {font-size: 1rem; font-weight: 600;}
+/* 로고 톤앤매너: 남색 #063465(기본) · 주황 #FE6A01(강조) */
+h1, h2, h3 {color: #063465 !important;}
+.st-key-slogan h3 {color: #FE6A01 !important;}
+[data-testid="stBaseButton-primary"], [data-testid="stBaseButton-primaryFormSubmit"] {
+    background-color: #063465 !important; border-color: #063465 !important; color: #FFFFFF !important;
+}
+[data-testid="stBaseButton-primary"]:hover, [data-testid="stBaseButton-primaryFormSubmit"]:hover {
+    background-color: #FE6A01 !important; border-color: #FE6A01 !important;
+}
+[data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-secondaryFormSubmit"], [data-testid="stBaseLinkButton-secondary"] {
+    border-color: #9FB0C6 !important; color: #063465 !important; background-color: #FFFFFF !important;
+}
+[data-testid="stBaseButton-secondary"]:hover, [data-testid="stBaseLinkButton-secondary"]:hover {
+    border-color: #FE6A01 !important; color: #FE6A01 !important;
+}
+[data-testid="stProgress"] [role="progressbar"] > div > div > div {background-color: #FE6A01 !important;}
+[data-testid="stSidebar"] {border-right: 3px solid #FE6A01;}
+[data-testid="stExpander"] details {border-color: #D5DDE7;}
+[data-testid="stExpander"] summary:hover p {color: #FE6A01;}
 </style>
 """
 
@@ -243,7 +262,8 @@ saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 # --- ① 내 정보(첫 화면) -----------------------------------------------------
 def render_profile_page():
     st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
-    st.subheader(SLOGAN, anchor=False)
+    with st.container(key="slogan"):
+        st.subheader(SLOGAN, anchor=False)
     st.write(
         "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
     )
