@@ -1,6 +1,38 @@
-# 오이소창원
+# 오이소창원 — AI 기반 창원 정착 지원 Agent
 
-창원 전입 청년의 P01 정책 조건과 180일 정착 계획을 확인하는 Streamlit 앱입니다.
+창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다. (제4회 경남 AI·SW 경진대회 일반부 · 팀 오이소창원)
+
+- 배포: https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/
+- 핵심기능: ① 창원 청년 맞춤형 혜택 알림 · ② 창원 생활 정보 안내 및 일정 편성 · ③ 불편사항 행정 접수안내 · ④ 창원 지역말 번역 + AI 코디에게 물어보기(LLM 도구 호출)
+- 앱 문의: whwnstn9294@gmail.com
+
+## 폴더 구조
+
+| 위치 | 내용 |
+|---|---|
+| `app.py` | Streamlit 화면(배포 시작 파일 — 위치 변경 금지) |
+| `agent.py` | AI Agent: 안전 확인 → LLM 도구 선택·호출 → 답변 검증 → 규칙 대체, 실행 기록 |
+| `policy_matcher.py` · `policy_engine.py` | 정책 23건 4단계 판정 · P01 결정론 판정 |
+| `settlement_engine.py` · `mission_manager.py` · `progress_manager.py` · `state_manager.py` | 정착 일정·미션·진행률·저장(SQLite) |
+| `activity_manager.py` · `naver_map_links.py` · `policy_resource_manager.py` | 지역활동·네이버 지도 링크·미션 공식 링크 검증 |
+| `data/` | 팀 검증 데이터(JSON): 정책 23 · 지역활동 60 · 미션 26 · 미션 링크 18 · 지역말 30 · 불편 접수 창구 6 · 시연 페르소나 |
+| `tests/` | 자동 테스트(unittest) |
+| `assets/` | 로고 이미지 |
+| `docs/` | 서류: 대표 Test Case 5건 등 |
+| `docs/screenshots/` | 자체 테스트·화면 캡처 |
+| `.streamlit/config.toml` | 로고 색 테마(남색 #063465 · 주황 #FE6A01) |
+| `HANDOFF.md` | 개발 인계·변경 기록(기존 자산 / 8일 신규 개발 구분 근거) |
+
+## AI 모델 연결(API 키)
+
+키는 코드·GitHub에 넣지 않습니다. Streamlit Cloud → 앱 Settings → Secrets 또는 로컬 환경변수에 넣습니다.
+
+```toml
+ANTHROPIC_API_KEY = "sk-ant-..."   # 또는 OPENAI_API_KEY = "sk-..."
+# 선택: LLM_PROVIDER = "anthropic" / LLM_MODEL = "claude-haiku-4-5-20251001"
+```
+
+키가 없거나 오류가 나면 앱은 ‘기본 안내(키워드 규칙)’로 자동 전환됩니다.
 
 ## 실행 방법
 

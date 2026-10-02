@@ -95,6 +95,7 @@ h1, h2, h3 {color: #063465 !important;}
 [data-testid="stBaseButton-primary"], [data-testid="stBaseButton-primaryFormSubmit"] {
     background-color: #063465 !important; border-color: #063465 !important; color: #FFFFFF !important;
 }
+@media (hover: hover) {
 [data-testid="stBaseButton-primary"]:hover, [data-testid="stBaseButton-primaryFormSubmit"]:hover {
     background-color: #FE6A01 !important; border-color: #FE6A01 !important;
 }
@@ -104,10 +105,21 @@ h1, h2, h3 {color: #063465 !important;}
 [data-testid="stBaseButton-secondary"]:hover, [data-testid="stBaseLinkButton-secondary"]:hover {
     border-color: #FE6A01 !important; color: #FE6A01 !important;
 }
+[data-testid="stExpander"] summary:hover p {color: #FE6A01;}
+}
+/* 터치 화면: 누르는 순간만 주황 */
+[data-testid="stBaseButton-primary"]:active, [data-testid="stBaseButton-primaryFormSubmit"]:active {
+    background-color: #FE6A01 !important; border-color: #FE6A01 !important;
+}
+/* 모바일: 큰 제목·할 일 글씨를 한 줄에 가깝게 */
+@media (max-width: 640px) {
+    h2 {font-size: 1.45rem !important;}
+    [data-testid="stExpander"] summary p {font-size: 1.08rem;}
+    [data-testid="stExpander"] [data-testid="stCheckbox"] p {font-size: 1.1rem;}
+}
 [data-testid="stProgress"] [role="progressbar"] > div > div > div {background-color: #FE6A01 !important;}
 [data-testid="stSidebar"] {border-right: 3px solid #FE6A01;}
 [data-testid="stExpander"] details {border-color: #D5DDE7;}
-[data-testid="stExpander"] summary:hover p {color: #FE6A01;}
 </style>
 """
 
@@ -912,6 +924,21 @@ def _render_agent_item(item, key_prefix):
                 st.text(f"{number}. [{step['단계']}] {step['내용']}")
 
 
+def _scroll_into_view(key):
+    # 새 답이 생기면 그 위치로 화면을 옮긴다(모바일에서 결과가 아래에 숨지 않게).
+    st.session_state["scroll_count"] = st.session_state.get("scroll_count", 0) + 1
+    components.html(
+        "<script>"
+        f"/* {st.session_state['scroll_count']} */"
+        "setTimeout(() => {"
+        f"const el = window.parent.document.querySelector('.st-key-{key}');"
+        "if (el) { el.scrollIntoView({behavior: 'smooth', block: 'start'}); }"
+        "}, 300);"
+        "</script>",
+        height=0,
+    )
+
+
 def _ai_status_caption():
     provider, _, model = llm_settings()
     if provider:
@@ -942,7 +969,10 @@ def render_ask_page():
         history.append(_ask_agent(question))
 
     for index, item in enumerate(history):
-        _render_agent_item(item, f"ask-{index}")
+        with st.container(key=f"ask-item-{index}"):
+            _render_agent_item(item, f"ask-{index}")
+    if question and history:
+        _scroll_into_view(f"ask-item-{len(history) - 1}")
     if history:
         st.button("대화 지우기", key="ask-clear", on_click=lambda: st.session_state.update(ask_history=[]))
 
@@ -978,7 +1008,10 @@ def render_complaint_page():
         st.session_state["complaint_result"] = _ask_agent(f"[불편사항 접수 안내] {question}")
         st.session_state["complaint_result"]["question"] = question
     if st.session_state.get("complaint_result"):
-        _render_agent_item(st.session_state["complaint_result"], "complaint")
+        with st.container(key="complaint-result"):
+            _render_agent_item(st.session_state["complaint_result"], "complaint")
+        if question:
+            _scroll_into_view("complaint-result")
 
     with st.expander("단계별 접수 창구 한눈에 보기"):
         for item in load_complaint_channels():
@@ -1013,7 +1046,10 @@ def render_dialect_page():
         result["question"] = expression.strip()
         st.session_state["dialect_result"] = result
     if st.session_state.get("dialect_result"):
-        _render_agent_item(st.session_state["dialect_result"], "dialect")
+        with st.container(key="dialect-result"):
+            _render_agent_item(st.session_state["dialect_result"], "dialect")
+        if expression:
+            _scroll_into_view("dialect-result")
 
     with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기"):
         for item in dialects:
