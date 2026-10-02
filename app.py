@@ -173,6 +173,8 @@ FEATURE_BUTTONS = (
 )
 DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
 EMPLOYMENT_OPTIONS = ("재직 중", "재직 중 아님")
+VEHICLE_OPTIONS = ("없음", "있음")
+VEHICLE_SUMMARY = {"없음": "차량 없음 · 대중교통·자전거로 이동", "있음": "차량 있음"}
 # 실사용자 테스트용: 처음 화면은 빈 칸으로 시작한다.
 PROFILE_DEFAULTS = {
     "nickname": "",
@@ -182,6 +184,7 @@ PROFILE_DEFAULTS = {
     "neighborhood": "",
     "previous_residence_years": None,
     "employment_status": None,
+    "vehicle": None,
 }
 # 시연·팀 검수용 페르소나(코디2026) — 버튼을 눌렀을 때만 채운다.
 DEMO_PROFILE = {
@@ -192,6 +195,7 @@ DEMO_PROFILE = {
     "neighborhood": "",
     "previous_residence_years": 2,
     "employment_status": EMPLOYMENT_OPTIONS[0],
+    "vehicle": "없음",
 }
 # 화면에 그려지지 않은 위젯 값도 지워지지 않게 지켜 둘 키
 PERSISTENT_KEYS = ("activity_district", "activity_category", "activity_selection")
@@ -310,6 +314,13 @@ def render_profile_page():
         key="employment_status",
         horizontal=True,
     )
+    st.radio(
+        "차량 소지 여부",
+        VEHICLE_OPTIONS,
+        key="vehicle",
+        horizontal=True,
+        help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
+    )
 
     st.divider()
     st.markdown("**무엇을 확인할까요?**")
@@ -380,6 +391,8 @@ with st.sidebar:
             if neighborhood.strip()
             else home_district
         )
+    if st.session_state["vehicle"]:
+        st.caption(VEHICLE_SUMMARY[st.session_state["vehicle"]])
     if progress_summary is None:
         st.caption("창원 전입일을 입력하면 정착 단계와 진행률을 보여 드려요.")
     else:
@@ -443,6 +456,7 @@ def _current_profile():
             if st.session_state["employment_status"] is None
             else st.session_state["employment_status"] == EMPLOYMENT_OPTIONS[0]
         ),
+        "vehicle": st.session_state["vehicle"],
     }
 
 
@@ -791,10 +805,21 @@ def render_explore_page():
                 )
 
             st.subheader("이동")
+            no_car = st.session_state["vehicle"] == "없음"
+            if no_car:
+                st.info("차가 없으니 대중교통 경로로 안내해요. 시내버스를 자주 탄다면 K-패스로 교통비 일부를 돌려받을 수 있어요.")
             st.link_button(
                 "네이버 지도에서 보기",
                 naver_map_web_url(activity_by_id[selected_activity_id]),
+                type="primary" if no_car else "secondary",
             )
+            if no_car:
+                st.button(
+                    "K-패스 혜택 카드 보기",
+                    key="explore-kpass",
+                    on_click=_go,
+                    args=(PAGE_POLICY,),
+                )
             st.text(
                 "검색 결과에서 장소와 지역을 확인해 주세요. "
                 "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "

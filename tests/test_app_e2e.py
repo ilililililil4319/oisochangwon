@@ -260,6 +260,26 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.button(key="to-feature-M1-5").click().run()
                 self.assertEqual(app.session_state["page"], "dialect")
 
+    def test_vehicle_choice_changes_policy_order_explore_and_sidebar(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                self.assertEqual(app.radio(key="vehicle").value, "없음")
+                self.assertIn("차량 없음 · 대중교통·자전거로 이동", [c.value for c in app.sidebar.caption])
+                _visit(app, "policy")
+                self.assertIn("K", app.header[0].value)  # K-패스가 맨 앞
+                _visit(app, "explore")
+                self.assertIn("대중교통 경로로 안내해요", _visible_text(app))
+                app.button(key="explore-kpass").click().run()
+                self.assertEqual(app.session_state["page"], "policy")
+                _visit(app, "profile")
+                app.radio(key="vehicle").set_value("있음").run()
+                self.assertIn("차량 있음", [c.value for c in app.sidebar.caption])
+                _visit(app, "policy")
+                self.assertNotIn("K", app.header[0].value)
+                _visit(app, "explore")
+                self.assertNotIn("대중교통 경로로 안내해요", _visible_text(app))
+
     def test_clear_profile_and_journey_needs_move_in_date(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
