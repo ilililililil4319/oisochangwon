@@ -112,7 +112,7 @@ st.image(str(LOGO_WIDE_PATH), width=360)
 st.subheader(SLOGAN, anchor=False)
 
 st.write(
-    "내 상황에 맞는 지원과 이사 후 챙길 일을 확인할 수 있어요."
+    "창원에 새로 전입한 청년의 초기 180일을 챙기는 정착 코디네이터 Agent입니다."
 )
 
 st.divider()
