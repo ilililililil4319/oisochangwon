@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from datetime import date
 from pathlib import Path
 import re
@@ -100,6 +101,72 @@ def _sync_activity_district():
     )
 
 
+
+# --- 화면(page) 구성 -------------------------------------------------------
+# 한 번에 한 화면만 그린다. 화면 이동은 버튼의 on_click 콜백이 page 값을 바꾼다.
+PAGE_PROFILE = "profile"
+PAGE_POLICY = "policy"
+PAGE_JOURNEY = "journey"
+PAGE_EXPLORE = "explore"
+PAGE_LABELS = {
+    PAGE_PROFILE: "내 정보",
+    PAGE_POLICY: "받을 수 있는 지원",
+    PAGE_JOURNEY: "정착 할 일",
+    PAGE_EXPLORE: "창원 둘러보기",
+}
+FEATURE_BUTTONS = (
+    (PAGE_POLICY, "받을 수 있는 지원 확인하기", "show-policy"),
+    (PAGE_JOURNEY, "나의 정착 할 일 확인하기", "show-journey"),
+    (PAGE_EXPLORE, "창원 둘러보기", "show-explore"),
+)
+DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
+PROFILE_DEFAULTS = {
+    "nickname": DEFAULT_NICKNAME,
+    "age": 28,
+    "move_in_date": date(2026, 9, 20),
+    "home_district": DISTRICT_PLACEHOLDER,
+    "neighborhood": "",
+    "previous_residence_years": 2,
+    "employed_in_changwon": True,
+}
+# 화면에 그려지지 않은 위젯 값도 지워지지 않게 지켜 둘 키
+PERSISTENT_KEYS = ("activity_district", "activity_category", "activity_selection")
+PERSISTENT_PREFIXES = ("mission-progress:", "mission-note:")
+
+
+def _go(page):
+    st.session_state["page"] = page
+
+
+def _keep_widget_values():
+    # Streamlit은 화면에 없는 위젯의 값을 지운다. 매 실행 시작에 값을 다시 넣어 보존한다.
+    for key, default in PROFILE_DEFAULTS.items():
+        st.session_state[key] = st.session_state.get(key, default)
+    for key in list(st.session_state.keys()):
+        if key in PERSISTENT_KEYS or str(key).startswith(PERSISTENT_PREFIXES):
+            st.session_state[key] = st.session_state[key]
+
+
+def _back_home_button(position):
+    st.button(
+        "← 처음으로",
+        key=f"go-home-{position}",
+        on_click=_go,
+        args=(PAGE_PROFILE,),
+    )
+
+
+def _next_feature_button(target_page, label):
+    st.divider()
+    st.button(
+        label,
+        key=f"next-{target_page}",
+        type="primary",
+        on_click=_go,
+        args=(target_page,),
+    )
+
+
 st.set_page_config(
     page_title="오이소창원",
     page_icon=str(LOGO_ICON_PATH),
@@ -108,58 +175,78 @@ st.set_page_config(
 
 st.html(READABILITY_CSS)
 
-st.image(str(LOGO_WIDE_PATH), width=360)
-st.subheader(SLOGAN, anchor=False)
+_keep_widget_values()
+st.session_state.setdefault("page", PAGE_PROFILE)
 
-st.write(
-    "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
-)
-
-st.divider()
-
-nickname = st.text_input("닉네임", value=DEFAULT_NICKNAME)
+nickname = st.session_state["nickname"]
 user_key = nickname.strip()
+if not user_key:
+    st.session_state["page"] = PAGE_PROFILE
+page = st.session_state["page"]
+
 saved_mission_states = load_mission_states(user_key) if user_key else {}
 saved_mission_notes = load_mission_notes(user_key) if user_key else {}
 saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 
-age = st.number_input(
-    "나이",
-    min_value=19,
-    max_value=100,
-    value=28,
-)
 
-move_in_date = st.date_input(
-    "창원 전입일",
-    value=date(2026, 9, 20),
-)
+# --- ① 내 정보(첫 화면) -----------------------------------------------------
+def render_profile_page():
+    st.image(str(LOGO_WIDE_PATH), width=360)
+    st.subheader(SLOGAN, anchor=False)
+    st.write(
+        "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
+    )
+    st.divider()
 
-home_district = st.selectbox(
-    "사는 지역",
-    ["지역을 선택해 주세요", *HOME_DISTRICTS],
-    key="home_district",
-    on_change=_sync_activity_district,
-)
-home_district = home_district if home_district in HOME_DISTRICTS else None
-neighborhood = st.text_input(
-    "동네 (선택)",
-    placeholder="예: 상남동",
-    max_chars=40,
-    key="neighborhood",
-)
+    st.text_input("닉네임", key="nickname")
+    st.number_input("나이", min_value=19, max_value=100, key="age")
+    st.date_input("창원 전입일", key="move_in_date")
+    st.selectbox(
+        "사는 지역",
+        [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
+        key="home_district",
+        on_change=_sync_activity_district,
+    )
+    st.text_input(
+        "동네 (선택)",
+        placeholder="예: 상남동",
+        max_chars=40,
+        key="neighborhood",
+    )
+    st.number_input(
+        "창원 전입 전 타지역 거주기간(년)",
+        min_value=0,
+        max_value=50,
+        key="previous_residence_years",
+    )
+    st.checkbox(
+        "현재 창원 소재 사업장에 재직 중입니다.",
+        key="employed_in_changwon",
+    )
 
-previous_residence_years = st.number_input(
-    "창원 전입 전 타지역 거주기간(년)",
-    min_value=0,
-    max_value=50,
-    value=2,
-)
+    st.divider()
+    st.markdown("**무엇을 확인할까요?**")
+    with st.container(horizontal=True, wrap=True):
+        for target_page, label, key in FEATURE_BUTTONS:
+            st.button(
+                label,
+                key=key,
+                type="primary",
+                disabled=not user_key,
+                on_click=_go,
+                args=(target_page,),
+            )
+    if not user_key:
+        st.info("할 일 진행 상황을 이어 보려면 닉네임을 입력해 주세요.")
 
-employed_in_changwon = st.checkbox(
-    "현재 창원 소재 사업장에 재직 중입니다.",
-    value=True,
+
+move_in_date = st.session_state["move_in_date"]
+home_district = (
+    st.session_state["home_district"]
+    if st.session_state["home_district"] in HOME_DISTRICTS
+    else None
 )
+neighborhood = st.session_state["neighborhood"] or ""
 
 all_missions = load_missions()
 mission_groups = group_missions_by_month(all_missions)
@@ -180,7 +267,21 @@ current_group = next(
     group for group in mission_groups if group["month"] == current_month
 )
 
+
+# --- 사이드바: 메뉴 + 진행률 -------------------------------------------------
 with st.sidebar:
+    st.subheader("메뉴")
+    for target_page, label in PAGE_LABELS.items():
+        st.button(
+            label,
+            key=f"nav-{target_page}",
+            type="primary" if page == target_page else "secondary",
+            disabled=target_page != PAGE_PROFILE and not user_key,
+            on_click=_go,
+            args=(target_page,),
+            width="stretch",
+        )
+    st.divider()
     st.subheader("나의 창원 정착 현황")
     st.write(nickname.strip() or "닉네임을 입력해 주세요")
     if home_district:
@@ -232,42 +333,22 @@ with st.sidebar:
         if formatted_saved_at:
             st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
 
-st.session_state.setdefault("show_policy_results", False)
-st.session_state.setdefault("show_journey", False)
-with st.container(horizontal=True, wrap=True):
-    if st.button(
-        "받을 수 있는 지원 확인하기",
-        key="show-policy",
-        type="primary",
-        disabled=not user_key,
-    ):
-        st.session_state["show_policy_results"] = True
-    if st.button(
-        "나의 정착 할 일 확인하기",
-        key="show-journey",
-        type="primary",
-        disabled=not user_key,
-    ):
-        st.session_state["show_journey"] = True
 
-if not user_key:
-    st.info("할 일 진행 상황을 이어 보려면 닉네임을 입력해 주세요.")
-
-if user_key and st.session_state["show_policy_results"]:
-
+# --- ② 받을 수 있는 지원 -----------------------------------------------------
+def render_policy_page():
+    _back_home_button("policy")
     profile = {
         "nickname": nickname,
-        "age": age,
+        "age": st.session_state["age"],
         "move_in_date": move_in_date,
         "home_district": home_district,
         "neighborhood": neighborhood.strip(),
-        "previous_residence_years": previous_residence_years,
-        "employed_in_changwon": employed_in_changwon,
+        "previous_residence_years": st.session_state["previous_residence_years"],
+        "employed_in_changwon": st.session_state["employed_in_changwon"],
     }
 
     result = evaluate_p01(profile)
 
-    st.divider()
     st.caption(f"{nickname}님을 위한 확인 결과")
     st.subheader("받을 수 있는 지원")
     _content_title(result["policy_name"])
@@ -304,12 +385,15 @@ if user_key and st.session_state["show_policy_results"]:
             "확인할 항목: "
             + ", ".join(missing_labels)
         )
+    st.caption("조건을 바꾸려면 ‘← 처음으로’에서 내 정보를 고쳐 주세요.")
+    _next_feature_button(PAGE_JOURNEY, "나의 정착 할 일 보기 →")
 
-if user_key and st.session_state["show_journey"]:
 
+# --- ③ 정착 할 일 ------------------------------------------------------------
+def render_journey_page():
+    _back_home_button("journey")
     settlement_plan = build_settlement_plan(move_in_date)
 
-    st.divider()
     st.subheader("창원 정착 일정")
 
     for milestone in settlement_plan["milestones"]:
@@ -431,8 +515,12 @@ if user_key and st.session_state["show_journey"]:
             ]
             if stage_timestamps:
                 st.caption(f"마지막 저장: {max(stage_timestamps)} (한국시간)")
+    _next_feature_button(PAGE_EXPLORE, "창원 둘러보기 →")
 
-    st.divider()
+
+# --- ④ 창원 둘러보기 ----------------------------------------------------------
+def render_explore_page():
+    _back_home_button("explore")
     st.subheader("창원에서 해볼 것")
     st.write("동네와 관심 분야를 골라 가볼 곳과 참여할 일을 찾아보세요.")
 
@@ -446,6 +534,8 @@ if user_key and st.session_state["show_journey"]:
             else "창원 전체"
         )
         st.session_state.setdefault("activity_district", default_activity_district)
+        if st.session_state["activity_district"] not in district_options:
+            st.session_state["activity_district"] = "창원 전체"
         selected_district = st.selectbox(
             "어느 지역에서 찾을까요?",
             district_options,
@@ -472,6 +562,8 @@ if user_key and st.session_state["show_journey"]:
 
         if filtered_activities:
             activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
+            if st.session_state.get("activity_selection") not in activity_by_id:
+                st.session_state.pop("activity_selection", None)
             selected_activity_id = st.selectbox(
                 "어떤 곳을 볼까요?",
                 list(activity_by_id),
@@ -525,3 +617,33 @@ if user_key and st.session_state["show_journey"]:
             "창원 활동 정보를 불러오지 못했어요. "
             "지원 확인과 정착 할 일은 계속 이용할 수 있어요."
         )
+    _next_feature_button(PAGE_POLICY, "받을 수 있는 지원 보기 →")
+
+
+PAGE_RENDERERS = {
+    PAGE_PROFILE: render_profile_page,
+    PAGE_POLICY: render_policy_page,
+    PAGE_JOURNEY: render_journey_page,
+    PAGE_EXPLORE: render_explore_page,
+}
+PAGE_RENDERERS.get(page, render_profile_page)()
+
+
+def _scroll_to_top_on_page_change():
+    # 아래쪽 버튼으로 화면을 바꾸면 스크롤이 그대로 남으므로, 화면이 바뀐 경우에만 맨 위로 올린다.
+    if st.session_state.get("rendered_page") == page:
+        return
+    st.session_state["rendered_page"] = page
+    st.session_state["page_change_count"] = st.session_state.get("page_change_count", 0) + 1
+    components.html(
+        "<script>"
+        f"/* {st.session_state['page_change_count']} */"
+        "const main = window.parent.document.querySelector('[data-testid=\"stMain\"]');"
+        "if (main) { main.scrollTo({top: 0}); }"
+        "window.parent.scrollTo({top: 0});"
+        "</script>",
+        height=0,
+    )
+
+
+_scroll_to_top_on_page_change()
