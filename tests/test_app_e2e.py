@@ -83,7 +83,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
                 self.assertFalse(any("🌱" in t.value for t in app.title))
-                self.assertIn("창원에 새로 전입한 청년의 초기 180일을 챙기는 정착 코디네이터 Agent입니다.", [m.value for m in app.markdown])
+                self.assertIn("창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.", [m.value for m in app.markdown])
                 self.assertEqual(app.text_input[0].value, "코디2026")
         assets = APP_FILE.parent / "assets"
         for name in ("logo_wide.png", "logo_icon.png"):
@@ -252,6 +252,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     "Mission Tool",
                     "status",
                     "D+",
+                    "180일",
                     "M1-1",
                     "M6-4",
                     "mission",

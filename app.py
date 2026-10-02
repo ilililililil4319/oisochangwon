@@ -112,7 +112,7 @@ st.image(str(LOGO_WIDE_PATH), width=360)
 st.subheader(SLOGAN, anchor=False)
 
 st.write(
-    "창원에 새로 전입한 청년의 초기 180일을 챙기는 정착 코디네이터 Agent입니다."
+    "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
 )
 
 st.divider()
