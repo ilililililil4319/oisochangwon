@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 import os
 import re
@@ -77,6 +78,27 @@ DEFAULT_NICKNAME = "코디2026"
 READABILITY_CSS = """
 <style>
 [data-testid="stMainBlockContainer"] {max-width: 100%; padding: 3.2rem 2.5rem 2rem 2.5rem;}
+/* 내용은 가운데 최대 1200px, 배경 띠만 화면 끝까지 */
+[class*="st-key-page-"]:not(.st-key-page-home), .st-key-home-hero-inner, .st-key-home-body {max-width: 1200px; margin-left: auto !important; margin-right: auto !important; width: 100%;}
+.st-key-home-hero-band {margin-left: -2.5rem !important; width: calc(100% + 5rem) !important; max-width: none !important;
+    background: #EEF4FB; border-bottom: 1px solid #D5DDE7; padding: 1.4rem 2.5rem 1.6rem; box-sizing: border-box; margin-top: -1rem;}
+.st-key-home-hero-band .st-key-slogan h3 {font-size: 1.55rem !important;}
+.st-key-home-hero-band [data-testid="stMarkdownContainer"] p {font-size: 1.12rem;}
+.st-key-hero-cta [data-testid="stBaseButton-primary"] {background-color: #FE6A01 !important; border-color: #FE6A01 !important; min-height: 3.1rem; padding: 0 1.6rem;}
+.st-key-hero-cta [data-testid="stBaseButton-primary"] p {font-size: 1.08rem; font-weight: 700;}
+.st-key-hero-example, .st-key-hero-progress {background: #FFFFFF; border: 1px solid #D5DDE7; border-left: 5px solid #2E9E6B; border-radius: 14px; padding: 1rem 1.3rem;}
+[class*="st-key-home-card-"] {background: #FFFFFF; border: 1px solid #D5DDE7; border-top: 4px solid #063465; border-radius: 14px; padding: 1rem 1.1rem; min-height: 14rem; justify-content: space-between;}
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:disabled {background: #F5F8FC !important; border: 1px dashed #9FB0C6 !important; opacity: 1;}
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:disabled p {color: #5A6E88 !important;}
+@media (max-width: 640px) {[class*="st-key-home-card-"] {min-height: 0;}}
+[class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled {background: #F5F8FC !important; border: 1px dashed #9FB0C6 !important; color: #3F5672 !important; opacity: 1;}
+[class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled p {color: #3F5672 !important;}
+[class*="st-key-flow-step-"] {background: #F3F8F5; border-radius: 12px; padding: .7rem .9rem; height: 100%; border: 1px solid #D6E9DE;}
+.st-key-home-body {padding-top: 1.2rem;}
+@media (max-width: 640px) {
+    .st-key-home-hero-band {margin-left: -1rem !important; width: calc(100% + 2rem) !important; padding: 1rem 1rem 1.2rem;}
+    .st-key-hero-cta [data-testid="stBaseButton-primary"] {width: 100%;}
+}
 @media (max-width: 640px) {[data-testid="stMainBlockContainer"] {padding-left: 1rem; padding-right: 1rem;}}
 /* 화면 전체 폭으로 퍼지는 색 띠 */
 .st-key-band-hero, .st-key-band-notes {margin-left: -2.5rem !important; width: calc(100% + 5rem) !important; max-width: none !important; padding: 1.6rem 2.5rem; box-sizing: border-box;}
@@ -149,7 +171,10 @@ h1, h2, h3 {color: #063465 !important;}
     [data-testid="stExpander"] summary p {font-size: 1.08rem;}
     [data-testid="stExpander"] [data-testid="stCheckbox"] p {font-size: 1.1rem;}
 }
-[data-testid="stProgress"] [role="progressbar"] > div > div > div {background-color: #FE6A01 !important;}
+[data-testid="stProgress"] [role="progressbar"] > div > div > div {background-color: #2E9E6B !important;}
+[data-testid="stProgress"] [role="progressbar"] div[style*="translateX"] {background-color: #2E9E6B !important;}
+.st-key-home-body [data-testid="stExpander"] summary p {font-size: 1rem; font-weight: 600;}
+.st-key-home-hero-band [data-testid="stColumn"] {padding-top: .6rem; padding-bottom: .6rem;}
 [data-testid="stSidebar"] {border-right: 3px solid #FE6A01;}
 [data-testid="stExpander"] details {border-color: #D5DDE7;}
 </style>
@@ -393,46 +418,121 @@ def _condition_card():
                           args=(PAGE_PROFILE,), width="stretch")
 
 
+HOME_FEATURES = (
+    (PAGE_POLICY, BUTTON_1, "내 조건과 정책 23건을 비교해 먼저 확인할 혜택을 찾아요."),
+    (PAGE_JOURNEY, BUTTON_2, "첫 180일의 할 일과 창원 생활을 함께 계획해요."),
+    (PAGE_COMPLAINT, BUTTON_3, "상황에 맞는 행정 접수 창구를 찾아요."),
+    (PAGE_DIALECT, BUTTON_4, "낯선 창원·경상 지역 표현을 문헌 자료 기준으로 풀어드려요."),
+)
+FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
+AGENT_FLOW = (
+    ("내 조건", "나이·전입일·재직·차량"),
+    ("조건 비교 · AI 판단", "정책 23건 규칙 비교, 질문은 AI 코디가 이해"),
+    ("검증 자료 확인", "팀이 확인한 공식 자료만 사용"),
+    ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구"),
+    ("다음 할 일 저장", "체크하면 닉네임 기준으로 기록"),
+)
+EXAMPLE_CHECKS = (("✓", "새 주소로 전입신고 하기"), ("○", "무차량 교통 혜택 K-패스 확인"), ("○", "이번 주말 창원 둘러보기"))
+
+
+def _start_demo():
+    _fill_profile(DEMO_PROFILE)
+    _go(PAGE_PROFILE)
+
+
+def _hero_progress_card():
+    with st.container(key="hero-progress"):
+        st.markdown(f"**{user_key}님의 정착 현황**")
+        day = _settlement_day()
+        if progress_summary is None:
+            st.caption("창원 전입일을 입력하면 정착 단계와 할 일을 보여 드려요.")
+            return
+        st.caption(
+            (f"창원 정착 {day + 1}일째 · " if day is not None and day >= 0 else "")
+            + f"{current_month}개월 차 · {current_group['theme']}"
+        )
+        st.progress(progress_summary["overall_completed"] / progress_summary["overall_total"])
+        st.markdown(f"전체 할 일 {progress_summary['overall_completed']} / {progress_summary['overall_total']} 완료")
+        remaining = [m["미션"] for m in current_group["missions"] if not completion_states.get(m["ID"])][:3]
+        if remaining:
+            st.markdown("**이번 단계에 남은 할 일**")
+            for mission_name in remaining:
+                st.markdown(f"○ {mission_name}")
+        st.button("정착 일정 이어서 하기 →", key="home-continue", on_click=_go, args=(PAGE_JOURNEY,))
+
+
+def _hero_example_card():
+    with st.container(key="hero-example"):
+        st.markdown("**이런 걸 함께 챙겨드려요**")
+        for mark, text in EXAMPLE_CHECKS:
+            st.markdown(f"{mark} {text}")
+        st.caption("예시 화면이에요. 조건을 입력하면 나의 진행 상황으로 바뀌어요.")
+
+
 def render_home_page():
-    # 화면 전체 폭 색 띠: 로고 | 앱 소개 | 이렇게 이용해요 | 문의
-    with st.container(key="band-hero"):
-        logo_col, intro_col, howto_col, contact_col = st.columns([1.5, 1.4, 1.1, 1.1], gap="large")
-        with logo_col:
-            st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
-            with st.container(key="slogan"):
-                st.subheader(SLOGAN, anchor=False)
-            st.write(
-                "창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."
-            )
-        with intro_col:
-            st.markdown("**앱 소개**")
-            st.write(APP_INTRO)
-        with howto_col:
-            st.markdown("**이렇게 이용해요**")
-            for number, (title, text) in enumerate(HOW_TO_STEPS, start=1):
-                st.markdown(f"**{number}. {title}**")
-                st.caption(text)
-        with contact_col:
-            st.markdown("**문의**")
-            st.markdown(
-                f"앱 이용 문의  \n[{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})  \n\n"
-                "창원시 행정·민원 문의  \n창원시 콜센터 1899-1111"
-            )
-            st.caption("제4회 경남 AI·SW 경진대회 · 팀 오이소창원")
+    # HERO: 화면 전체 폭 배경, 내용은 가운데 1200px
+    with st.container(key="home-hero-band"):
+        with st.container(key="home-hero-inner"):
+            text_col, preview_col = st.columns([3, 2], gap="large", vertical_alignment="center")
+            with text_col:
+                st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
+                with st.container(key="slogan"):
+                    st.subheader(SLOGAN, anchor=False)
+                st.markdown("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **AI 정착 코디**가 함께 챙겨드려요.")
+                st.markdown("창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.")
+                with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
+                    st.button(
+                        f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else "조건 확인·수정",
+                        key="show-profile",
+                        type="primary",
+                        on_click=_go,
+                        args=(PAGE_PROFILE,),
+                    )
+                    if not user_key:
+                        st.button(f"{DEFAULT_NICKNAME} 예시로 둘러보기", key="home-demo", type="tertiary", on_click=_start_demo)
+            with preview_col:
+                if user_key:
+                    _hero_progress_card()
+                else:
+                    _hero_example_card()
 
-    # STEP 1 → STEP 2(기능 4개 가로 한 줄) → STEP 3, 각각 화면 폭 전체 사용
-    _condition_card()
-    st.markdown("**STEP 2 · 기능 4개 중 고르기**")
-    _feature_buttons(with_descriptions=True, per_row=4)
-    _ai_banner()
-
-    # 화면 전체 폭 색 띠: 이용 시 참고사항
-    with st.container(key="band-notes"):
-        st.markdown("**이용 시 참고사항**")
-        note_columns = st.columns(len(USAGE_NOTES), gap="medium")
-        for column, note in zip(note_columns, USAGE_NOTES):
+    with st.container(key="home-body"):
+        st.markdown("**이 서비스가 하는 일**")
+        columns = st.columns(4, gap="medium")
+        for column, (target_page, title, text) in zip(columns, HOME_FEATURES):
             with column:
-                st.caption(note)
+                with st.container(key=f"home-card-{target_page}"):
+                    st.markdown(f"**{title}**")
+                    st.caption(text)
+                    if user_key:
+                        st.button("열기 →", key=FEATURE_KEYS[target_page], type="primary",
+                                  on_click=_go, args=(target_page,), width="stretch")
+                    else:
+                        st.button("🔒 조건 입력 후 열려요", key=FEATURE_KEYS[target_page],
+                                  disabled=True, width="stretch")
+
+        st.markdown("**코디는 이렇게 일해요**")
+        flow_columns = st.columns(len(AGENT_FLOW), gap="small")
+        for number, (column, (title, text)) in enumerate(zip(flow_columns, AGENT_FLOW), start=1):
+            with column:
+                with st.container(key=f"flow-step-{number}"):
+                    st.markdown(f"**{number}. {title}**")
+                    st.caption(text)
+        with st.container(key="home-ask-row", horizontal=True, vertical_alignment="center"):
+            st.caption("궁금한 건 네 기능을 넘나들며 한 문장으로 물어보세요.")
+            st.button(f"{ASK_LABEL} →", key="show-ask", disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
+
+        st.divider()
+        st.caption(
+            f"실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관 · 문의 {CONTACT_EMAIL}"
+        )
+        with st.expander("이용 참고사항 자세히 보기"):
+            st.markdown(APP_INTRO)
+            st.markdown("\n".join(f"- {note}" for note in USAGE_NOTES))
+            st.markdown(
+                f"- 앱 이용 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})\n"
+                "- 창원시 행정·민원 문의: 창원시 콜센터 1899-1111"
+            )
 
 
 # --- 나의 조건 입력 --------------------------------------------------------------
@@ -538,81 +638,6 @@ current_group = next(
     (group for group in mission_groups if group["month"] == current_month),
     None,
 )
-
-
-# --- 사이드바: 메뉴 + 진행률 -------------------------------------------------
-with st.sidebar:
-    st.subheader("메뉴")
-    for target_page, label in PAGE_LABELS.items():
-        if target_page == PAGE_JOURNEY:
-            st.caption(BUTTON_2)
-        st.button(
-            label,
-            key=f"nav-{target_page}",
-            type="primary" if page == target_page else "secondary",
-            disabled=target_page not in (PAGE_HOME, PAGE_PROFILE) and not user_key,
-            on_click=_go,
-            args=(target_page,),
-            width="stretch",
-        )
-    st.divider()
-    st.subheader("나의 창원 정착 현황")
-    st.write(nickname.strip() or "닉네임을 입력해 주세요")
-    if home_district:
-        st.caption(
-            f"{home_district} · {neighborhood.strip()}"
-            if neighborhood.strip()
-            else home_district
-        )
-    if st.session_state["vehicle"]:
-        st.caption(VEHICLE_SUMMARY[st.session_state["vehicle"]])
-    if progress_summary is None:
-        st.caption("창원 전입일을 입력하면 정착 단계와 진행률을 보여 드려요.")
-    else:
-        st.write(f"지금은 창원 생활 {current_month}개월 차예요.")
-        st.caption(current_group["theme"])
-        st.write(
-            f"현재 단계: {progress_summary['stage_completed']} / "
-            f"{progress_summary['stage_total']} 완료"
-        )
-        st.progress(
-            progress_summary["stage_completed"] / progress_summary["stage_total"]
-            if progress_summary["stage_total"]
-            else 0.0
-        )
-        st.write(
-            f"전체 진행: {progress_summary['overall_completed']} / "
-            f"{progress_summary['overall_total']} 완료"
-        )
-        st.progress(
-            progress_summary["overall_completed"] / progress_summary["overall_total"]
-            if progress_summary["overall_total"]
-            else 0.0
-        )
-    last_saved_at = (
-        st.session_state.get("last_saved_at")
-        if st.session_state.get("last_saved_nickname") == user_key
-        else None
-    )
-    if last_saved_at is None and saved_mission_timestamps:
-        last_saved_at = max(
-            saved_mission_timestamps.values(),
-            key=lambda value: format_korea_timestamp(value) or "",
-        )
-    if last_saved_at:
-        st.success("진행 상황을 저장했어요.")
-        saved_month = (
-            st.session_state.get("last_saved_month")
-            if st.session_state.get("last_saved_nickname") == user_key
-            else None
-        )
-        if saved_month:
-            st.caption(f"저장한 단계: {MONTH_LABELS[saved_month]}")
-        formatted_saved_at = format_korea_timestamp(last_saved_at)
-        if formatted_saved_at:
-            st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
-    st.divider()
-    st.caption(CONTACT_TEXT)
 
 
 # --- ② 받을 수 있는 지원 -----------------------------------------------------
@@ -1251,6 +1276,112 @@ def render_dialect_page():
     _next_feature_button(PAGE_ASK, f"{ASK_LABEL} →")
 
 
+# --- 사이드바: 정착 진행상황 + 빠른 이동 (실제 상태값만 표시) ---------------------
+def _settlement_day():
+    if not isinstance(move_in_date, date):
+        return None
+    return (datetime.now(ZoneInfo("Asia/Seoul")).date() - move_in_date).days
+
+
+def _eligible_count():
+    if not user_key:
+        return None
+    return sum(1 for match in match_policies(_current_profile()) if match["level"] == "해당 가능")
+
+
+def _nav_button(target_page, label):
+    st.button(
+        label,
+        key=f"nav-{target_page}",
+        type="primary" if page == target_page else "secondary",
+        disabled=target_page not in (PAGE_HOME, PAGE_PROFILE) and not user_key,
+        on_click=_go,
+        args=(target_page,),
+        width="stretch",
+    )
+
+
+def render_sidebar():
+    with st.sidebar:
+        if user_key:
+            st.markdown(f"**{user_key}**")
+        else:
+            st.write("닉네임을 입력해 주세요")
+        day = _settlement_day()
+        if day is not None:
+            st.caption(f"창원 정착 {day + 1}일째" if day >= 0 else "창원 전입 예정")
+        if home_district:
+            st.caption(
+                f"{home_district} · {neighborhood.strip()}"
+                if neighborhood.strip()
+                else home_district
+            )
+        if st.session_state["vehicle"]:
+            st.caption(VEHICLE_SUMMARY[st.session_state["vehicle"]])
+        if progress_summary is None:
+            st.caption("창원 전입일을 입력하면 정착 단계와 진행률을 보여 드려요.")
+        else:
+            st.progress(
+                progress_summary["overall_completed"] / progress_summary["overall_total"]
+                if progress_summary["overall_total"]
+                else 0.0
+            )
+            st.markdown(
+                f"전체 진행: {progress_summary['overall_completed']} / "
+                f"{progress_summary['overall_total']} 완료"
+            )
+            st.caption(f"지금은 창원 생활 {current_month}개월 차예요 · {current_group['theme']}")
+
+        _nav_button(PAGE_HOME, "홈")
+        st.caption("정착 코스")
+        condition_done = bool(user_key and move_in_date)
+        _nav_button(PAGE_PROFILE, f"조건 입력 · {'완료' if condition_done else '필요'}")
+        eligible = _eligible_count()
+        _nav_button(PAGE_POLICY, f"맞춤 혜택 · 해당 가능 {eligible}건" if eligible is not None else "맞춤 혜택")
+        if progress_summary is not None:
+            _nav_button(
+                PAGE_JOURNEY,
+                f"정착 일정 · 이번 단계 {progress_summary['stage_completed']}/{progress_summary['stage_total']}",
+            )
+        else:
+            _nav_button(PAGE_JOURNEY, "정착 일정")
+        _nav_button(PAGE_EXPLORE, "생활 정보")
+        st.caption("도움받기")
+        _nav_button(PAGE_COMPLAINT, "불편사항")
+        _nav_button(PAGE_DIALECT, "지역말")
+        st.divider()
+        _nav_button(PAGE_ASK, ASK_LABEL)
+        if progress_summary is not None:
+            st.caption(
+                f"현재 단계: {progress_summary['stage_completed']} / "
+                f"{progress_summary['stage_total']} 완료"
+            )
+        last_saved_at = (
+            st.session_state.get("last_saved_at")
+            if st.session_state.get("last_saved_nickname") == user_key
+            else None
+        )
+        if last_saved_at is None and saved_mission_timestamps:
+            last_saved_at = max(
+                saved_mission_timestamps.values(),
+                key=lambda value: format_korea_timestamp(value) or "",
+            )
+        if last_saved_at:
+            st.success("진행 상황을 저장했어요.")
+            saved_month = (
+                st.session_state.get("last_saved_month")
+                if st.session_state.get("last_saved_nickname") == user_key
+                else None
+            )
+            if saved_month:
+                st.caption(f"저장한 단계: {MONTH_LABELS[saved_month]}")
+            formatted_saved_at = format_korea_timestamp(last_saved_at)
+            if formatted_saved_at:
+                st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
+        st.divider()
+        st.caption(CONTACT_TEXT)
+
+
 PAGE_RENDERERS = {
     PAGE_COMPLAINT: render_complaint_page,
     PAGE_DIALECT: render_dialect_page,
@@ -1265,6 +1396,8 @@ PAGE_RENDERERS = {
 page_root = st.empty()
 with page_root.container(key=f"page-{page}"):
     PAGE_RENDERERS.get(page, render_home_page)()
+
+render_sidebar()
 
 st.divider()
 st.caption(CONTACT_TEXT)
