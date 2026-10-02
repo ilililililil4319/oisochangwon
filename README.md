@@ -12,14 +12,15 @@
 |---|---|
 | `app.py` | Streamlit 화면(배포 시작 파일 — 위치 변경 금지) |
 | `agent.py` | AI Agent: 안전 확인 → LLM 도구 선택·호출 → 답변 검증 → 규칙 대체, 실행 기록 |
-| `policy_matcher.py` · `policy_engine.py` | 정책 23건 4단계 판정 · P01 결정론 판정 |
+| `policy_matcher.py` · `policy_engine.py` | 정책 24건 4단계 판정 · P01 결정론 판정 |
 | `settlement_engine.py` · `mission_manager.py` · `progress_manager.py` · `state_manager.py` | 정착 일정·미션·진행률·저장(SQLite) |
 | `activity_manager.py` · `naver_map_links.py` · `policy_resource_manager.py` | 지역활동·네이버 지도 링크·미션 공식 링크 검증 |
-| `data/` | 팀 검증 데이터(JSON): 정책 23 · 지역활동 60 · 미션 26 · 미션 링크 18 · 지역말 30 · 불편 접수 창구 6 · 시연 페르소나 |
+| `data/` | 팀 검증 데이터(JSON): 정책 24 · 지역활동 60 · 미션 26 · 미션 링크 18 · 지역말 핵심 30 + 확장 2,223(`dialects_ext.json`, 국립국어원·경남방언사전 출처만) · 불편 접수 창구 6 · 시연 페르소나 |
 | `tests/` | 자동 테스트(unittest) |
 | `assets/` | 로고 이미지 |
-| `docs/` | 서류: 대표 Test Case 5건 등 |
-| `docs/screenshots/` | 자체 테스트·화면 캡처 |
+| `docs/기획안/` | 기획안 초안(10/1 PDF) · **개발 반영본(10/2, md·pdf)** |
+| `docs/자체테스트/` | 대표 Test Case 6건 절차·결과(`자체테스트_TestCase.md`) · 캡처(`캡처_20261002/`) |
+| `.devcontainer/` | 개발 컨테이너 설정(팀장) |
 | `.streamlit/config.toml` | 로고 색 테마(남색 #063465 · 주황 #FE6A01) |
 | `HANDOFF.md` | 개발 인계·변경 기록(기존 자산 / 8일 신규 개발 구분 근거) |
 
@@ -57,7 +58,7 @@ python -m unittest discover -s tests -v
 
 ## 미션 데이터
 
-`data/missions.json`은 `oisochangwon_handoff_20261001.zip`의 `handoff_20261001/data/missions.json` 원본을 그대로 복사한 파일입니다. 26개 항목은 `ID`, `개월`, `월별 테마`, `미션`, `난이도(쉬움/보통)`, `연결 기능`, `완료 기준`, `메모`, `is_service_idea`, `서비스 목표` 필드를 가집니다.
+`data/missions.json`은 `oisochangwon_handoff_20261001.zip`의 `handoff_20261001/data/missions.json` 원본에서 시작해, 개발 중 결정(‘무차량’ 표현 삭제, 청년 우대 부동산 확인 → 6개월 차)을 반영한 파일입니다. 26개 항목은 `ID`, `개월`, `월별 테마`, `미션`, `난이도(쉬움/보통)`, `연결 기능`, `완료 기준`, `메모`, `is_service_idea`, `서비스 목표` 필드를 가집니다.
 
 `mission_manager.py`가 JSON 구조, 선언된 건수, 필수 필드, ID 중복 및 월별 테마 일관성을 확인합니다. 앱은 원본 ID를 진행 상태 키로 사용하고, 미션을 `개월`과 `월별 테마` 기준으로 접힌 월별 그룹에 표시합니다. JSON에 일 단위 마감일은 없으므로 미션에 임의 날짜를 부여하지 않습니다. `연결 기능`은 데이터의 분류 정보이며 외부 기능을 실행하지 않습니다.
 
