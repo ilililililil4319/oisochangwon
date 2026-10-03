@@ -54,11 +54,13 @@ oiso_changwon/
 │   ├─ team_self_test/ (팀 자체 테스트)   대표 Test Case · 최종 체크리스트
 │   └─ user_test/ (실사용자 테스트)       설문 Apps Script · 평가지 · 설문 링크
 ├─ docs/ (문서)                   planning(기획안 10/3) · work_process(작업 과정 설명)
-├─ screenshots/ (화면 캡처)       테스트와 같은 기준으로 구분
-│   ├─ ai_test/ (AI 자동 테스트 캡처)     20261002 · 26장
-│   ├─ team_self_test/ (팀 자체 테스트 캡처)
-│   ├─ user_test/ (실사용자 테스트 캡처)
-│   └─ work_process/ (개발 작업 과정)     20261002 · 31장
+├─ screenshots/ (화면 캡처)       기능 구현 과정 · 이후로 구분
+│   ├─ during_development/ (기능 구현 과정 테스트)
+│   │   ├─ ai_test/ (AI 자동 테스트 캡처)       20261002 · 26장
+│   │   └─ work_process/ (개발 작업 과정)       20261002 · 31장
+│   └─ after_development/ (기능 구현 이후 테스트)
+│       ├─ team_self_test/ (팀 자체 테스트 캡처) 20261003 · 32장
+│       └─ user_test/ (실사용자 테스트 캡처)
 ├─ deliverables/ (최종 제출물)    final_report · technical_description · presentation(ppt·video) · submission
 ├─ handoff/ (인수인계)            인수인계서·작업지시서 · team_share(팀 공유 자료) — 대회 제출 전 PC 보관 후 삭제
 ├─ assets/ (이미지)               로고 이미지
@@ -81,9 +83,8 @@ Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문�
 | `tests/user_test/` | 실사용자 테스트 — 설문 링크, 설문 Apps Script, 종이 평가지 |
 | `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 10/3 갱신본(md·pdf·docx) · 그림 |
 | `docs/work_process/` | 작업 과정 캡처 설명 |
-| `screenshots/ai_test/20261002/` | AI 자동 실행 캡처 26장 — 대표 Test Case 6건 PC·모바일 |
-| `screenshots/team_self_test/` · `screenshots/user_test/` | 팀 자체 테스트 · 실사용자 테스트 캡처(테스트 후 날짜 폴더로 추가) |
-| `screenshots/work_process/20261002/` | 작업 과정 캡처 31장(수정 전·후, 에러와 조치, 배포·공유) |
+| `screenshots/during_development/` | 기능 구현 과정 테스트 캡처 — `ai_test/20261002/` AI 자동 실행 26장(대표 Test Case 6건 PC·모바일), `work_process/20261002/` 작업 과정 31장(수정 전·후, 에러와 조치, 배포·공유) |
+| `screenshots/after_development/` | 기능 구현 이후 테스트 캡처 — `team_self_test/20261003/` 팀 자체 테스트 32장(전체 기능, 진해 링크 수정 전·후, 배포 확인), `user_test/` 실사용자 테스트(테스트 후 날짜 폴더로 추가) |
 | `deliverables/` | 개발완료보고서(10/3 초안 md·pdf·docx) · AI Agent 기술설명서 · 발표자료 · 시연영상(스크립트) · 출처·AI 활용 신고서(10/3 초안, `submission/`) |
 | `handoff/` | 인수인계서 · 작업지시서 · `team_share/`(팀 공유 자료) — **제출 전 삭제** |
 
@@ -142,6 +143,7 @@ python -m unittest discover -s tests/ai_test -v
 | 10/3(토) 새벽 | 문서·정리 | 기획안 10/2 갱신본, 작업 과정 캡처 31장, 저장소 폴더 구조 정리, 팀 공유 자료·인수인계 자료 |
 | 10/3(토) 오전 | 개발·검증 | 기업노동자 전입지원금 자영업 해당 없음 수정, 하는 일별 할 일 문구, Agent 추천 장소 옆 공식 안내 링크, ② 화면 개선, 정착 일정 단계 이름 변경, 캘린더·정착 리포트 저장, 동의 기반 이메일 알림(두 줄 설정), 용어 ‘오이소창원(코디네이터 Agent)’ 통일, 홈 소개·5단계 흐름·저장 방식 안내 |
 | 10/3(토) 오후 | 테스트·문서 | 실사용자 설문 문항 갱신·응답 탭 오류 수정, 최종 자체 테스트 체크리스트, 시연영상 스크립트, `tests/`·`screenshots/` 폴더를 AI·팀 자체·실사용자 테스트로 정리, 공개 저장소에서 설문 관리자 링크 제거, ③ 불편사항·④ 지역말 화면 개선, 메일 발송 계정 Secrets 등록, 기획안 10/3 갱신(차별성·역할·테스트 3종), 개발완료보고서·출처·AI 활용 신고서 초안 |
+| 10/3(토) 저녁 | 테스트·정리 | 배포 앱 팀 자체 테스트(PC·모바일), 물어보기 답변의 진해 공식 안내 링크 중복 수정·배포 확인, 캡처 폴더를 기능 구현 과정(`during_development`)·이후(`after_development`)로 정리 |
 
 ## 7. 다음 작업 (최종 접수 목표 10/5(월) 20:00 이전)
 
