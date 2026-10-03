@@ -117,6 +117,14 @@ READABILITY_CSS = """
 .st-key-level-count-level-no {border-top-color: #9FB0C6;}
 [class*="st-key-policy-card-"] {border-radius: 14px !important;}
 [class*="st-key-policy-card-"] [data-testid="stHeadingWithActionElements"] h2 {font-size: 1.35rem !important; padding: .2rem 0 0 0 !important;}
+.st-key-journey-summary {background: #EEF4FB; border: 1px solid #C9D8EA; border-left: 5px solid #2E9E6B; border-radius: 14px; padding: .9rem 1.3rem;}
+.st-key-journey-summary h3 {font-size: 1.35rem !important; color: #063465; padding: 0 !important;}
+[class*="st-key-milestone-"] {border-radius: 12px; padding: .5rem .8rem; border: 1px solid #D5DDE7; background: #FFFFFF; gap: .1rem;}
+[class*="st-key-milestone-"][class*="-done"] {background: #F3F8F5; border-color: #D6E9DE;}
+[class*="st-key-milestone-"][class*="-next"] {border: 2px solid #FE6A01;}
+[class*="st-key-activity-card-"] {border-radius: 14px !important;}
+[class*="st-key-activity-card-"] [data-testid="stBaseButton-tertiary"] p {text-decoration: underline; text-underline-offset: 3px; color: #063465;}
+.st-key-explore-filters {background: #F5F8FC; border: 1px solid #D5DDE7; border-radius: 14px; padding: .8rem 1.1rem;}
 [class*="st-key-profile-group-"] {background: #FFFFFF; border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.2rem; height: 100%;}
 .st-key-profile-next {background: #EEF4FB; border: 1px solid #C9D8EA; border-left: 5px solid #FE6A01; border-radius: 14px; padding: 1.1rem 1.4rem; margin-top: .8rem;}
 .st-key-profile-next h3 {font-size: 1.3rem !important; color: #063465;}
@@ -924,14 +932,36 @@ def render_journey_page():
         return
     settlement_plan = build_settlement_plan(move_in_date)
 
+    # 지금 위치 요약 — 모두 실제 계산값(전입일·저장된 체크)만 사용
+    today = datetime.now(ZoneInfo("Asia/Seoul")).date()
+    with st.container(key="journey-summary"):
+        day = _settlement_day()
+        st.markdown(
+            f"### 창원 정착 {day + 1}일째" if day is not None and day >= 0 else "### 창원 전입 예정"
+        )
+        if progress_summary is not None:
+            st.caption(f"지금은 {current_month}개월 차 · {current_group['theme']}")
+            stage_column, overall_column = st.columns(2, gap="large")
+            with stage_column:
+                st.markdown(f"**이번 단계** {progress_summary['stage_completed']} / {progress_summary['stage_total']} 완료")
+                st.progress(progress_summary["stage_completed"] / progress_summary["stage_total"] if progress_summary["stage_total"] else 0.0)
+            with overall_column:
+                st.markdown(f"**전체 할 일** {progress_summary['overall_completed']} / {progress_summary['overall_total']} 완료")
+                st.progress(progress_summary["overall_completed"] / progress_summary["overall_total"] if progress_summary["overall_total"] else 0.0)
+
     st.subheader("창원 정착 일정")
 
-    milestone_columns = st.columns(len(settlement_plan["milestones"]), gap="small")
-    for column, milestone in zip(milestone_columns, settlement_plan["milestones"]):
+    milestones = settlement_plan["milestones"]
+    next_index = next((i for i, m in enumerate(milestones) if date.fromisoformat(m["date"]) > today), None)
+    milestone_columns = st.columns(len(milestones), gap="small")
+    for index, (column, milestone) in enumerate(zip(milestone_columns, milestones)):
         label = MILESTONE_LABELS[milestone["day"]]
+        state = "next" if index == next_index else ("done" if date.fromisoformat(milestone["date"]) <= today else "later")
+        mark = {"done": "✓ 지남", "next": "● 다음", "later": "○ 예정"}[state]
         with column:
-            with st.container(key=f"milestone-{milestone['day']}"):
-                st.markdown(f"**{label} · {milestone['date']}**")
+            with st.container(key=f"milestone-{milestone['day']}-{state}"):
+                st.caption(mark)
+                st.markdown(f"**{label}**  \n{milestone['date']}")
     st.caption(
         "마지막 일정과 계속 거주 6개월 기준일은 서로 다른 방식으로 계산되어 "
         "날짜가 다를 수 있어요."
@@ -1078,12 +1108,49 @@ def render_journey_page():
     _next_feature_button(PAGE_EXPLORE, f"{FEATURE_2_TABS[PAGE_EXPLORE]} →")
 
 
-# --- ④ 창원 둘러보기 ----------------------------------------------------------
+# --- ② 창원 생활 둘러보기 -------------------------------------------------------
+EXPLORE_CARDS_SHOWN = 6
+
+
+def _select_activity(activity_id):
+    st.session_state["activity_selection"] = activity_id
+    st.session_state["explore_scroll"] = True
+
+
+def _md_text(value):
+    return MD_SPECIAL_RE.sub(r"\\\1", str(value or ""))
+
+
+def _activity_card(activity, app_name, car_only=False):
+    item = activity_view(activity, app_name)
+    with st.container(border=True, key=f"activity-card-{activity['ID']}"):
+        st.markdown(f"**{_md_text(item['name'])}**")
+        st.caption(f"{item['district']} · {item['category']}" + (" · 차량 권장" if car_only else ""))
+        introduction = item.get("introduction")
+        if isinstance(introduction, str) and introduction.strip():
+            st.markdown(_md_text(introduction))
+        schedule = (item["schedule"] or "").strip()
+        if schedule:
+            st.caption("운영·일정: " + _md_text(schedule if len(schedule) <= 60 else schedule[:59] + "…"))
+        with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
+            st.button("자세히 보기", key=f"activity-more-{activity['ID']}", on_click=_select_activity,
+                      args=(activity["ID"],), type="tertiary")
+            st.link_button("지도에서 보기", item["naver_map_url"])
+
+
+def _activity_grid(activities, app_name, car_only=False, per_row=3):
+    for start in range(0, len(activities), per_row):
+        columns = st.columns(per_row, gap="medium")
+        for column, activity in zip(columns, activities[start:start + per_row]):
+            with column:
+                _activity_card(activity, app_name, car_only)
+
+
 def render_explore_page():
     _back_home_button("explore")
     _feature_2_header(PAGE_EXPLORE)
-    st.subheader("창원에서 해볼 것")
-    st.write("동네와 관심 분야를 골라 가볼 곳과 참여할 일을 찾아보세요.")
+    st.subheader("이번 주말엔 창원을 조금 알아볼까요?")
+    st.caption("창원에서 해볼 것 — 동네와 관심 분야를 고르면 갈 만한 곳과 참여할 일을 보여 드려요.")
 
     try:
         activities = load_activities()
@@ -1097,38 +1164,60 @@ def render_explore_page():
         st.session_state.setdefault("activity_district", default_activity_district)
         if st.session_state["activity_district"] not in district_options:
             st.session_state["activity_district"] = "창원 전체"
-        # PC: 왼쪽 찾기 조건·목록 / 가운데 장소 정보 / 오른쪽 장소 안내·이동 (모바일은 위에서 아래로)
-        filter_column, detail_column, move_column = st.columns([1.1, 1.6, 1.1], gap="large")
-        with filter_column:
-            selected_district = st.selectbox(
-                "어느 지역에서 찾을까요?",
-                district_options,
-                key="activity_district",
-            )
-            selected_category = st.selectbox(
-                "어떤 활동을 찾으세요?",
-                ["모든 분야", *activity_options["categories"]],
-                key="activity_category",
-            )
-            filtered_activities = filter_activities(
-                activities,
-                district=(
-                    None if selected_district == "창원 전체" else selected_district
-                ),
-                category=(
-                    None if selected_category == "모든 분야" else selected_category
-                ),
-            )
-            st.caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
-            if not filtered_activities:
-                st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
-            selected_activity_id = None
-            if filtered_activities:
-                activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
-                if st.session_state.get("activity_selection") not in activity_by_id:
-                    st.session_state.pop("activity_selection", None)
+        no_car = st.session_state["vehicle"] == "없음"
+
+        with st.container(key="explore-filters"):
+            district_column, category_column, move_info_column = st.columns([1, 1, 1.2], gap="medium")
+            with district_column:
+                selected_district = st.selectbox(
+                    "어느 지역에서 찾을까요?",
+                    district_options,
+                    key="activity_district",
+                )
+            with category_column:
+                selected_category = st.selectbox(
+                    "어떤 활동을 찾으세요?",
+                    ["모든 분야", *activity_options["categories"]],
+                    key="activity_category",
+                )
+            with move_info_column:
+                st.markdown("**이동 방식**")
+                if no_car:
+                    st.caption("차량 없음 — 대중교통으로 갈 수 있는 곳을 먼저 보여 드려요. 외곽은 ‘차로 가면 좋은 곳’으로 따로 모았어요.")
+                elif st.session_state["vehicle"] == "있음":
+                    st.caption("차량 있음 — 모든 장소를 함께 보여 드려요.")
+                else:
+                    st.caption("‘나의 조건 입력’에서 차량 여부를 고르면 이동 방식에 맞춰 보여 드려요.")
+
+        filtered_activities = filter_activities(
+            activities,
+            district=(None if selected_district == "창원 전체" else selected_district),
+            category=(None if selected_category == "모든 분야" else selected_category),
+        )
+        st.caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
+        if not filtered_activities:
+            st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
+
+        app_name = st.context.url or "http://localhost:8501"
+        car_only = [a for a in filtered_activities if a.get("이동 권장") == "차량 권장"] if no_car else []
+        main_list = [a for a in filtered_activities if a not in car_only]
+        _activity_grid(main_list[:EXPLORE_CARDS_SHOWN], app_name)
+        if len(main_list) > EXPLORE_CARDS_SHOWN:
+            with st.expander(f"더 보기 · {len(main_list) - EXPLORE_CARDS_SHOWN}곳"):
+                _activity_grid(main_list[EXPLORE_CARDS_SHOWN:], app_name)
+        if car_only:
+            st.markdown("**차로 가면 좋은 곳** · 창원 외곽이라 시내버스로는 가기 어려워요")
+            _activity_grid(car_only, app_name, car_only=True)
+
+        selected_activity_id = None
+        if filtered_activities:
+            st.divider()
+            activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
+            if st.session_state.get("activity_selection") not in activity_by_id:
+                st.session_state.pop("activity_selection", None)
+            with st.container(key="explore-detail"):
                 selected_activity_id = st.selectbox(
-                    "어떤 곳을 볼까요?",
+                    "자세히 볼 곳",
                     list(activity_by_id),
                     format_func=lambda activity_id: (
                         f"{activity_by_id[activity_id]['이름']} · "
@@ -1138,8 +1227,8 @@ def render_explore_page():
                 )
 
         if selected_activity_id:
-            app_name = st.context.url or "http://localhost:8501"
             item = activity_view(activity_by_id[selected_activity_id], app_name)
+            detail_column, move_column = st.columns([1.6, 1], gap="large")
             with detail_column:
                 _content_title(item["name"])
                 introduction = item.get("introduction")
@@ -1169,7 +1258,6 @@ def render_explore_page():
                     )
 
                 st.subheader("이동")
-                no_car = st.session_state["vehicle"] == "없음"
                 selected_raw = activity_by_id[selected_activity_id]
                 if selected_raw.get("이동 권장") == "차량 권장":
                     st.warning("창원 외곽이라 시내버스로 가기 어려워요. 차량으로 가는 것을 권장해요.")
@@ -1192,6 +1280,8 @@ def render_explore_page():
                     "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
                     "대중교통 길찾기를 선택해 주세요."
                 )
+            if st.session_state.pop("explore_scroll", False):
+                _scroll_into_view("explore-detail")
     except (OSError, ValueError):
         st.info(
             "창원 활동 정보를 불러오지 못했어요. "
