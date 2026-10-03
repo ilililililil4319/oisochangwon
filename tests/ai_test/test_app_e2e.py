@@ -73,6 +73,13 @@ def _demo_app():
     return app
 
 
+def app_module_help():
+    import ast
+    tree = ast.parse(APP_FILE.read_text(encoding="utf-8"))
+    node = next(n for n in tree.body if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "PROFILE_FIELD_HELP")
+    return ast.literal_eval(node.value)
+
+
 def _visit(app, page):
     app.button(key=f"nav-{page}").click().run()
 
@@ -198,6 +205,19 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertTrue(all(b.disabled for b in app.main.button if b.key.startswith("show-")))
                 self.assertTrue(app.button(key="nav-journey").disabled)
                 self.assertFalse(app.button(key="nav-profile").disabled)
+
+    def test_profile_field_help_is_visible_without_clicking(self):
+        # 10/3 사용자 테스트: ‘?’를 눌러야 보이던 설명을 칸 아래에 항상 보이게
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = AppTest.from_file(str(APP_FILE)).run()
+                _visit(app, "profile")
+                captions = [c.value for c in app.main.caption]
+                for text in app_module_help().values():
+                    self.assertIn(text, captions)
+                self.assertTrue(any("1년 이상 주민등록을 두고 살았어야" in c for c in captions))
+                widgets = list(app.text_input) + list(app.number_input) + list(app.date_input) + list(app.selectbox) + list(app.radio)
+                self.assertFalse([w.label for w in widgets if getattr(w, "help", None)])
 
     def test_no_contact_email_on_any_page(self):
         # 10/3 이혜경 요청: 앱 화면(사이드바·화면 아래)에서 문의 이메일 삭제

@@ -685,6 +685,24 @@ def _profile_next_card():
                           on_click=_go, args=(target_page,))
 
 
+# 조건 입력 칸 설명: ‘?’를 눌러야 보이는 툴팁 대신 칸 바로 아래에 항상 보이게 (10/3 사용자 테스트 의견)
+PROFILE_FIELD_HELP = {
+    "nickname": "실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.",
+    "age": "만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.",
+    "move_in_date": "새 주소로 전입신고를 한 날이에요. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.",
+    "home_district": "사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
+    "previous_residence_years": "왜 필요할까요? ‘창원시 기업노동자 전입지원금’은 창원으로 오기 전 다른 시·군·구에 "
+    "1년 이상 주민등록을 두고 살았어야 받을 수 있어요. 이 조건을 확인하는 데만 써요.",
+    "employment_status": "직장인 = 창원 회사·가게 근무, 자영업 = 창원에서 직접 사업, 학생 = 대학·대학원 재학, "
+    "기타 = 구직 중·쉬는 중 등. 하는 일에 따라 받을 수 있는 혜택이 달라져요.",
+    "vehicle": "차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
+}
+
+
+def _field_help(field):
+    st.caption(PROFILE_FIELD_HELP[field])
+
+
 def render_profile_page():
     _back_home_button("profile")
     with st.container(key="profile-head", horizontal=True, wrap=True, vertical_alignment="bottom"):
@@ -695,7 +713,7 @@ def render_profile_page():
                 "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. **실명과 연락처는 받지 않아요.**"
             )
             st.caption(
-                "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸 옆 물음표(?)를 누르면 쉬운 설명이 나와요."
+                "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸마다 아래에 쉬운 설명이 있어요."
             )
         with st.container(horizontal=True, wrap=True, horizontal_alignment="right", width="content"):
             st.button(
@@ -716,12 +734,12 @@ def render_profile_page():
     with left_inputs:
         with st.container(key="profile-group-basic"):
             st.markdown("**기본 조건**")
-            st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20,
-                          help="실명 대신 쓰는 이름이에요. 같은 닉네임으로 다시 들어오면 체크한 할 일이 이어져요.")
-            st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이",
-                            help="만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.")
-            st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD",
-                          help="전입일 = 새 주소로 전입신고를 한 날. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.")
+            st.text_input("닉네임", key="nickname", placeholder="실명 대신 쓸 이름 (예: 창원새내기)", max_chars=20)
+            _field_help("nickname")
+            st.number_input("나이", min_value=19, max_value=100, key="age", placeholder="만 나이")
+            _field_help("age")
+            st.date_input("창원 전입일", key="move_in_date", format="YYYY/MM/DD")
+            _field_help("move_in_date")
             district_col, town_col = st.columns(2, gap="small")
             with district_col:
                 st.selectbox(
@@ -729,8 +747,8 @@ def render_profile_page():
                     [DISTRICT_PLACEHOLDER, *HOME_DISTRICTS],
                     key="home_district",
                     on_change=_sync_activity_district,
-                    help="사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
                 )
+                _field_help("home_district")
             with town_col:
                 st.text_input(
                     "동네 (선택)",
@@ -747,23 +765,22 @@ def render_profile_page():
                 max_value=50,
                 key="previous_residence_years",
                 placeholder="예: 2",
-                help="창원으로 오기 전 다른 시·군에 주민등록을 두고 산 기간이에요(전입지원금 조건 확인).",
             )
+            _field_help("previous_residence_years")
             st.radio(
                 "지금 하는 일 (창원 기준)",
                 EMPLOYMENT_OPTIONS,
                 key="employment_status",
                 horizontal=True,
-                help="직장인 = 창원에 있는 회사·가게에서 근무해요. 자영업 = 창원에서 직접 사업을 해요. "
-                "학생 = 대학·대학원 재학. 기타 = 구직 중·쉬는 중 등. 하는 일에 따라 받을 수 있는 혜택이 달라져요.",
             )
+            _field_help("employment_status")
             st.radio(
                 "차량 소지 여부",
                 VEHICLE_OPTIONS,
                 key="vehicle",
                 horizontal=True,
-                help="차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
             )
+            _field_help("vehicle")
     _profile_next_card()
 
 
