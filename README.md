@@ -86,7 +86,7 @@ Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문�
 | `tests/ai_test/` | AI 자동 테스트 — Claude가 작성한 unittest 코드 126개(정책 판정·일정·저장·Agent 검증·캘린더·이메일 동의 등) |
 | `tests/team_self_test/` | 팀 자체 테스트 — 대표 Test Case 6건, 10/3 최종 자체 테스트 체크리스트(md·pdf·docx), 자체평가 테스트보고서(1차·2차 PC·모바일), 결과 반영표 |
 | `tests/user_test/` | 실사용자 테스트 — 설문 링크, 설문 Apps Script, 종이 평가지 |
-| `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 10/4 최종본(md·pdf·docx) · 그림 |
+| `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 최종본 10/4(md·pdf·docx) · 그림 |
 | `docs/work_process/` | 작업 과정 캡처 설명 |
 | `docs/ux_ui/` | UX/UI 개선 작업 프롬프트(10/3, ‘전체 UI가 아쉽다’는 의견을 받아 GPT로 작성) — 전체 테스트 결과가 모이면 이 기준으로 개선 |
 | `screenshots/during_development/` | 기능 구현 과정 테스트 캡처 — `ai_test/20261002/` AI 자동 실행 26장(대표 Test Case 6건 PC·모바일), `work_process/20261002/` 작업 과정 31장(수정 전·후, 에러와 조치, 배포·공유) |
