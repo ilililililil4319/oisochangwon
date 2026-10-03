@@ -26,14 +26,14 @@ function widthsFor(n,rows){ if(rows){const L=Array(n).fill(0);rows.forEach(r=>r.
 while(i<md.length){
   const line=md[i];
   if(line.startsWith('|')){
-    const rows=[]; while(i<md.length&&md[i].startsWith('|')){ if(!/^\|[-| ]+\|$/.test(md[i])) rows.push(md[i].slice(1,-1).split('|').map(c=>c.trim())); i++; }
+    const rows=[]; let al=[]; while(i<md.length&&md[i].startsWith('|')){ if(!/^\|[-|: ]+\|$/.test(md[i])) rows.push(md[i].slice(1,-1).split('|').map(c=>c.trim())); else al=md[i].slice(1,-1).split('|').map(c=>/^\s*:-+:\s*$/.test(c)); i++; }
     const n=rows[0].length; const w=widthsFor(n,rows).map(x=>Math.round(x*PAGEW)); w[n-1]=PAGEW-w.slice(0,n-1).reduce((a,b)=>a+b,0);
     const border={style:BorderStyle.SINGLE,size:4,color:'C9D3DF'};
     children.push(new Table({width:{size:PAGEW,type:WidthType.DXA},columnWidths:w,rows:rows.map((r,ri)=>new TableRow({tableHeader:ri===0,cantSplit:true,children:r.map((c,ci)=>new TableCell({width:{size:w[ci],type:WidthType.DXA},
       borders:{top:border,bottom:border,left:border,right:border},
       shading: ri===0?{type:ShadingType.CLEAR,color:'auto',fill:'EEF4FB'}:undefined,
       margins:{top:50,bottom:50,left:80,right:80},
-      children:[new Paragraph({alignment:(ri===0||ci===0||(c===''))?AlignmentType.CENTER:AlignmentType.LEFT,children:runs(clean(c),{size:17,bold:ri===0||undefined,color:ri===0?NAVY:undefined})})]}))}))}));
+      children:[new Paragraph({alignment:(ri===0||ci===0||al[ci]||(c===''))?AlignmentType.CENTER:AlignmentType.LEFT,children:runs(clean(c),{size:17,bold:ri===0||undefined,color:ri===0?NAVY:undefined})})]}))}))}));
     children.push(new Paragraph({spacing:{after:80},children:[]}));
     continue;
   }
