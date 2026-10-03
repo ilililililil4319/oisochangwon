@@ -111,10 +111,13 @@ class ApplicationE2ETests(unittest.TestCase):
                 feature_keys = [b.key for b in app.main.button if b.key in ("show-policy", "show-journey", "show-complaint", "show-dialect")]
                 self.assertEqual(len(feature_keys), 4)
                 self.assertNotIn("내 정보", home_text)
-                # ‘이렇게 일해요’: AI가 실제로 동작하는 2·4단계에만 AI 표시
+                # ‘이렇게 일해요’ (10/3 실사용자 피드백): AI 동그라미 표시 없음, 단계 이름
                 flow = next(m.value for m in app.markdown if "flow-row" in m.value)
-                self.assertEqual(flow.count('class="ai-tag"'), 2)
-                self.assertIn("AI(GPT-4.1 mini)가 실제로 동작하는 단계", home_text)
+                self.assertNotIn("ai-tag", flow)
+                for step in ("2. AI 이해 · 조건 비교", "4. AI 맞춤 결과 안내", "5. 일정 저장 및 알림(선택)"):
+                    self.assertIn(step, flow)
+                self.assertNotIn("팀이 확인한", flow)
+                self.assertEqual(app.button(key="show-ask").label, "🔒 오이소창원에게 물어보기 · 조건 입력 후 열려요")
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertFalse(app.button(key="show-profile").disabled)
                 self.assertTrue(all(b.disabled for b in app.main.button if b.key and b.key.startswith("show-") and b.key != "show-profile"))
@@ -212,9 +215,10 @@ class ApplicationE2ETests(unittest.TestCase):
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
                 _visit(app, "profile")
-                captions = [c.value for c in app.main.caption]
+                # 문장마다 줄바꿈("  \n")해서 보여 주므로 비교할 때는 띄어쓰기로 맞춤
+                captions = [" ".join(c.value.replace("  \n", " ").split()) for c in app.main.caption]
                 for text in app_module_help().values():
-                    self.assertIn(text, captions)
+                    self.assertIn(" ".join(text.replace("  \n", " ").split()), captions)
                 self.assertTrue(any("1년 이상 주민등록을 두고 살았어야" in c for c in captions))
                 widgets = list(app.text_input) + list(app.number_input) + list(app.date_input) + list(app.selectbox) + list(app.radio)
                 self.assertFalse([w.label for w in widgets if getattr(w, "help", None)])

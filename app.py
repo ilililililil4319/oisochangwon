@@ -101,9 +101,24 @@ SAVE_HELP = (
 DEFAULT_NICKNAME = "코디2026"
 
 
+# 문장이 여러 개인 안내는 문장마다 줄을 바꿔 읽기 쉽게 (10/3 실사용자 피드백: 글자 끊김)
+_SENTENCE_BREAK = re.compile(r"(?<=[요다]\.) (?=\S)|(?<=[요까]\?) (?=\S)")
+
+
+def _lines(text):
+    return _SENTENCE_BREAK.sub("  \n", text) if isinstance(text, str) else text
+
+
+def _caption(body, *args, **kwargs):
+    return st.caption(_lines(body), *args, **kwargs)
+
+
 # Native heading and caption roles share one small typography layer.
 READABILITY_CSS = """
 <style>
+/* 한글 줄바꿈: 낱말 중간에서 끊지 않고 띄어쓰기에서 바꿈, 긴 URL만 필요할 때 끊음 */
+.stApp p, .stApp li, .stApp label, .stApp span, .stApp td, .stApp th, .stApp button, .stApp h1, .stApp h2, .stApp h3,
+.stApp [data-testid="stCaptionContainer"], .stApp .flow-box {word-break: keep-all; overflow-wrap: break-word;}
 [data-testid="stMainBlockContainer"] {max-width: 100%; padding: 3.2rem 2.5rem 2rem 2.5rem;}
 /* 내용은 가운데 최대 1200px, 배경 띠만 화면 끝까지 */
 [class*="st-key-page-"]:not(.st-key-page-home), .st-key-home-hero-inner, .st-key-home-body {max-width: 1200px; margin-left: auto !important; margin-right: auto !important; width: 100%;}
@@ -171,11 +186,9 @@ READABILITY_CSS = """
     background: #F3F8F5; border: 1px solid #D6E9DE; border-radius: 12px; padding: .75rem .9rem; color: #063465;}
 .flow-box b {font-size: .98rem;}
 .flow-box span {font-size: .85rem; color: #4D5B6A; line-height: 1.45;}
-.st-key-hero-cta-help p {margin: .6rem 0 0; padding: .55rem .8rem; border-left: 3px solid #FE6A01; background: #FFF6EF;
-    border-radius: 0 8px 8px 0; color: #063465; font-size: .95rem; line-height: 1.5;}
+.st-key-hero-cta-help p.cta-help {margin: .6rem 0 0; padding: .55rem .8rem; border-left: 3px solid #FE6A01; background: #FFF6EF;
+    border-radius: 0 8px 8px 0; color: #063465; font-size: 1.02rem; line-height: 1.5;}
 .flow-box.flow-ai {background: #EEF3FA; border-color: #B9CCE4;}
-.ai-tag {display: inline-block; margin-left: .35rem; padding: .05rem .45rem; border-radius: 999px; background: #063465;
-    color: #fff; font-size: .72rem; font-style: normal; font-weight: 700; vertical-align: .1rem;}
 .flow-arrow {flex: 0 0 auto; align-self: center; color: #FE6A01; font-weight: 700; font-size: 1.3rem;}
 @media (max-width: 640px) {
     .flow-row {flex-direction: column; gap: .15rem;}
@@ -265,6 +278,16 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-home-hero-band [data-testid="stColumn"] {padding-top: .6rem; padding-bottom: .6rem;}
 [data-testid="stSidebar"] {border-right: 3px solid #FE6A01;}
 [data-testid="stExpander"] details {border-color: #D5DDE7;}
+/* 10/3 UX/UI 다듬기(기능 변경 없음): 글자 대비·섹션 제목·간격 통일 */
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {color: #4D5B6A;}
+.stApp [data-testid="stCaptionContainer"] p {line-height: 1.6;}
+.sec-title {font-size: 1.2rem; font-weight: 700; color: #063465; margin: 1.6rem 0 .35rem;}
+.st-key-hero-cta-help {margin-bottom: .45rem;}
+.st-key-hero-cta-help p {line-height: 1.7;}
+.st-key-agent-flow {margin-bottom: .8rem;}
+.st-key-page-policy [data-testid="stExpander"] summary p, .st-key-page-explore [data-testid="stExpander"] summary p,
+.st-key-page-dialect [data-testid="stExpander"] summary p, .st-key-page-complaint [data-testid="stExpander"] summary p
+    {font-size: 1.05rem; font-weight: 600;}
 </style>
 """
 
@@ -430,7 +453,8 @@ saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 CONDITION_LABEL = "나의 조건 입력"
 PROFILE_EDIT_LABEL = "나의 조건 확인·수정"
 # 첫 화면 주황 버튼 바로 위 안내 (10/3 이혜경 문구)
-CTA_HELP = "창원 생활, 어디서부터 시작할지 고민되나요? 먼저 나의 조건을 확인하면 필요한 정보를 맞춤 안내해 드려요."
+CTA_HELP = "창원 생활, 어디서부터 시작할지 고민되나요?  \n먼저 나의 조건을 확인하면 필요한 정보를 맞춤 안내해 드려요."
+CTA_HELP_HTML = '<p class="cta-help">' + html.escape(CTA_HELP).replace("  \n", "<br>") + "</p>"
 DATA_COUNTS = [
     (label, count, unit)
     for label, count, unit in (
@@ -486,7 +510,7 @@ def _feature_buttons(with_descriptions=False, per_row=2):
                             width="stretch",
                         )
                         if with_descriptions:
-                            st.caption(FEATURE_SUMMARIES[target_page])
+                            _caption(FEATURE_SUMMARIES[target_page])
 
 
 def _ai_banner():
@@ -494,7 +518,7 @@ def _ai_banner():
         text_col, button_col = st.columns([3, 1], vertical_alignment="center")
         with text_col:
             st.markdown(f"**STEP 3 · 궁금한 건 {ASK_LABEL}**")
-            st.caption("“내가 받을 수 있는 지원 알려줘”, “버스로 갈 만한 야경 명소?”처럼 한 문장으로 물어보세요.")
+            _caption("“내가 받을 수 있는 지원 알려줘”, “버스로 갈 만한 야경 명소?”처럼 한 문장으로 물어보세요.")
         with button_col:
             st.button(
                 f"{ASK_LABEL} →",
@@ -512,9 +536,9 @@ def _condition_card():
         with text_col:
             st.markdown(f"**STEP 1 · {CONDITION_LABEL}**")
             if user_key:
-                st.caption(f"{user_key}님의 조건이 입력돼 있어요. 바꾸려면 오른쪽 버튼을 눌러 주세요.")
+                _caption(f"{user_key}님의 조건이 입력돼 있어요. 바꾸려면 오른쪽 버튼을 눌러 주세요.")
             else:
-                st.caption("나이·창원 전입일 같은 조건만 적으면 아래 기능 4개가 열려요. 개인정보는 받지 않아요. "
+                _caption("나이·창원 전입일 같은 조건만 적으면 아래 기능 4개가 열려요. 개인정보는 받지 않아요. "
                            "먼저 둘러보려면 들어가서 ‘예시 정보로 채우기’를 눌러 보세요.")
         with button_col:
             if user_key:
@@ -532,14 +556,13 @@ HOME_FEATURES = (
 )
 FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
 AI_FLOW_CLASS = " flow-ai"
-AI_TAG_HTML = ' <em class="ai-tag">AI</em>'
-# (제목, 설명, AI 동작 여부) — AI 표시는 GPT-4.1 mini가 실제로 일하는 단계에만
+# (제목, 설명, AI 동작 여부) — AI가 일하는 단계는 상자 색만 연한 남색으로
 AGENT_FLOW = (
     ("내 조건", "나이·전입일·하는 일·차량 소지 여부", False),
-    ("AI 이해 · 조건 비교", f"질문은 AI가 이해하고 필요한 도구를 골라요. 혜택은 정책 {POLICY_COUNT}건과 규칙으로 비교", True),
-    ("검증 자료 확인", "팀이 확인한 공식 자료만 찾고, AI 답의 연락처·링크를 자료와 대조", False),
-    ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구, AI가 답 문장 작성", True),
-    ("다음 할 일 저장", "캘린더·정착 리포트로 내 기기에 보관", False),
+    ("AI 이해 · 조건 비교", "질문은 AI가 이해하고 필요한 도구를 골라요. 혜택은 정책과 규칙으로 비교", True),
+    ("검증 자료 확인", "공식 자료만 찾고, AI 답의 연락처·링크를 자료와 대조", False),
+    ("AI 맞춤 결과 안내", "해당 가능 혜택·추천 장소·접수 창구, AI가 답 문장 작성", True),
+    ("일정 저장 및 알림(선택)", "캘린더·정착 리포트로 내 기기에 보관, 원하면 이메일 알림", False),
 )
 # 예시 카드: 창원·경남에서만 주는 혜택을 먼저, 그다음 청년이 많이 찾는 지원 (모두 data/policies_mvp.json에 있는 사업)
 EXAMPLE_CHECKS = (
@@ -560,9 +583,9 @@ def _hero_progress_card():
         st.markdown(f"**{user_key}님의 정착 현황**")
         day = _settlement_day()
         if progress_summary is None:
-            st.caption("창원 전입일을 입력하면 정착 단계와 할 일을 보여 드려요.")
+            _caption("창원 전입일을 입력하면 정착 단계와 할 일을 보여 드려요.")
             return
-        st.caption(
+        _caption(
             (f"창원 정착 {day + 1}일째 · " if day is not None and day >= 0 else "")
             + f"{current_month}개월 차 · {current_group['theme']}"
         )
@@ -581,7 +604,7 @@ def _hero_example_card():
         st.markdown("**이런 걸 함께 챙겨드려요**")
         for mark, text in EXAMPLE_CHECKS:
             st.markdown(f"{mark} {text}")
-        st.caption("예시 화면이에요. 조건을 입력하면 나의 진행 상황으로 바뀌어요.")
+        _caption("예시 화면이에요. 조건을 입력하면 나의 진행 상황으로 바뀌어요.")
 
 
 def render_home_page():
@@ -597,7 +620,7 @@ def render_home_page():
                 st.markdown("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **오이소창원**이 함께 챙겨드려요.")
                 st.markdown("오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?")
                 with st.container(key="hero-cta-help"):
-                    st.markdown(CTA_HELP)
+                    st.markdown(CTA_HELP_HTML, unsafe_allow_html=True)
                 with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
                     st.button(
                         f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else PROFILE_EDIT_LABEL,
@@ -615,13 +638,13 @@ def render_home_page():
                     _hero_example_card()
 
     with st.container(key="home-body"):
-        st.markdown("**이 서비스가 하는 일**")
+        st.markdown('<p class="sec-title">이 서비스가 하는 일</p>', unsafe_allow_html=True)
         columns = st.columns(4, gap="medium")
         for column, (target_page, title, text) in zip(columns, HOME_FEATURES):
             with column:
                 with st.container(key=f"home-card-{target_page}"):
                     st.markdown(f"**{title}**")
-                    st.caption(text)
+                    _caption(text)
                     if user_key:
                         st.button("열기 →", key=FEATURE_KEYS[target_page], type="primary",
                                   on_click=_go, args=(target_page,), width="stretch")
@@ -629,23 +652,23 @@ def render_home_page():
                         st.button("🔒 조건 입력 후 열려요", key=FEATURE_KEYS[target_page],
                                   disabled=True, width="stretch")
 
-        st.markdown("**오이소창원은 이렇게 일해요**")
+        st.markdown('<p class="sec-title">오이소창원은 이렇게 일해요</p>', unsafe_allow_html=True)
         # 5단계 흐름: 같은 크기 상자 + 화살표(PC는 가로 →, 모바일은 세로 ↓)
         flow_html = '<span class="flow-arrow" aria-hidden="true">→</span>'.join(
-            f'<div class="flow-box{AI_FLOW_CLASS if uses_ai else ""}"><b>{number}. {html.escape(title)}'
-            f'{AI_TAG_HTML if uses_ai else ""}</b><span>{html.escape(text)}</span></div>'
+            f'<div class="flow-box{AI_FLOW_CLASS if uses_ai else ""}"><b>{number}. {html.escape(title)}</b>'
+            f'<span>{html.escape(text)}</span></div>'
             for number, (title, text, uses_ai) in enumerate(AGENT_FLOW, start=1)
         )
         with st.container(key="agent-flow"):
             st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
-            st.caption("AI 표시: 코디네이터 Agent의 AI(GPT-4.1 mini)가 실제로 동작하는 단계예요.")
-        st.caption(SAVE_HELP)
+        _caption(SAVE_HELP)
         with st.container(key="home-ask-row", horizontal=True, vertical_alignment="center"):
-            st.caption("궁금한 건 네 기능을 넘나들며 한 문장으로 물어보세요.")
-            st.button(f"{ASK_LABEL} →", key="show-ask", disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
+            _caption("궁금한 건 네 기능을 넘나들며 한 문장으로 물어보세요.")
+            st.button(f"{ASK_LABEL} →" if user_key else f"🔒 {ASK_LABEL} · 조건 입력 후 열려요", key="show-ask",
+                      disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
 
         st.divider()
-        st.caption(
+        _caption(
             "실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관"
         )
         with st.expander("이용 참고사항 자세히 보기"):
@@ -670,16 +693,16 @@ def _profile_next_card():
     with st.container(key="profile-next"):
         if user_key:
             st.markdown(f"### {user_key}님, 준비됐어요.")
-            st.caption("다음에 할 일을 골라 주세요. 조건은 언제든 이 화면에서 바꿀 수 있어요.")
+            _caption("다음에 할 일을 골라 주세요. 조건은 언제든 이 화면에서 바꿀 수 있어요.")
         else:
             st.markdown("### 닉네임을 입력하면 다음 단계가 열려요")
-            st.caption("닉네임만 있어도 시작할 수 있어요. 나이·전입일을 넣으면 혜택과 일정이 더 정확해져요.")
+            _caption("닉네임만 있어도 시작할 수 있어요. 나이·전입일을 넣으면 혜택과 일정이 더 정확해져요.")
         with st.container(key="profile-next-main", horizontal=True, wrap=True):
             for target_page, key, label, button_type in PROFILE_NEXT_STEPS:
                 st.button(label, key=key, type=button_type, disabled=not user_key,
                           on_click=_go, args=(target_page,))
         with st.container(key="profile-next-more", horizontal=True, wrap=True, vertical_alignment="center"):
-            st.caption("다른 기능:")
+            _caption("다른 기능:")
             for target_page, key, label in PROFILE_MORE_STEPS:
                 st.button(label, key=key, type="tertiary", disabled=not user_key,
                           on_click=_go, args=(target_page,))
@@ -693,26 +716,26 @@ PROFILE_FIELD_HELP = {
     "home_district": "사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
     "previous_residence_years": "왜 필요할까요? ‘창원시 기업노동자 전입지원금’은 창원으로 오기 전 다른 시·군·구에 "
     "1년 이상 주민등록을 두고 살았어야 받을 수 있어요. 이 조건을 확인하는 데만 써요.",
-    "employment_status": "직장인 = 창원 회사·가게 근무, 자영업 = 창원에서 직접 사업, 학생 = 대학·대학원 재학, "
-    "기타 = 구직 중·쉬는 중 등. 하는 일에 따라 받을 수 있는 혜택이 달라져요.",
+    "employment_status": "직장인 = 창원 회사·가게 근무, 자영업 = 창원에서 직접 사업,  \n"
+    "학생 = 대학·대학원 재학, 기타 = 구직 중·쉬는 중 등  \n하는 일에 따라 받을 수 있는 혜택이 달라져요.",
     "vehicle": "차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
 }
 
 
 def _field_help(field):
-    st.caption(PROFILE_FIELD_HELP[field])
+    _caption(PROFILE_FIELD_HELP[field])
 
 
 def render_profile_page():
     _back_home_button("profile")
     with st.container(key="profile-head", horizontal=True, wrap=True, vertical_alignment="bottom"):
         with st.container():
-            st.caption(CONDITION_LABEL)
+            _caption(CONDITION_LABEL)
             st.subheader("먼저, 오이소창원이 알아야 할 조건을 알려주세요.", anchor=False)
             st.markdown(
                 "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. **실명과 연락처는 받지 않아요.**"
             )
-            st.caption(
+            _caption(
                 "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸마다 아래에 쉬운 설명이 있어요."
             )
         with st.container(horizontal=True, wrap=True, horizontal_alignment="right", width="content"):
@@ -905,7 +928,7 @@ def _policy_card(match):
     with st.container(border=True, key=f"policy-card-{match['id']}"):
         st.badge(match["level"], color={"level-ok": "green", "level-cond": "blue", "level-check": "orange", "level-no": "gray"}[style])
         _content_title(match["name"])
-        st.caption(match["message"])
+        _caption(match["message"])
         if match["support"]:
             st.markdown(f"**지원** · {_first_sentence(match['support'], 90)}")
         why_label = WHY_LABELS[match["level"]]
@@ -928,7 +951,7 @@ def _policy_card(match):
                     _detail("판단 이유", "\n".join(f"· {reason}" for reason in match["reasons"]))
                 if match["how_to_apply"]:
                     _detail("신청 방법", match["how_to_apply"])
-                st.caption(" · ".join(v for v in (f"{match['checked']} 확인" if match["checked"] else "", match["status"]) if v))
+                _caption(" · ".join(v for v in (f"{match['checked']} 확인" if match["checked"] else "", match["status"]) if v))
 
 
 def _policy_grid(matches, per_row=2):
@@ -950,7 +973,7 @@ def render_policy_page():
 
     st.subheader(FEATURE_1)
     st.markdown(f"### {nickname}님이 먼저 확인하면 좋은 혜택")
-    st.caption("받을 수 있는 혜택 한눈에 보기 · 실제 판정 결과 기준")
+    _caption("받을 수 있는 혜택 한눈에 보기 · 실제 판정 결과 기준")
     with st.container(key="level-counts"):
         count_columns = st.columns(len(LEVELS), gap="small")
     for column, level in zip(count_columns, LEVELS):
@@ -961,7 +984,7 @@ def render_policy_page():
                     f"<div class='lvl-hint'>{LEVEL_HINTS[level]}</div>",
                     unsafe_allow_html=True,
                 )
-    st.caption(
+    _caption(
         f"팀이 검증한 창원·청년 정책 {len(matches)}건과 입력한 조건을 규칙으로 비교했어요. "
         "받을 수 있다고 단정하지 않아요 — 최종 판단은 담당 기관에서 해요."
     )
@@ -985,13 +1008,13 @@ def render_policy_page():
     if move_in_date is not None:
         st.markdown("**혜택 확인일·정착 일정 저장**")
         _save_buttons(datetime.now(ZoneInfo("Asia/Seoul")).date(), PAGE_POLICY)
-        st.caption("해당 가능·조건부 혜택의 확인일이 캘린더에 들어가요. 이메일 알림은 선택이고, 신청할 때만 동의를 받아요.")
+        _caption("해당 가능·조건부 혜택의 확인일이 캘린더에 들어가요. 이메일 알림은 선택이고, 신청할 때만 동의를 받아요.")
     with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
         st.link_button(
             "창원시 청년정책 전체 보기",
             CITY_YOUTH_POLICY_URL,
         )
-        st.caption("조건을 바꾸려면 ‘나의 조건 입력’에서 고쳐 주세요.")
+        _caption("조건을 바꾸려면 ‘나의 조건 입력’에서 고쳐 주세요.")
     _next_feature_button(PAGE_JOURNEY, f"{BUTTON_2} →")
 
 
@@ -1072,7 +1095,7 @@ def _journey_tools(today):
     st.subheader("일정 저장·알림")
     with st.container(key="journey-tools"):
         events, counts = _save_buttons(today, PAGE_JOURNEY)
-        st.caption(
+        _caption(
             f"캘린더 파일: 정착 일정 {counts['milestone']}개 · 월별 할 일 {counts['missions']}개 · "
             f"혜택 확인일 {counts['policy']}개. 열면 휴대폰·PC 캘린더에 들어가고 하루 전 오전 9시에 알림이 떠요.  \n"
             "정착 리포트: 나의 조건·할 일 진행·다가오는 일정·맞는 혜택을 한 파일로 저장해요. "
@@ -1093,7 +1116,7 @@ def _email_alert_box(events, today):
         if st.session_state.pop("email_scroll", False):
             _scroll_into_view("email-alert")
         if not st.session_state.get("alert_open"):
-            st.caption("이메일 알림은 선택이에요. ‘✉️ 이메일 알림 신청’을 누르지 않으면 이메일을 묻거나 저장하지 않아요.")
+            _caption("이메일 알림은 선택이에요. ‘✉️ 이메일 알림 신청’을 누르지 않으면 이메일을 묻거나 저장하지 않아요.")
             return
         with st.container(horizontal=True, vertical_alignment="center"):
             st.markdown("**✉️ 이메일 알림 신청 (선택)**")
@@ -1104,7 +1127,7 @@ def _email_alert_box(events, today):
                 "위 ‘📅 캘린더에 저장’으로 내 캘린더에서 알림을 받아 주세요."
             )
             return
-        st.caption(
+        _caption(
             "신청하지 않으면 이메일을 받지 않아요. 신청하면 바로 전체 일정(캘린더 파일 첨부)을 보내 드리고, "
             "일정 하루 전에 알림 메일을 보내요. 메일은 앱 서버가 깨어 있을 때 보내져 늦어질 수 있어 "
             "정확한 알림은 캘린더 파일을 함께 쓰는 걸 권해요."
@@ -1179,7 +1202,7 @@ def render_journey_page():
             f"### 창원 정착 {day + 1}일째" if day is not None and day >= 0 else "### 창원 전입 예정"
         )
         if progress_summary is not None:
-            st.caption(f"지금은 {current_month}개월 차 · {current_group['theme']}")
+            _caption(f"지금은 {current_month}개월 차 · {current_group['theme']}")
             stage_column, overall_column = st.columns(2, gap="large")
             with stage_column:
                 st.markdown(f"**이번 단계** {progress_summary['stage_completed']} / {progress_summary['stage_total']} 완료")
@@ -1199,9 +1222,9 @@ def render_journey_page():
         mark = {"done": "✓ 지남", "next": "● 다음", "later": "○ 예정"}[state]
         with column:
             with st.container(key=f"milestone-{milestone['day']}-{state}"):
-                st.caption(mark)
+                _caption(mark)
                 st.markdown(f"**{label}**  \n{milestone['date']}")
-    st.caption(
+    _caption(
         "마지막 일정과 계속 거주 6개월 기준일은 서로 다른 방식으로 계산되어 "
         "날짜가 다를 수 있어요."
     )
@@ -1214,8 +1237,8 @@ def render_journey_page():
         st.info("할 일 관련 안내를 불러오지 못했어요. 할 일과 기록 저장은 계속 이용할 수 있어요.")
 
     st.subheader("이번에 할 일 · 1~6개월 정착 여정")
-    st.caption("모든 단계는 제목을 눌러 언제든 열어볼 수 있어요. 체크와 내 기록은 ‘이 단계 저장하기’를 눌러 저장해 주세요.")
-    st.caption(SAVE_HELP)
+    _caption("모든 단계는 제목을 눌러 언제든 열어볼 수 있어요. 체크와 내 기록은 ‘이 단계 저장하기’를 눌러 저장해 주세요.")
+    _caption(SAVE_HELP)
 
     for mission_group in mission_groups:
         group_title = (
@@ -1242,7 +1265,7 @@ def render_journey_page():
                     current_completion_states,
                     current_month,
                 )
-                st.caption(
+                _caption(
                     encouragement_message(
                         stage_progress["stage_completed"],
                         len(stage_missions),
@@ -1267,7 +1290,7 @@ def render_journey_page():
                     mission["미션"],
                     key=widget_key,
                 )
-                st.caption(f"완료 기준: {mission['완료 기준']}")
+                _caption(f"완료 기준: {mission['완료 기준']}")
                 resource = mission_resources.get(mission_id)
                 feature_page = MISSION_FEATURE_PAGES.get(mission_id)
                 if feature_page:
@@ -1283,7 +1306,7 @@ def render_journey_page():
                 if policy_ids is not None:
                     # 할 일은 '무엇을 할까'만 — 지원 내용·대상 여부는 지원 화면 카드로 연결
                     related = [POLICY_NAMES[pid] for pid in policy_ids if pid in POLICY_NAMES]
-                    st.caption(
+                    _caption(
                         f"지원 내용·대상 여부는 ‘{BUTTON_1}’에서 확인해요"
                         + (f" ({', '.join(related)})" if related else "")
                     )
@@ -1345,7 +1368,7 @@ def render_journey_page():
                 )
             ]
             if stage_timestamps:
-                st.caption(f"마지막 저장: {max(stage_timestamps)} (한국시간)")
+                _caption(f"마지막 저장: {max(stage_timestamps)} (한국시간)")
     _next_feature_button(PAGE_EXPLORE, f"{FEATURE_2_TABS[PAGE_EXPLORE]} →")
 
 
@@ -1364,15 +1387,15 @@ def _md_text(value):
 
 def _activity_card(activity, app_name, car_only=False):
     item = activity_view(activity, app_name)
-    with st.container(border=True, key=f"activity-card-{activity['ID']}"):
+    with st.container(border=True, key=f"activity-card-{activity['ID']}", height="stretch"):
         st.markdown(f"**{_md_text(item['name'])}**")
-        st.caption(f"{item['district']} · {item['category']}" + (" · 차량 권장" if car_only else ""))
+        _caption(f"{item['district']} · {item['category']}" + (" · 차량 권장" if car_only else ""))
         introduction = item.get("introduction")
         if isinstance(introduction, str) and introduction.strip():
             st.markdown(_md_text(introduction))
         schedule = (item["schedule"] or "").strip()
         if schedule:
-            st.caption("운영·일정: " + _md_text(schedule if len(schedule) <= 60 else schedule[:59] + "…"))
+            _caption("운영·일정: " + _md_text(schedule if len(schedule) <= 60 else schedule[:59] + "…"))
         with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
             st.button("자세히 보기", key=f"activity-more-{activity['ID']}", on_click=_select_activity,
                       args=(activity["ID"],), type="tertiary")
@@ -1391,7 +1414,7 @@ def render_explore_page():
     _back_home_button("explore")
     _feature_2_header(PAGE_EXPLORE)
     st.subheader("이번 주말엔 창원을 조금 알아볼까요?")
-    st.caption("창원에서 해볼 것 — 동네와 관심 분야를 고르면 갈 만한 곳과 참여할 일을 보여 드려요.")
+    _caption("창원에서 해볼 것 — 동네와 관심 분야를 고르면 갈 만한 곳과 참여할 일을 보여 드려요.")
 
     try:
         activities = load_activities()
@@ -1424,18 +1447,18 @@ def render_explore_page():
             with move_info_column:
                 st.markdown("**이동 방식**")
                 if no_car:
-                    st.caption("차량 없음 — 대중교통으로 갈 수 있는 곳을 먼저 보여 드려요. 외곽은 ‘차로 가면 좋은 곳’으로 따로 모았어요.")
+                    _caption("차량 없음 — 대중교통으로 갈 수 있는 곳을 먼저 보여 드려요. 외곽은 ‘차로 가면 좋은 곳’으로 따로 모았어요.")
                 elif st.session_state["vehicle"] == "있음":
-                    st.caption("차량 있음 — 모든 장소를 함께 보여 드려요.")
+                    _caption("차량 있음 — 모든 장소를 함께 보여 드려요.")
                 else:
-                    st.caption("‘나의 조건 입력’에서 차량 여부를 고르면 이동 방식에 맞춰 보여 드려요.")
+                    _caption("‘나의 조건 입력’에서 차량 여부를 고르면 이동 방식에 맞춰 보여 드려요.")
 
         filtered_activities = filter_activities(
             activities,
             district=(None if selected_district == "창원 전체" else selected_district),
             category=(None if selected_category == "모든 분야" else selected_category),
         )
-        st.caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
+        _caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
         if not filtered_activities:
             st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
 
@@ -1475,8 +1498,8 @@ def render_explore_page():
                 introduction = item.get("introduction")
                 if isinstance(introduction, str) and introduction.strip():
                     st.text(introduction)
-                st.caption(f"{item['district']} · {item['category']}")
-                st.caption(f"관심 분야: {item['interests']}")
+                _caption(f"{item['district']} · {item['category']}")
+                _caption(f"관심 분야: {item['interests']}")
                 _detail("운영시간", _schedule_lines(item["schedule"]))
                 if item["start_date"] or item["end_date"]:
                     period = " ~ ".join(
@@ -1487,8 +1510,8 @@ def render_explore_page():
                     _detail("기간", period)
                 _detail("참여 방법", item["participation"])
                 _detail("대상", item["audience"])
-                st.caption(f"{item['last_checked']} 기준으로 확인했어요.")
-                st.caption("방문 전 운영시간을 한 번 더 확인해 주세요.")
+                _caption(f"{item['last_checked']} 기준으로 확인했어요.")
+                _caption("방문 전 운영시간을 한 번 더 확인해 주세요.")
 
             with move_column:
                 st.subheader("장소 안내")
@@ -1602,10 +1625,10 @@ def _render_agent_item(item, key_prefix):
         if item["mode"] == "llm":
             badge += f" · {item['model']}"
         badge += " · 검증 통과" if item["verified"] else " · 검증 필요"
-        st.caption(badge)
+        _caption(badge)
         error_step = next((step for step in item["steps"] if step["단계"] == "AI 연결 오류"), None)
         if error_step:
-            st.caption(f"AI가 답하지 못한 이유: {error_step['내용']} — ‘Agent 실행 기록 보기’의 ‘오류 상세’ 줄을 확인해 주세요.")
+            _caption(f"AI가 답하지 못한 이유: {error_step['내용']} — ‘Agent 실행 기록 보기’의 ‘오류 상세’ 줄을 확인해 주세요.")
         inline_urls = {url for _, url in MD_LINK_RE.findall(item["answer"])}
         for link_index, (label, url) in enumerate(l for l in item.get("links", []) if l[1] not in inline_urls):
             st.link_button(label, url, key=f"{key_prefix}-link-{link_index}")
@@ -1649,9 +1672,9 @@ def _scroll_into_view(key):
 def _ai_status_caption():
     provider, _, model = llm_settings()
     if provider:
-        st.caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료로만 답해요.")
+        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료로만 답해요.")
     else:
-        st.caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
+        _caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
 
 
 def render_ask_page():
@@ -1659,10 +1682,10 @@ def render_ask_page():
     st.subheader(ASK_LABEL)
     provider, api_key, model = llm_settings()
     if provider:
-        st.caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료(정책·장소·지역말·접수 창구)로만 답해요.")
+        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료(정책·장소·지역말·접수 창구)로만 답해요.")
     else:
-        st.caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
-    st.caption("실명·연락처 같은 개인정보는 입력하지 마세요. 질문은 답변을 만들기 위해 AI 모델로 전송돼요.")
+        _caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
+    _caption("실명·연락처 같은 개인정보는 입력하지 마세요. 질문은 답변을 만들기 위해 AI 모델로 전송돼요.")
 
     st.markdown("**이렇게 물어보세요**")
     with st.container(horizontal=True, wrap=True):
@@ -1714,7 +1737,7 @@ def _complaint_level(result):
 def render_complaint_page():
     _back_home_button("complaint")
     st.subheader(FEATURE_3)
-    st.caption("불편한 상황을 한 문장으로 적으면 긴급도를 판단해 알맞은 접수 창구를 알려 드려요. 민원을 대신 접수하거나 개인정보를 받지 않아요.")
+    _caption("불편한 상황을 한 문장으로 적으면 긴급도를 판단해 알맞은 접수 창구를 알려 드려요. 민원을 대신 접수하거나 개인정보를 받지 않아요.")
     input_column, result_column = st.columns([1, 1.25], gap="large")
     with input_column:
         with st.container(key="complaint-input"):
@@ -1726,7 +1749,7 @@ def render_complaint_page():
             with st.container(horizontal=True, wrap=True):
                 for index, example in enumerate(COMPLAINT_EXAMPLES):
                     st.button(example, key=f"complaint-example-{index}", on_click=_queue_complaint, args=(example,))
-            st.caption("화재·사고 같은 긴급 상황은 기다리지 말고 바로 112·119에 신고하세요.")
+            _caption("화재·사고 같은 긴급 상황은 기다리지 말고 바로 112·119에 신고하세요.")
     question = (text if submitted and text.strip() else None) or st.session_state.pop("complaint_pending", None)
     if question:
         st.session_state["complaint_result"] = _ask_agent(f"[불편사항 접수 안내] {question}")
@@ -1743,7 +1766,7 @@ def render_complaint_page():
             if question:
                 _scroll_into_view("complaint-result")
         else:
-            st.caption("왼쪽에 상황을 적거나 예시를 누르면 여기에 결과가 나와요.")
+            _caption("상황을 적거나 예시를 누르면 여기에 결과가 나와요.")
     st.markdown("**단계별 접수 창구**")
     channels = load_complaint_channels()
     for row_start in range(0, len(channels), 3):
@@ -1753,8 +1776,8 @@ def render_complaint_page():
                 with st.container(border=True, key=f"channel-{row_start}-{item['단계']}"):
                     st.badge(item["단계"], color=COMPLAINT_BADGE_COLORS.get(item["단계"], "gray"))
                     st.markdown(f"**{item['예시']}**")
-                    st.caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
-    st.caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
+                    _caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
+    _caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
     _next_feature_button(PAGE_DIALECT, f"{BUTTON_4} →")
 
 
@@ -1771,7 +1794,7 @@ def render_dialect_page():
     st.subheader(FEATURE_4)
     dialects = load_dialects()
     demo = [d for d in dialects if d.get("시연 사용")][:6]
-    st.caption(
+    _caption(
         f"직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요. 핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) "
         f"확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드리고, 사전에 없는 말은 짐작하지 않아요."
     )
@@ -1799,15 +1822,15 @@ def render_dialect_page():
             if expression:
                 _scroll_into_view("dialect-result")
         else:
-            st.caption("왼쪽에 들은 말을 적거나 예시를 누르면 여기에 뜻이 나와요.")
+            _caption("들은 말을 적거나 예시를 누르면 여기에 뜻이 나와요.")
     with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기"):
         for row_start in range(0, len(dialects), 3):
             columns = st.columns(3, gap="small")
             for column, item in zip(columns, dialects[row_start:row_start + 3]):
                 with column:
                     st.markdown(f"**{item['표현']}**")
-                    st.caption(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
-        st.caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
+                    _caption(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
+        _caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
     _next_feature_button(PAGE_ASK, f"{ASK_LABEL} →")
 
 
@@ -1844,17 +1867,17 @@ def render_sidebar():
             st.write("닉네임을 입력해 주세요")
         day = _settlement_day()
         if day is not None:
-            st.caption(f"창원 정착 {day + 1}일째" if day >= 0 else "창원 전입 예정")
+            _caption(f"창원 정착 {day + 1}일째" if day >= 0 else "창원 전입 예정")
         if home_district:
-            st.caption(
+            _caption(
                 f"{home_district} · {neighborhood.strip()}"
                 if neighborhood.strip()
                 else home_district
             )
         if st.session_state["vehicle"]:
-            st.caption(VEHICLE_SUMMARY[st.session_state["vehicle"]])
+            _caption(VEHICLE_SUMMARY[st.session_state["vehicle"]])
         if progress_summary is None:
-            st.caption("창원 전입일을 입력하면 정착 단계와 진행률을 보여 드려요.")
+            _caption("창원 전입일을 입력하면 정착 단계와 진행률을 보여 드려요.")
         else:
             st.progress(
                 progress_summary["overall_completed"] / progress_summary["overall_total"]
@@ -1865,10 +1888,10 @@ def render_sidebar():
                 f"전체 진행: {progress_summary['overall_completed']} / "
                 f"{progress_summary['overall_total']} 완료"
             )
-            st.caption(f"지금은 창원 생활 {current_month}개월 차예요 · {current_group['theme']}")
+            _caption(f"지금은 창원 생활 {current_month}개월 차예요 · {current_group['theme']}")
 
         _nav_button(PAGE_HOME, "홈")
-        st.caption("정착 코스")
+        _caption("정착 코스")
         condition_done = bool(user_key and move_in_date)
         _nav_button(PAGE_PROFILE, f"조건 입력 · {'완료' if condition_done else '필요'}")
         eligible = _eligible_count()
@@ -1881,13 +1904,15 @@ def render_sidebar():
         else:
             _nav_button(PAGE_JOURNEY, "정착 일정")
         _nav_button(PAGE_EXPLORE, "생활 정보")
-        st.caption("도움받기")
+        _caption("도움받기")
         _nav_button(PAGE_COMPLAINT, "불편사항")
         _nav_button(PAGE_DIALECT, "지역말")
         st.divider()
         _nav_button(PAGE_ASK, ASK_LABEL)
+        if not user_key:
+            _caption("🔒 조건 입력 후 열려요")
         if progress_summary is not None:
-            st.caption(
+            _caption(
                 f"현재 단계: {progress_summary['stage_completed']} / "
                 f"{progress_summary['stage_total']} 완료"
             )
@@ -1909,10 +1934,10 @@ def render_sidebar():
                 else None
             )
             if saved_month:
-                st.caption(f"저장한 단계: {MONTH_LABELS[saved_month]}")
+                _caption(f"저장한 단계: {MONTH_LABELS[saved_month]}")
             formatted_saved_at = format_korea_timestamp(last_saved_at)
             if formatted_saved_at:
-                st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
+                _caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
 
 
 PAGE_RENDERERS = {
