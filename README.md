@@ -13,7 +13,7 @@
 
 제4회 경남 AI·SW 경진대회 일반부 · 지정주제 01(사회문제 해결형 AI Agent) · 팀 오이소창원(조준수 팀장 · 이혜경 · 이미영)
 
-![첫 화면 — 조건 입력 후 정착 현황](screenshots/after_development/team_self_test/20261003/01_%ED%99%88_%EC%A1%B0%EA%B1%B4%EC%9E%85%EB%A0%A5%ED%9B%84_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png)
+![첫 화면 — 코디2026 정착 현황(10/4 UI 수정 후)](screenshots/after_development/ui_update/20261004/02_%ED%99%88_%EC%BD%94%EB%94%942026_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png)
 
 ---
 
@@ -87,7 +87,7 @@
 | 시연영상·스크립트 | 3분 이내 · 스크립트 md·pdf·docx | `deliverables/presentation/video/` |
 | 발표자료 | 10장 이내 (10/5 작성) | `deliverables/presentation/ppt/` |
 | 테스트 3종 | 코드·체크리스트·보고서·설문 결과 | `tests/` |
-| 증빙 캡처 | PNG·JPG 94장 | `screenshots/` |
+| 증빙 캡처 | PNG·JPG 105장 | `screenshots/` |
 
 ---
 
@@ -138,7 +138,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (기능 구현 과정)  ai_test 26장 · work_process 31장
-│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · user_test
+│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 11장(10/4 UI 수정 후) · user_test
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -231,7 +231,7 @@ oiso_changwon/
 | 11 | 팀 자체 테스트 1차(웹·모바일) → 32건 반영 | 10/3 | after_development 01-30 |
 | 12 | 팀 자체 테스트 2차(PC·휴대폰) → 9건 반영 | 10/3 | after_development 34-37 |
 | 13 | 실사용자 3명 테스트·설문 → 의견 반영 | 10/3 | `tests/user_test/results_20261003` |
-| 14 | 첫 화면·전체 UI 다듬기 | 10/3~10/4 | — |
+| 14 | 첫 화면·전체 UI 다듬기 | 10/3~10/4 | ui_update 11장 |
 | 15 | 기획안·개발완료보고서·신고서·영상 스크립트·README 작성 | 10/4 | `docs/` · `deliverables/` |
 | 16 | 기술설명서·시연영상·발표자료, 최종 제출 | 10/5 | — |
 
@@ -335,21 +335,31 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 ## 11. 화면 구성
 
-| 첫 화면(조건 입력 후) | ① 맞춤 혜택 4단계 판정 |
+10/4 UX/UI 수정 후 화면입니다(로컬 실행 캡처 — 답변은 ‘기본 안내(AI 미연결)’로 표시, 배포 앱에서는 GPT-4.1 mini 답변). 전체 목록: [`screenshots/after_development/ui_update/20261004/`](screenshots/after_development/ui_update/20261004/)
+
+| 첫 화면(처음 방문) | 첫 화면(코디2026 정착 현황) |
 |:---:|:---:|
-| ![](screenshots/after_development/team_self_test/20261003/01_%ED%99%88_%EC%A1%B0%EA%B1%B4%EC%9E%85%EB%A0%A5%ED%9B%84_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png) | ![](screenshots/after_development/team_self_test/20261003/03_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D_4%EB%8B%A8%EA%B3%84%ED%8C%90%EC%A0%95.png) |
+| ![](screenshots/after_development/ui_update/20261004/01_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/after_development/ui_update/20261004/02_%ED%99%88_%EC%BD%94%EB%94%942026_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png) |
+
+| 나의 조건 입력(칸 설명 항상 표시) | ① 맞춤 혜택 4단계 판정 |
+|:---:|:---:|
+| ![](screenshots/after_development/ui_update/20261004/03_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4%EC%9E%85%EB%A0%A5_%EC%B9%B8%EC%84%A4%EB%AA%85.png) | ![](screenshots/after_development/ui_update/20261004/04_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D_4%EB%8B%A8%EA%B3%84%ED%8C%90%EC%A0%95.png) |
 
 | ② 정착 일정 | ② 생활 정보 |
 |:---:|:---:|
-| ![](screenshots/after_development/team_self_test/20261003/13_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95_%EC%A0%84%EC%B2%B4.png) | ![](screenshots/after_development/team_self_test/20261003/20_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4_%EC%B9%B4%EB%93%9C%EB%AA%A9%EB%A1%9D.png) |
+| ![](screenshots/after_development/ui_update/20261004/06_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/after_development/ui_update/20261004/07_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4_%ED%95%84%ED%84%B0_%EC%B9%B4%EB%93%9C.png) |
 
 | ③ 불편사항 | ④ 지역말 |
 |:---:|:---:|
-| ![](screenshots/after_development/team_self_test/20261003/31_%EB%B0%B0%ED%8F%AC%ED%99%95%EC%9D%B8_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EC%83%88%ED%99%94%EB%A9%B4.png) | ![](screenshots/after_development/team_self_test/20261003/32_%EB%B0%B0%ED%8F%AC%ED%99%95%EC%9D%B8_%EC%A7%80%EC%97%AD%EB%A7%90_%EC%83%88%ED%99%94%EB%A9%B4.png) |
+| ![](screenshots/after_development/ui_update/20261004/08_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B0%80%EB%A1%9C%EB%93%B1_%EC%95%88%EB%82%B4.png) | ![](screenshots/after_development/ui_update/20261004/09_%EC%A7%80%EC%97%AD%EB%A7%90_%EB%8B%A8%EB%94%94%ED%95%B4%EB%9E%98%EC%9D%B4.png) |
 
-| 오이소창원에게 물어보기(검증 통과·실행 기록) |
+| 오이소창원에게 물어보기(로컬) | 오이소창원에게 물어보기(배포 앱, GPT-4.1 mini 검증 통과) |
+|:---:|:---:|
+| ![](screenshots/after_development/ui_update/20261004/10_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_%EC%8B%A4%ED%96%89%EA%B8%B0%EB%A1%9D_%EB%A1%9C%EC%BB%AC.png) | ![](screenshots/after_development/team_self_test/20261003/30_%EB%B0%B0%ED%8F%AC%ED%99%95%EC%9D%B8_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_%EB%A7%81%ED%81%AC%EB%B2%84%ED%8A%BC%EC%82%AD%EC%A0%9C.png) |
+
+| 휴대폰 첫 화면 |
 |:---:|
-| ![](screenshots/after_development/team_self_test/20261003/30_%EB%B0%B0%ED%8F%AC%ED%99%95%EC%9D%B8_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_%EB%A7%81%ED%81%AC%EB%B2%84%ED%8A%BC%EC%82%AD%EC%A0%9C.png) |
+| <img src="screenshots/after_development/ui_update/20261004/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png" width="300"> |
 
 ---
 
@@ -363,7 +373,7 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 | 저장 버튼 3개 | 정착 리포트 |
 |:---:|:---:|
-| ![](screenshots/after_development/team_self_test/20261003/08_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D_%EC%A0%80%EC%9E%A5%EB%B2%84%ED%8A%BC3%EA%B0%9C.png) | ![](screenshots/after_development/team_self_test/20261003/09_%EC%A0%95%EC%B0%A9%EB%A6%AC%ED%8F%AC%ED%8A%B8_1.png) |
+| ![](screenshots/after_development/ui_update/20261004/05_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D_%EC%A0%80%EC%9E%A5%EB%B2%84%ED%8A%BC_%EC%95%88%EB%82%B4.png) | ![](screenshots/after_development/team_self_test/20261003/09_%EC%A0%95%EC%B0%A9%EB%A6%AC%ED%8F%AC%ED%8A%B8_1.png) |
 
 > 이메일 발송 현황(10/4): 신청·동의·해지 절차와 코드는 완성. 배포 서버에서 Gmail이 로그인 단계에서 연결을 끊어(587·465 모두) **보내는 계정 보안 확인·앱 비밀번호 재발급을 기다리는 중**입니다. 실패하면 이메일은 저장하지 않고 캘린더 알림을 안내합니다.
 
