@@ -564,7 +564,7 @@ AI_FLOW_CLASS = " flow-ai"
 # (제목, 설명, AI 동작 여부) — AI가 일하는 단계는 상자 색만 연한 남색으로
 AGENT_FLOW = (
     ("내 조건", "나이·전입일·하는 일·차량 소지 여부", False),
-    ("AI 이해 · 조건 비교", "질문은 AI가 이해하고 필요한 도구를 골라요. 혜택은 정책과 규칙으로 비교", True),
+    ("AI 이해 · 조건 비교", "질문은 AI가 분석하고 필요한 도구를 골라요. 혜택은 정책과 규칙으로 비교", True),
     ("검증 자료 확인", "공식 자료만 찾고, AI 답의 연락처·링크를 자료와 대조", False),
     ("AI 맞춤 결과 안내", "해당 가능 혜택·추천 장소·접수 창구, AI가 답 문장 작성", True),
     ("일정 저장 및 알림(선택)", "캘린더·정착 리포트로 내 기기에 보관, 원하면 이메일 알림", False),
@@ -1124,8 +1124,16 @@ def _email_alert_box(events, today):
     config = email_alerts.smtp_config(_setting)
     with st.container(key="email-alert"):
         message = st.session_state.pop("alert_message", None)
-        if message:
-            (st.success if message[0] == "ok" else st.error)(message[1])
+        unsubscribe_message = st.session_state.pop("unsubscribe_message", None)
+
+        def show(msg):
+            (st.success if msg[0] == "ok" else st.error)(msg[1])
+
+        if not st.session_state.get("alert_open"):
+            for msg in (message, unsubscribe_message):
+                if msg:
+                    show(msg)
+            message = unsubscribe_message = None
         if st.session_state.pop("email_scroll", False):
             _scroll_into_view("email-alert")
         if not st.session_state.get("alert_open"):
@@ -1147,6 +1155,9 @@ def _email_alert_box(events, today):
         )
         with st.form("email-alert-form", border=False):
             email = st.text_input("이메일 주소", key="alert_email", placeholder="example@email.com")
+            # 신청 결과 안내는 이메일 주소 칸 바로 아래에 (10/3 이혜경)
+            if message:
+                show(message)
             st.markdown(email_alerts.PRIVACY_NOTICE)
             agree_privacy = st.checkbox("[필수] 개인정보 수집·이용에 동의해요", key="alert_consent_privacy")
             agree_receive = st.checkbox("[필수] 창원 정착 일정 알림 메일 수신에 동의해요", key="alert_consent_receive")
@@ -1192,15 +1203,17 @@ def _email_alert_box(events, today):
         with st.container(key="email-unsubscribe-box"):
             st.markdown("**알림 그만 받기**")
             _caption("이미 신청한 이메일의 알림을 끊고 이메일을 지울 때만 써요.")
+            if unsubscribe_message:
+                show(unsubscribe_message)
         with st.form("email-unsubscribe-form", border=False):
             unsubscribe_email = st.text_input("신청한 이메일 주소", key="unsubscribe_email")
             if st.form_submit_button("알림 해지·이메일 삭제"):
                 try:
                     removed = email_alerts.unsubscribe(email=unsubscribe_email)
                 except email_alerts.AlertError as error:
-                    st.session_state["alert_message"] = ("error", str(error))
+                    st.session_state["unsubscribe_message"] = ("error", str(error))
                 else:
-                    st.session_state["alert_message"] = (
+                    st.session_state["unsubscribe_message"] = (
                         "ok", "알림을 해지하고 이메일을 삭제했어요." if removed else "신청된 이메일이 없어요."
                     )
                 st.session_state["clear:unsubscribe_email"] = True
