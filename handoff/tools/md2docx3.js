@@ -16,24 +16,28 @@ function runs(text,opts={}){
 function clean(t){return t.replace(/`/g,'');}
 const children=[];
 let i=0;
-function widthsFor(n,rows){ if(rows){const L=Array(n).fill(0);rows.forEach(r=>r.forEach((c,i)=>{L[i]+=Math.min(c.length,120)}));const s=L.map(x=>Math.sqrt(x/rows.length)+2);const t=s.reduce((a,b)=>a+b,0);return s.map(x=>x/t);}
-  if(n===5) return [0.08,0.27,0.41,0.12,0.12];
-  if(n===4) return [0.09,0.67,0.12,0.12];
-  if(n===3) return [0.09,0.73,0.18];
-  if(n===7) return [0.07,0.11,0.14,0.18,0.22,0.15,0.13];
-  return Array(n).fill(1/n);
+// 짧은 칸(항목·숫자·영문, 14자 이하)은 글자 수만큼 폭을 주고 한 줄·가운데, 나머지 폭은 긴 칸이 나눠 씀
+function shortCols(n,rows){const mx=Array(n).fill(0);rows.slice(1).forEach(r=>r.forEach((c,i)=>{mx[i]=Math.max(mx[i],clean(c).replace(/\*\*/g,'').length)}));return mx.map(m=>m<=14&&n>1);}
+function widthsFor(n,rows){
+  const sh=shortCols(n,rows); const CH=200, PAD=260; const w=Array(n).fill(0);
+  rows.forEach(r=>r.forEach((c,i)=>{const len=clean(c).replace(/\*\*/g,'').length; if(sh[i]) w[i]=Math.max(w[i],len*CH+PAD);}));
+  const fixed=w.reduce((a,b)=>a+b,0); const longIdx=[...Array(n).keys()].filter(i=>!sh[i]);
+  if(!longIdx.length){const t=fixed;return w.map(x=>x/t);}
+  const L=longIdx.map(i=>Math.sqrt(rows.reduce((a,r)=>a+Math.min((r[i]||'').length,120),0)/rows.length)+2);
+  const rest=Math.max(PAGEW-fixed,PAGEW*0.35); const sL=L.reduce((a,b)=>a+b,0);
+  longIdx.forEach((i,k)=>{w[i]=rest*L[k]/sL}); const tot=w.reduce((a,b)=>a+b,0); return w.map(x=>x/tot);
 }
 while(i<md.length){
   const line=md[i];
   if(line.startsWith('|')){
     const rows=[]; let al=[]; while(i<md.length&&md[i].startsWith('|')){ if(!/^\|[-|: ]+\|$/.test(md[i])) rows.push(md[i].slice(1,-1).split('|').map(c=>c.trim())); else al=md[i].slice(1,-1).split('|').map(c=>/^\s*:-+:\s*$/.test(c)); i++; }
-    const n=rows[0].length; const w=widthsFor(n,rows).map(x=>Math.round(x*PAGEW)); w[n-1]=PAGEW-w.slice(0,n-1).reduce((a,b)=>a+b,0);
+    const n=rows[0].length; const sh=shortCols(n,rows); const w=widthsFor(n,rows).map(x=>Math.round(x*PAGEW)); w[n-1]=PAGEW-w.slice(0,n-1).reduce((a,b)=>a+b,0);
     const border={style:BorderStyle.SINGLE,size:4,color:'C9D3DF'};
     children.push(new Table({width:{size:PAGEW,type:WidthType.DXA},columnWidths:w,rows:rows.map((r,ri)=>new TableRow({tableHeader:ri===0,cantSplit:true,children:r.map((c,ci)=>new TableCell({width:{size:w[ci],type:WidthType.DXA},
       borders:{top:border,bottom:border,left:border,right:border},
       shading: ri===0?{type:ShadingType.CLEAR,color:'auto',fill:'EEF4FB'}:undefined,
       margins:{top:50,bottom:50,left:80,right:80},
-      children:[new Paragraph({alignment:(ri===0||ci===0||al[ci]||(c===''))?AlignmentType.CENTER:AlignmentType.LEFT,children:runs(clean(c),{size:17,bold:ri===0||undefined,color:ri===0?NAVY:undefined})})]}))}))}));
+      children:[new Paragraph({alignment:(ri===0||sh[ci]||al[ci]||(c===''))?AlignmentType.CENTER:AlignmentType.LEFT,children:runs(clean(c),{size:17,bold:ri===0||undefined,color:ri===0?NAVY:undefined})})]}))}))}));
     children.push(new Paragraph({spacing:{after:80},children:[]}));
     continue;
   }
@@ -55,6 +59,6 @@ while(i<md.length){
 const doc=new Document({styles:{default:{document:{run:{font:FONT,size:19}}}},
   numbering:{config:[{reference:'b',levels:[{level:0,format:'bullet',text:'•',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:360,hanging:240}}}}]}]},
   sections:[{properties:{page:{margin:{top:851,bottom:851,left:851,right:851}}},
-    footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:process.argv[4]||'',size:16,color:'5B6775',font:FONT}),new TextRun({children:[PageNumber.CURRENT],size:16,color:'5B6775'})]})]})},
+    footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,children:[...(process.env.NOPAGE?[]:[new TextRun({text:(process.argv[4]||'')+' · ',size:16,color:'5B6775',font:FONT}),new TextRun({children:[PageNumber.CURRENT,' / ',PageNumber.TOTAL_PAGES],size:16,color:'5B6775'})])]})]})},
     children}]});
 Packer.toBuffer(doc).then(b=>fs.writeFileSync(process.argv[3],b));
