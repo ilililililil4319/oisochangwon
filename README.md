@@ -45,8 +45,11 @@ oiso_changwon/
 ├─ requirements.txt    배포 의존성 — 위치 변경 금지
 ├─ src/                개발 파일(Agent·판정·일정·저장 모듈)
 ├─ data/               팀 검증 데이터(JSON)
-├─ tests/              자동 테스트(unittest)
-├─ docs/               planning(기획안) · self_test(대표 Test Case) · work_process(작업 과정 설명) · survey(실사용자 설문)
+├─ tests/              테스트 3종
+│   ├─ ai_test/         AI 자동 테스트(unittest 코드)
+│   ├─ team_self_test/  팀 자체 테스트(대표 Test Case · 최종 체크리스트)
+│   └─ user_test/       실사용자 테스트(설문 Apps Script · 평가지 · 설문 링크)
+├─ docs/               planning(기획안) · work_process(작업 과정 설명)
 ├─ screenshots/        화면 캡처: self_test_20261002 · work_process_20261002
 ├─ deliverables/       최종 제출물: final_report · technical_description · presentation(ppt·video) · submission
 ├─ handoff/            인수인계서·작업지시서 · team_share(팀 공유 자료) — 대회 제출 전 PC 보관 후 삭제
@@ -63,10 +66,11 @@ oiso_changwon/
 | `src/schedule_export.py` · `src/email_alerts.py` | 캘린더 파일(.ics)·정착 리포트 생성 · 동의 기반 이메일 일정 알림 |
 | `src/activity_manager.py` · `src/naver_map_links.py` · `src/policy_resource_manager.py` | 생활 정보 · 네이버 지도 링크 · 할 일 공식 링크 검증 |
 | `data/` | 정책 24 · 생활 정보 60(차량 권장 8) · 할 일 26 · 할 일 링크 18 · 지역말 핵심 30 + 확장 2,223 · 불편 접수 창구 6 · 시연 페르소나 |
+| `tests/ai_test/` | AI 자동 테스트 — Claude가 작성한 unittest 코드 115개(정책 판정·일정·저장·Agent 검증·캘린더·이메일 동의 등) |
+| `tests/team_self_test/` | 팀 자체 테스트 — 대표 Test Case 6건, 10/3 최종 자체 테스트 체크리스트(md·pdf·docx) |
+| `tests/user_test/` | 실사용자 테스트 — 설문 링크, 설문 Apps Script, 종이 평가지 |
 | `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 10/2 갱신본(md·pdf) · 그림 |
-| `docs/self_test/` | 대표 Test Case 6건 절차·기대 결과·기록표 |
 | `docs/work_process/` | 작업 과정 캡처 설명 |
-| `docs/survey/` | 실사용자 테스트 설문 Apps Script · 종이 평가지 · 설문 링크 |
 | `screenshots/self_test_20261002/` | 자체 테스트 캡처 26장(PC·모바일) |
 | `screenshots/work_process_20261002/` | 작업 과정 캡처 31장(수정 전·후, 에러와 조치, 배포·공유) |
 | `deliverables/` | 개발완료보고서 · AI Agent 기술설명서 · 발표자료 · 시연영상 · 제출 파일(작성 후 넣을 위치) |
@@ -103,7 +107,7 @@ Gmail이 아닌 메일은 `SMTP_HOST`, `SMTP_PORT`(587 또는 465)도 넣습니�
 ### 테스트
 
 ```powershell
-python -m unittest discover -s tests -v
+python -m unittest discover -s tests/ai_test -v
 ```
 
 ## 5. 데이터·안전 원칙
@@ -133,5 +137,5 @@ python -m unittest discover -s tests -v
 2. ~~하는 일별 문구~~ · ~~기업노동자 전입지원금 자영업 판정~~ · ~~Agent 추천 장소 옆 공식 링크~~ 완료(10/3)
 3. 화면 UI/UX 개선: ③ 불편사항 → ④ 지역말 → 오이소창원에게 물어보기 (② 완료)
 4. 배포본 Test Case 확인: PC와 실제 휴대폰 브라우저(Chrome/Safari)
-5. 실사용자 3명 섭외·온라인 설문(`docs/survey/`, 기존 링크 그대로) → 의견 반영
+5. 실사용자 3명 섭외·온라인 설문(`tests/user_test/`) → 의견 반영
 6. 최종 제출물을 `deliverables/`에 정리, 제출 직전 `handoff/` 삭제·API 키·개인정보 점검

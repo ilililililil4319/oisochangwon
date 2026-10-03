@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 import unittest
 from datetime import date
 from urllib.parse import unquote
@@ -30,7 +30,7 @@ from activity_manager import (
 )
 
 
-APP_FILE = Path(__file__).resolve().parents[1] / "app.py"
+APP_FILE = Path(__file__).resolve().parents[2] / "app.py"
 
 
 def _visible_text(app):
