@@ -114,7 +114,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 # ‘이렇게 일해요’ (10/3 실사용자 피드백): AI 동그라미 표시 없음, 단계 이름
                 flow = next(m.value for m in app.markdown if "flow-row" in m.value)
                 self.assertNotIn("ai-tag", flow)
-                for step in ("2. AI 이해 · 조건 비교", "4. AI 맞춤 결과 안내", "5. 일정 저장 및 알림(선택)"):
+                for step in ("2. AI 분석 · 조건 비교", "4. AI 맞춤 결과 안내", "5. 일정 저장 및 알림(선택)"):
                     self.assertIn(step, flow)
                 self.assertNotIn("팀이 확인한", flow)
                 # 조건 입력 전: 누를 수 없는 물어보기 버튼 대신 잠금 안내만 (10/3 팀 자체 테스트 모바일)
@@ -138,11 +138,14 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
                 self.assertFalse(any("🌱" in t.value for t in app.title))
-                hero = [m.value for m in app.markdown]
-                self.assertIn("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.", hero)
-                self.assertIn("오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?", hero)
-                self.assertLess(hero.index("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."),
-                                hero.index("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **오이소창원**이 함께 챙겨드려요."))
+                # 소개 3줄은 한 덩어리(줄바꿈)로, 순서 유지
+                hero = "\n".join(m.value for m in app.markdown)
+                lines = ("<b>오이소창원</b>은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.",
+                         "창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 <b>오이소창원</b>이 함께 챙겨드려요.",
+                         "오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?")
+                self.assertTrue(all(line in hero for line in lines))
+                self.assertLess(hero.index(lines[0]), hero.index(lines[1]))
+                self.assertLess(hero.index(lines[1]), hero.index(lines[2]))
                 home = _visible_text(app)
                 self.assertNotIn("문의 whwnstn9294", home)
                 self.assertNotIn("앱 이용 문의", home)  # 화면 아래 ‘앱 문의’ 한 곳에만

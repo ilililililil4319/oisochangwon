@@ -75,7 +75,7 @@ HOME_DISTRICTS = ["의창구", "성산구", "마산합포구", "마산회원구"
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
 LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
-LOGO_WIDTH = 560  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
+LOGO_WIDTH = 476  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
 SLOGAN = "창원에서 너의 내일을 응원해!"
 POLICY_COUNT = len(load_policies())
 def _safe_count(loader):
@@ -299,6 +299,20 @@ h1, h2, h3 {color: #063465 !important;}
     [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {min-height: 2.6rem;}
 }
 /* 10/3 UX/UI 다듬기(기능 변경 없음): 글자 대비·섹션 제목·간격 통일 */
+/* 10/3 첫 화면 다듬기(이혜경 요청): 파란 영역 15% 줄이기·소개 3줄 간격·버튼과 구분·현황 카드·기능 카드 여백 */
+.st-key-home-hero-band {padding-top: 1.6rem !important; padding-bottom: 1.1rem !important;}
+.st-key-home-hero-band [data-testid="stColumn"] {padding-top: .3rem; padding-bottom: .3rem;}
+.st-key-home-hero-band .st-key-slogan h3 {font-size: 1.4rem !important; padding-bottom: .2rem;}
+.st-key-hero-intro {gap: .15rem; margin-bottom: 1.1rem;}
+.st-key-hero-intro p {font-size: 1.05rem !important; line-height: 1.8;}
+p.hero-lines {line-height: 1.8; margin: 0;}
+.st-key-hero-cta-help p.cta-help {margin-top: .2rem;}
+.st-key-hero-progress, .st-key-hero-example {padding: .75rem 1.1rem !important; gap: .25rem !important;}
+.st-key-hero-progress p, .st-key-hero-example p {line-height: 1.5;}
+[class*="st-key-home-card-"] {padding: .85rem .95rem !important; min-height: 11.9rem !important;}
+@media (max-width: 640px) {[class*="st-key-home-card-"] {min-height: 0 !important;}}
+.sec-title.sec-gap {margin-top: 2.4rem;}
+
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {color: #4D5B6A;}
 .stApp [data-testid="stCaptionContainer"] p {line-height: 1.6;}
 .sec-title {font-size: 1.2rem; font-weight: 700; color: #063465; margin: 1.6rem 0 .35rem;}
@@ -466,6 +480,15 @@ user_key = nickname.strip()
 if not user_key and st.session_state["page"] not in (PAGE_HOME, PAGE_PROFILE):
     st.session_state["page"] = PAGE_HOME
 page = st.session_state["page"]
+# 첫 화면(처음 들어온 사람)에서는 왼쪽 메뉴를 숨기고, ‘시작하기’로 다른 화면에 간 뒤부터 보여 줌 (10/3 이혜경)
+if page != PAGE_HOME or user_key:
+    st.session_state["sidebar_unlocked"] = True
+if not st.session_state.get("sidebar_unlocked"):
+    st.markdown(
+        "<style>[data-testid='stSidebar'], [data-testid='stExpandSidebarButton'], "
+        "[data-testid='stSidebarCollapsedControl'] {display: none !important;}</style>",
+        unsafe_allow_html=True,
+    )
 
 saved_mission_states = load_mission_states(user_key) if user_key else {}
 saved_mission_notes = load_mission_notes(user_key) if user_key else {}
@@ -582,7 +605,7 @@ AI_FLOW_CLASS = " flow-ai"
 # (제목, 설명, AI 동작 여부) — AI가 일하는 단계는 상자 색만 연한 남색으로
 AGENT_FLOW = (
     ("내 조건", "나이·전입일·하는 일·차량 소지 여부", False),
-    ("AI 이해 · 조건 비교", "질문은 AI가 분석하고 필요한 도구를 골라요. 혜택은 정책과 규칙으로 비교", True),
+    ("AI 분석 · 조건 비교", "질문은 AI가 분석하고 필요한 도구 선정, 혜택은 정책과 규칙으로 비교", True),
     ("검증 자료 확인", "공식 자료만 찾고, AI 답의 연락처·링크를 자료와 대조", False),
     ("AI 맞춤 결과 안내", "해당 가능 혜택·추천 장소·접수 창구, AI가 답 문장 작성", True),
     ("일정 저장 및 알림(선택)", "캘린더·정착 리포트로 내 기기에 보관, 원하면 이메일 알림", False),
@@ -616,17 +639,17 @@ def _hero_progress_card():
         st.markdown(f"전체 할 일 {progress_summary['overall_completed']} / {progress_summary['overall_total']} 완료")
         remaining = [m["미션"] for m in current_group["missions"] if not completion_states.get(m["ID"])][:3]
         if remaining:
-            st.markdown("**이번 단계에 남은 할 일**")
-            for mission_name in remaining:
-                st.markdown(f"○ {mission_name}")
+            # 세로 길이를 줄이려고 한 덩어리로 (10/3 이혜경)
+            st.markdown("<p class='hero-lines'><b>이번 단계에 남은 할 일</b><br>"
+                        + "<br>".join(f"○ {html.escape(name)}" for name in remaining) + "</p>", unsafe_allow_html=True)
         st.button("정착 일정 이어서 하기 →", key="home-continue", on_click=_go, args=(PAGE_JOURNEY,))
 
 
 def _hero_example_card():
     with st.container(key="hero-example"):
-        st.markdown("**이런 걸 함께 챙겨드려요**")
-        for mark, text in EXAMPLE_CHECKS:
-            st.markdown(f"{mark} {text}")
+        st.markdown("<p class='hero-lines'><b>이런 걸 함께 챙겨드려요</b><br>"
+                    + "<br>".join(f"{mark} {html.escape(text)}" for mark, text in EXAMPLE_CHECKS) + "</p>",
+                    unsafe_allow_html=True)
         _caption("예시 화면이에요. 조건을 입력하면 나의 진행 상황으로 바뀌어요.")
 
 
@@ -639,11 +662,14 @@ def render_home_page():
                 st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
                 with st.container(key="slogan"):
                     st.subheader(SLOGAN, anchor=False)
-                st.markdown("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.")
-                st.markdown("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **오이소창원**이 함께 챙겨드려요.")
-                st.markdown("오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?")
-                with st.container(key="hero-cta-help"):
-                    st.markdown(CTA_HELP_HTML, unsafe_allow_html=True)
+                with st.container(key="hero-intro"):
+                    # 세 줄을 한 덩어리로(줄 간격만) — 아래 시작 버튼과는 간격으로 구분
+                    st.markdown(
+                        "<p class='hero-lines'><b>오이소창원</b>은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.<br>"
+                        "창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 <b>오이소창원</b>이 함께 챙겨드려요.<br>"
+                        "오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?</p>",
+                        unsafe_allow_html=True,
+                    )
                 with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
                     st.button(
                         f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else PROFILE_EDIT_LABEL,
@@ -654,6 +680,9 @@ def render_home_page():
                     )
                     if not user_key:
                         st.button(f"{DEFAULT_NICKNAME} 예시로 둘러보기", key="home-demo", type="tertiary", on_click=_start_demo)
+                # 안내 문구는 주황 버튼 아래 (10/3 이혜경)
+                with st.container(key="hero-cta-help"):
+                    st.markdown(CTA_HELP_HTML, unsafe_allow_html=True)
             with preview_col:
                 if user_key:
                     _hero_progress_card()
@@ -661,7 +690,16 @@ def render_home_page():
                     _hero_example_card()
 
     with st.container(key="home-body"):
-        st.markdown('<p class="sec-title">이 서비스가 하는 일</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sec-title">오이소창원은 이렇게 일해요</p>', unsafe_allow_html=True)
+        # 5단계 흐름: 같은 크기 상자 + 화살표(PC는 가로 →, 모바일은 세로 ↓)
+        flow_html = '<span class="flow-arrow" aria-hidden="true">→</span>'.join(
+            f'<div class="flow-box{AI_FLOW_CLASS if uses_ai else ""}"><b>{number}. {html.escape(title)}</b>'
+            f'<span>{html.escape(text)}</span></div>'
+            for number, (title, text, uses_ai) in enumerate(AGENT_FLOW, start=1)
+        )
+        with st.container(key="agent-flow"):
+            st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
+        st.markdown('<p class="sec-title sec-gap">이 서비스가 하는 일</p>', unsafe_allow_html=True)
         columns = st.columns(4, gap="medium")
         for column, (target_page, title, text) in zip(columns, HOME_FEATURES):
             with column:
@@ -675,15 +713,6 @@ def render_home_page():
                         st.button("🔒 조건 입력 후 열려요", key=FEATURE_KEYS[target_page],
                                   disabled=True, width="stretch")
 
-        st.markdown('<p class="sec-title">오이소창원은 이렇게 일해요</p>', unsafe_allow_html=True)
-        # 5단계 흐름: 같은 크기 상자 + 화살표(PC는 가로 →, 모바일은 세로 ↓)
-        flow_html = '<span class="flow-arrow" aria-hidden="true">→</span>'.join(
-            f'<div class="flow-box{AI_FLOW_CLASS if uses_ai else ""}"><b>{number}. {html.escape(title)}</b>'
-            f'<span>{html.escape(text)}</span></div>'
-            for number, (title, text, uses_ai) in enumerate(AGENT_FLOW, start=1)
-        )
-        with st.container(key="agent-flow"):
-            st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
         _caption(SAVE_HELP)
         # 설명과 버튼을 한 묶음으로, 잠금 안내는 버튼 아래 작은 글씨로 (10/3 실사용자 피드백)
         with st.container(key="home-ask-row"):
