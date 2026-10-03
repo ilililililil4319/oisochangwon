@@ -144,6 +144,8 @@ READABILITY_CSS = """
 .st-key-journey-tools {border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.3rem; background: #FFFFFF;}
 .st-key-email-alert {max-width: 760px; border-top: 1px dashed #D5DDE7; padding-top: .7rem;}
 [class*="st-key-save-row-"] {gap: .6rem; align-items: center !important;}
+.st-key-complaint-input, .st-key-dialect-input {background: #F7F9FC; border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.2rem;}
+.st-key-complaint-result, .st-key-dialect-result {border: 1px solid #D5DDE7; border-left: 5px solid #FE6A01; border-radius: 14px; padding: .8rem 1rem; background: #FFFFFF;}
 [class*="st-key-save-row-"] [data-testid="stElementContainer"] {margin: 0 !important;}
 .st-key-email-alert {scroll-margin-top: 90px;}
 [class*="st-key-milestone-"] {border-radius: 12px; padding: .5rem .8rem; border: 1px solid #D5DDE7; background: #FFFFFF; gap: .1rem;}
@@ -1666,40 +1668,63 @@ def _queue_complaint(text):
     st.session_state["complaint_pending"] = text
 
 
+COMPLAINT_LEVEL_RE = re.compile(r"\[(긴급|위기|높음|보통|제안|마음 건강)\]")
+COMPLAINT_BADGE_COLORS = {"긴급": "red", "위기": "red", "높음": "orange", "보통": "blue", "제안": "green", "마음 건강": "violet"}
+
+
+def _complaint_level(result):
+    match = COMPLAINT_LEVEL_RE.search(result.get("answer") or "")
+    if match:
+        return match.group(1)
+    if result.get("mode") in ("emergency", "crisis"):
+        return "긴급" if result["mode"] == "emergency" else "위기"
+    return None
+
+
 def render_complaint_page():
     _back_home_button("complaint")
     st.subheader(FEATURE_3)
-    input_column, result_column, reference_column = st.columns([1.2, 1.5, 1.1], gap="large")
+    st.caption("불편한 상황을 한 문장으로 적으면 긴급도를 판단해 알맞은 접수 창구를 알려 드려요. 민원을 대신 접수하거나 개인정보를 받지 않아요.")
+    input_column, result_column = st.columns([1, 1.25], gap="large")
     with input_column:
-        st.write("불편한 상황을 한 문장으로 적으면 AI가 긴급도를 판단하고 알맞은 접수 창구를 안내해요.")
-        _ai_status_caption()
-        st.caption("민원을 대신 접수하거나 개인정보를 받지 않아요. 화재·사고 같은 긴급 상황은 바로 112·119에 신고하세요.")
-        with st.form("complaint-form", clear_on_submit=True, border=False):
-            text = st.text_input("어떤 불편이 있나요?", placeholder="예: 우리 동네 인도 블록이 깨져서 위험해요", max_chars=200)
-            submitted = st.form_submit_button("접수 창구 찾기", type="primary")
-        st.markdown("**예시로 해 보기**")
-        with st.container(horizontal=True, wrap=True):
-            for index, example in enumerate(COMPLAINT_EXAMPLES):
-                st.button(example, key=f"complaint-example-{index}", on_click=_queue_complaint, args=(example,))
+        with st.container(key="complaint-input"):
+            _ai_status_caption()
+            with st.form("complaint-form", clear_on_submit=True, border=False):
+                text = st.text_input("어떤 불편이 있나요?", placeholder="예: 우리 동네 인도 블록이 깨져서 위험해요", max_chars=200)
+                submitted = st.form_submit_button("접수 창구 찾기", type="primary")
+            st.markdown("**예시로 해 보기**")
+            with st.container(horizontal=True, wrap=True):
+                for index, example in enumerate(COMPLAINT_EXAMPLES):
+                    st.button(example, key=f"complaint-example-{index}", on_click=_queue_complaint, args=(example,))
+            st.caption("화재·사고 같은 긴급 상황은 기다리지 말고 바로 112·119에 신고하세요.")
     question = (text if submitted and text.strip() else None) or st.session_state.pop("complaint_pending", None)
     if question:
         st.session_state["complaint_result"] = _ask_agent(f"[불편사항 접수 안내] {question}")
         st.session_state["complaint_result"]["question"] = question
     with result_column:
         st.markdown("**안내 결과**")
-        if st.session_state.get("complaint_result"):
+        result = st.session_state.get("complaint_result")
+        if result:
             with st.container(key="complaint-result"):
-                _render_agent_item(st.session_state["complaint_result"], "complaint")
+                level = _complaint_level(result)
+                if level:
+                    st.badge(f"{level} 단계", color=COMPLAINT_BADGE_COLORS[level])
+                _render_agent_item(result, "complaint")
             if question:
                 _scroll_into_view("complaint-result")
         else:
             st.caption("왼쪽에 상황을 적거나 예시를 누르면 여기에 결과가 나와요.")
-    with reference_column:
-        st.markdown("**단계별 접수 창구**")
-        for item in load_complaint_channels():
-            COMPLAINT_BOXES.get(item["단계"], st.info)(f"[{item['단계']}] {item['예시']}")
-            st.caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
-        st.caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
+    st.markdown("**단계별 접수 창구**")
+    channels = load_complaint_channels()
+    for row_start in range(0, len(channels), 3):
+        columns = st.columns(3, gap="small")
+        for column, item in zip(columns, channels[row_start:row_start + 3]):
+            with column:
+                with st.container(border=True, key=f"channel-{row_start}-{item['단계']}"):
+                    st.badge(item["단계"], color=COMPLAINT_BADGE_COLORS.get(item["단계"], "gray"))
+                    st.markdown(f"**{item['예시']}**")
+                    st.caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
+    st.caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
     _next_feature_button(PAGE_DIALECT, f"{BUTTON_4} →")
 
 
@@ -1716,21 +1741,21 @@ def render_dialect_page():
     st.subheader(FEATURE_4)
     dialects = load_dialects()
     demo = [d for d in dialects if d.get("시연 사용")][:6]
-    input_column, result_column, reference_column = st.columns([1.2, 1.5, 1.1], gap="large")
+    st.caption(
+        f"직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요. 핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) "
+        f"확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드리고, 사전에 없는 말은 짐작하지 않아요."
+    )
+    input_column, result_column = st.columns([1, 1.25], gap="large")
     with input_column:
-        st.write("직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.")
-        _ai_status_caption()
-        st.caption(
-            f"핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) 확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드려요. "
-            "사전에 없는 말은 짐작하지 않고 ‘별도 확인 필요’와 우리말샘 찾아보기 링크를 드려요."
-        )
-        with st.form("dialect-form", clear_on_submit=True, border=False):
-            text = st.text_input("들은 말", placeholder="예: 단디 해래이", max_chars=60)
-            submitted = st.form_submit_button("뜻 찾기", type="primary")
-        st.markdown("**예시로 해 보기**")
-        with st.container(horizontal=True, wrap=True):
-            for index, item in enumerate(demo):
-                st.button(item["표현"], key=f"dialect-example-{index}", on_click=_queue_dialect, args=(item["표현"],))
+        with st.container(key="dialect-input"):
+            _ai_status_caption()
+            with st.form("dialect-form", clear_on_submit=True, border=False):
+                text = st.text_input("들은 말", placeholder="예: 단디 해래이", max_chars=60)
+                submitted = st.form_submit_button("뜻 찾기", type="primary")
+            st.markdown("**예시로 해 보기**")
+            with st.container(horizontal=True, wrap=True):
+                for index, item in enumerate(demo):
+                    st.button(item["표현"], key=f"dialect-example-{index}", on_click=_queue_dialect, args=(item["표현"],))
     expression = (text if submitted and text.strip() else None) or st.session_state.pop("dialect_pending", None)
     if expression:
         result = _ask_agent(f"창원 지역말 ‘{expression.strip()}’이(가) 무슨 뜻이에요?")
@@ -1745,12 +1770,14 @@ def render_dialect_page():
                 _scroll_into_view("dialect-result")
         else:
             st.caption("왼쪽에 들은 말을 적거나 예시를 누르면 여기에 뜻이 나와요.")
-    with reference_column:
-        with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기", expanded=True):
-            for item in dialects:
-                st.markdown(f"**{item['표현']}**")
-                st.caption(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
-            st.caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
+    with st.expander(f"핵심 지역말 {len(dialects)}개 한눈에 보기"):
+        for row_start in range(0, len(dialects), 3):
+            columns = st.columns(3, gap="small")
+            for column, item in zip(columns, dialects[row_start:row_start + 3]):
+                with column:
+                    st.markdown(f"**{item['표현']}**")
+                    st.caption(f"{item['표준어 뜻']} · {item.get('사용 상황') or ''}")
+        st.caption("출처: 우리말샘·국립국어원 온라인가나다 등(문헌 기준 뜻)")
     _next_feature_button(PAGE_ASK, f"{ASK_LABEL} →")
 
 

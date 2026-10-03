@@ -438,7 +438,7 @@ def _format_rule_answer(tool_name, output, question):
         if p01.get("신청 가능 예정일"):
             text += f"(신청 가능 예정일 {p01['신청 가능 예정일']})"
         if output.get("정착 단계"):
-            text += f"\n지금은 {output['정착 단계']} 단계예요. ‘받을 수 있는 지원’과 ‘정착 할 일’ 화면에서 자세히 볼 수 있어요."
+            text += f"\n지금은 {output['정착 단계']} 단계예요. ‘창원 청년 맞춤형 혜택 알림’과 ‘정착 일정’ 화면에서 자세히 볼 수 있어요."
         return text
     return f"확인된 정보에는 없어요. {CALL_CENTER}로 문의해 주세요."
 
