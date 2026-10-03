@@ -41,21 +41,21 @@
 
 ```
 oiso_changwon/
-├─ app.py              [프론트엔드] 화면(Streamlit) · 배포 시작 파일 — 위치 변경 금지
-├─ requirements.txt    배포 의존성 — 위치 변경 금지
-├─ src/                [백엔드] Agent·정책 판정·일정·저장·캘린더·이메일 알림 로직
-├─ data/               [데이터] 팀 검증 데이터(JSON)
-├─ tests/              테스트 3종
-│   ├─ ai_test/         AI 자동 테스트(unittest 코드)
-│   ├─ team_self_test/  팀 자체 테스트(대표 Test Case · 최종 체크리스트)
-│   └─ user_test/       실사용자 테스트(설문 Apps Script · 평가지 · 설문 링크)
-├─ docs/               planning(기획안) · work_process(작업 과정 설명)
-├─ screenshots/        화면 캡처: self_test_20261002 · work_process_20261002
-├─ deliverables/       최종 제출물: final_report · technical_description · presentation(ppt·video) · submission
-├─ handoff/            인수인계서·작업지시서 · team_share(팀 공유 자료) — 대회 제출 전 PC 보관 후 삭제
-├─ assets/             로고 이미지
-├─ .streamlit/         색 테마(남색 #063465 · 주황 #FE6A01)
-└─ .devcontainer/      개발 컨테이너 설정
+├─ app.py (프론트엔드)            화면(Streamlit) · 배포 시작 파일 — 위치 변경 금지
+├─ requirements.txt (배포 설정)   배포 의존성 — 위치 변경 금지
+├─ src/ (백엔드)                  Agent·정책 판정·일정·저장·캘린더·이메일 알림 로직
+├─ data/ (데이터)                 팀 검증 데이터(JSON)
+├─ tests/ (테스트)                테스트 3종
+│   ├─ ai_test/ (AI 자동 테스트)          unittest 코드
+│   ├─ team_self_test/ (팀 자체 테스트)   대표 Test Case · 최종 체크리스트
+│   └─ user_test/ (실사용자 테스트)       설문 Apps Script · 평가지 · 설문 링크
+├─ docs/ (문서)                   planning(기획안) · work_process(작업 과정 설명)
+├─ screenshots/ (화면 캡처)       self_test_20261002 · work_process_20261002
+├─ deliverables/ (최종 제출물)    final_report · technical_description · presentation(ppt·video) · submission
+├─ handoff/ (인수인계)            인수인계서·작업지시서 · team_share(팀 공유 자료) — 대회 제출 전 PC 보관 후 삭제
+├─ assets/ (이미지)               로고 이미지
+├─ .streamlit/ (화면 테마)        색 테마(남색 #063465 · 주황 #FE6A01)
+└─ .devcontainer/ (개발 환경)     개발 컨테이너 설정
 ```
 
 Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문에 frontend·backend 폴더를 따로 두지 않고, 화면은 `app.py`, 처리 로직은 `src/`로 나눴습니다.
