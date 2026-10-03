@@ -132,7 +132,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertNotIn("앱 이용 문의", home)  # 화면 아래 ‘앱 문의’ 한 곳에만
                 self.assertIn("정책 24건·정착 할 일 26개·생활 정보 60곳·지역말 2,253개·접수 창구 6곳", home)
                 self.assertIn("차량 소지 여부", home)
-                self.assertIn("회원가입 없이 닉네임으로 저장해요", home)
+                self.assertIn("회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요.", home)
                 self.assertEqual(app.button(key="show-profile").label, "조건 확인·수정")
         assets = APP_FILE.parent / "assets"
         for name in ("logo_wide.png", "logo_icon.png"):
