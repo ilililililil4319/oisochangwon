@@ -41,10 +41,10 @@
 
 ```
 oiso_changwon/
-├─ app.py              배포 시작 파일(Streamlit) — 위치 변경 금지
+├─ app.py              [프론트엔드] 화면(Streamlit) · 배포 시작 파일 — 위치 변경 금지
 ├─ requirements.txt    배포 의존성 — 위치 변경 금지
-├─ src/                개발 파일(Agent·판정·일정·저장 모듈)
-├─ data/               팀 검증 데이터(JSON)
+├─ src/                [백엔드] Agent·정책 판정·일정·저장·캘린더·이메일 알림 로직
+├─ data/               [데이터] 팀 검증 데이터(JSON)
 ├─ tests/              테스트 3종
 │   ├─ ai_test/         AI 자동 테스트(unittest 코드)
 │   ├─ team_self_test/  팀 자체 테스트(대표 Test Case · 최종 체크리스트)
@@ -57,6 +57,8 @@ oiso_changwon/
 ├─ .streamlit/         색 테마(남색 #063465 · 주황 #FE6A01)
 └─ .devcontainer/      개발 컨테이너 설정
 ```
+
+Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문에 frontend·backend 폴더를 따로 두지 않고, 화면은 `app.py`, 처리 로직은 `src/`로 나눴습니다.
 
 | 위치 | 내용 |
 |---|---|
