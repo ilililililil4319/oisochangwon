@@ -98,8 +98,6 @@ SAVE_HELP = (
     "오래 보관하려면 ‘📅 캘린더에 저장’이나 ‘📄 정착 리포트 저장’으로 내 기기에 저장해 두는 게 가장 확실해요. "
     "이메일 일정 알림은 선택 사항이고, 원할 때만 개인정보 수집·이용 동의와 이메일 수신 동의를 받은 뒤 보내 드려요."
 )
-CONTACT_EMAIL = "whwnstn9294@gmail.com"
-CONTACT_TEXT = f"앱 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})"
 DEFAULT_NICKNAME = "코디2026"
 
 
@@ -1883,8 +1881,6 @@ def render_sidebar():
             formatted_saved_at = format_korea_timestamp(last_saved_at)
             if formatted_saved_at:
                 st.caption(f"마지막 저장: {formatted_saved_at} (한국시간)")
-        st.divider()
-        st.caption(CONTACT_TEXT)
 
 
 PAGE_RENDERERS = {
@@ -1940,9 +1936,6 @@ with page_root.container(key=f"page-{page}"):
     PAGE_RENDERERS.get(page, render_home_page)()
 
 render_sidebar()
-
-st.divider()
-st.caption(CONTACT_TEXT)
 
 
 def _scroll_to_top_on_page_change():

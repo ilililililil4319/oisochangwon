@@ -194,21 +194,19 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertTrue(app.button(key="nav-journey").disabled)
                 self.assertFalse(app.button(key="nav-profile").disabled)
 
-    def test_contact_email_in_sidebar_and_footer_on_every_page(self):
-        contact = "앱 문의: [whwnstn9294@gmail.com](mailto:whwnstn9294@gmail.com)"
+    def test_no_contact_email_on_any_page(self):
+        # 10/3 이혜경 요청: 앱 화면(사이드바·화면 아래)에서 문의 이메일 삭제
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
-                self.assertIn(contact, [c.value for c in app.sidebar.caption])
-                self.assertIn(contact, [c.value for c in app.main.caption])
                 _visit(app, "profile")
                 app.button(key="fill-demo").click().run()
-                for page in ("policy", "journey", "explore", "profile", "home"):
+                for page in ("home", "profile", "policy", "journey", "explore", "complaint", "dialect", "ask"):
                     with self.subTest(page=page):
                         _visit(app, page)
                         self.assertFalse(app.exception)
-                        self.assertEqual([c.value for c in app.main.caption][-1], contact)
-                        self.assertIn(contact, [c.value for c in app.sidebar.caption])
+                        texts = [c.value for c in app.sidebar.caption] + [c.value for c in app.main.caption] + [m.value for m in app.markdown]
+                        self.assertFalse(any("whwnstn9294" in x or "앱 문의" in x for x in texts))
 
     def test_ask_page_answers_with_rule_fallback_links_and_log(self):
         with TemporaryDirectory() as temp_dir:
