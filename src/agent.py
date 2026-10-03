@@ -49,7 +49,8 @@ SYSTEM_PROMPT = """너는 '오이소창원'의 정착 코디네이터 Agent야. 
 10. 사용자 정보가 필요하면 get_my_situation을 먼저 호출한다.
 11. 사용자가 차량이 '없음'이거나 버스·대중교통으로 갈 곳을 물으면 search_activities에 by_transit=true를 주고, 대중교통 기준으로 안내하며 교통 혜택(K-패스)을 함께 알려 준다.
 12. '이동 권장'이 '차량 권장'인 곳(car_recommended, 귀산동·저도 등 외곽)은 버스 추천 목록에 넣지 말고 "차로 가면 좋은 곳"으로 따로 짧게 안내한다.
-13. 장소를 안내할 때는 장소마다 한 줄로 쓰고, 장소 이름 바로 뒤에 도구 결과의 '링크' 값을 [공식 안내](링크) 형식으로 붙인다. 링크 값이 비어 있으면 붙이지 않고, 도구 결과에 없는 주소는 절대 쓰지 않는다."""
+13. 장소를 안내할 때는 장소마다 한 줄로 쓰고, 장소 이름 바로 뒤에 도구 결과의 '링크' 값을 [공식 안내](링크) 형식으로 붙인다. 링크 값이 비어 있으면 붙이지 않고, 도구 결과에 없는 주소는 절대 쓰지 않는다.
+14. 개인 맞춤 질문(내가 받을 수 있는 지원 등)에는 get_my_situation의 '나의 혜택 판정'과 search_policies의 '나의 판정'을 따른다. '해당 없음'인 정책은 받을 수 있는 혜택으로 소개하지 않고, '해당 가능' → '조건부 해당 가능' 순서로 안내한다."""
 
 TOOLS = [
     {
@@ -124,8 +125,19 @@ def _score(text, keyword):
 
 
 # --- 도구 ---------------------------------------------------------------------
-def search_policies(keyword=""):
+def _my_matches(profile):
+    """사용자 조건이 있으면 화면(맞춤 혜택)과 같은 규칙 판정 결과를 돌려준다. 조건이 없으면 None."""
+    profile = profile or {}
+    if not any(profile.get(k) not in (None, "") for k in ("age", "move_in_date", "job_type")):
+        return None
+    from policy_matcher import match_policies
+    return {m["id"]: m for m in match_policies(profile)}
+
+
+def search_policies(keyword="", profile=None):
     policies = _items("policies_mvp.json")
+    mine = _my_matches(profile)
+    excluded = (lambda p: bool(mine) and mine.get(p["ID"], {}).get("level") == "해당 없음")
     if keyword:
         scored = []
         for policy in policies:
@@ -133,13 +145,18 @@ def search_policies(keyword=""):
             score = _score(text, keyword)
             if score:
                 scored.append((score, policy))
-        picked = [p for _, p in sorted(scored, key=lambda pair: -pair[0])][:5]
+        # 내 조건으로 해당 없음인 정책은 뒤로
+        picked = [p for _, p in sorted(scored, key=lambda pair: (excluded(pair[1]), -pair[0]))][:5]
+    elif mine:
+        by_id = {p["ID"]: p for p in policies}
+        picked = [by_id[m["id"]] for m in mine.values() if m["level"] != "해당 없음" and m["id"] in by_id][:6]
     else:
         picked = [p for p in policies if p.get("MVP 사용") == "핵심(시연)"][:6]
     return {
         "count": len(picked),
         "policies": [
             {
+                **({"나의 판정": mine[p["ID"]]["level"], "판정 이유": mine[p["ID"]]["message"]} if mine and p["ID"] in mine else {}),
                 "ID": p["ID"],
                 "사업명": p["사업명"],
                 "분야": p.get("분야"),
@@ -299,6 +316,15 @@ def get_my_situation(profile):
         "이유": p01["reason"],
         "신청 가능 예정일": p01["eligible_date"],
     }
+    mine = _my_matches(profile)
+    if mine:
+        # 화면 ‘창원 청년 맞춤형 혜택 알림’과 같은 판정 (10/3 팀 자체 테스트 J-2: 제외 대상 정책 소개 방지)
+        situation["나의 혜택 판정"] = {
+            "해당 가능": [m["name"] for m in mine.values() if m["level"] == "해당 가능"],
+            "조건부 해당 가능": [m["name"] for m in mine.values() if m["level"] == "조건부 해당 가능"],
+            "직접 확인 필요": [m["name"] for m in mine.values() if m["level"] == "직접 확인 필요"],
+            "해당 없음(받을 수 있는 혜택으로 소개하지 않음)": [m["name"] for m in mine.values() if m["level"] == "해당 없음"],
+        }
     if isinstance(move_in_date, date):
         month = current_settlement_month(move_in_date)
         group = next(g for g in group_missions_by_month(personalize_missions(load_missions(), profile.get("job_type"))) if g["month"] == month)
@@ -315,7 +341,7 @@ def run_tool(name, args, profile=None):
     if name == "get_my_situation":
         return get_my_situation(profile)
     if name == "search_policies":
-        return search_policies(args.get("keyword", ""))
+        return search_policies(args.get("keyword", ""), profile)
     if name == "search_activities":
         by_transit = bool(args.get("by_transit")) or (profile or {}).get("vehicle") == "없음"
         return search_activities(args.get("keyword", ""), args.get("district", ""), bool(args.get("indoor_only")), by_transit)
@@ -429,11 +455,19 @@ def _format_rule_answer(tool_name, output, question):
     if tool_name == "search_policies":
         if not output["policies"]:
             return f"확인된 정책 정보에는 없어요. {CALL_CENTER} 또는 창원청년정보플랫폼({YOUTH_PLATFORM_URL})에서 확인해 주세요."
-        lines = [f"- {p['사업명']}: {p['지원 내용'][:60]}" for p in output["policies"]]
+        lines = [f"- {p['사업명']}" + (f" [{p['나의 판정']}]" if p.get("나의 판정") else "") + f": {p['지원 내용'][:60]}"
+                 for p in output["policies"]]
         return "확인된 정책 중 관련된 것이에요. 대상 여부는 담당 창구에서 꼭 확인해 주세요.\n" + "\n".join(lines)
     if tool_name == "get_my_situation":
         p01 = output["기업노동자 전입지원금 판정"]
-        text = f"기업노동자 전입지원금: {p01['결과']}"
+        text = ""
+        mine = output.get("나의 혜택 판정")
+        if mine:
+            if mine["해당 가능"]:
+                text += "지금 조건으로 해당 가능한 혜택이에요.\n" + "\n".join(f"- {name}" for name in mine["해당 가능"]) + "\n"
+            if mine["조건부 해당 가능"]:
+                text += f"조건부 해당 가능 {len(mine['조건부 해당 가능'])}건은 시기·조건이 맞으면 받을 수 있어요.\n"
+        text += f"기업노동자 전입지원금: {p01['결과']}"
         if p01.get("신청 가능 예정일"):
             text += f"(신청 가능 예정일 {p01['신청 가능 예정일']})"
         if output.get("정착 단계"):

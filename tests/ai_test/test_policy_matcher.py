@@ -16,6 +16,14 @@ def by_id(results):
 
 
 class PolicyMatcherTests(unittest.TestCase):
+    def test_excluded_policy_has_no_apply_date_or_events(self):
+        # 10/3 팀 자체 테스트 D-6: 자영업은 기업노동자 전입지원금 해당 없음 → 신청 예정일·일정 안내 없음
+        p01 = by_id(match_policies({**PERSONA, "job_type": "자영업"}, TODAY))["P01"]
+        self.assertEqual(p01["level"], "해당 없음")
+        self.assertEqual((p01["schedule"], p01["events"], p01["eligible_date"]), ([], [], None))
+        worker = by_id(match_policies({**PERSONA, "job_type": "직장인"}, TODAY))["P01"]
+        self.assertTrue(worker["events"])
+
     def test_all_23_policies_get_one_of_four_levels_sorted(self):
         results = match_policies(PERSONA, TODAY)
         self.assertEqual(len(results), len(load_policies()))

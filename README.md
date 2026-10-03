@@ -78,8 +78,8 @@ Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문�
 | `src/schedule_export.py` · `src/email_alerts.py` | 캘린더 파일(.ics)·정착 리포트 생성 · 동의 기반 이메일 일정 알림 |
 | `src/activity_manager.py` · `src/naver_map_links.py` · `src/policy_resource_manager.py` | 생활 정보 · 네이버 지도 링크 · 할 일 공식 링크 검증 |
 | `data/` | 정책 24 · 생활 정보 60(차량 권장 8) · 할 일 26 · 할 일 링크 18 · 지역말 핵심 30 + 확장 2,223 · 불편 접수 창구 6 · 시연 페르소나 |
-| `tests/ai_test/` | AI 자동 테스트 — Claude가 작성한 unittest 코드 115개(정책 판정·일정·저장·Agent 검증·캘린더·이메일 동의 등) |
-| `tests/team_self_test/` | 팀 자체 테스트 — 대표 Test Case 6건, 10/3 최종 자체 테스트 체크리스트(md·pdf·docx) |
+| `tests/ai_test/` | AI 자동 테스트 — Claude가 작성한 unittest 코드 123개(정책 판정·일정·저장·Agent 검증·캘린더·이메일 동의 등) |
+| `tests/team_self_test/` | 팀 자체 테스트 — 대표 Test Case 6건, 10/3 최종 자체 테스트 체크리스트(md·pdf·docx), C 이미영 PC 점검 결과, 결과 반영표 |
 | `tests/user_test/` | 실사용자 테스트 — 설문 링크, 설문 Apps Script, 종이 평가지 |
 | `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 10/3 갱신본(md·pdf·docx) · 그림 |
 | `docs/work_process/` | 작업 과정 캡처 설명 |

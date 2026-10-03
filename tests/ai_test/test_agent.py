@@ -77,6 +77,32 @@ class ToolTests(unittest.TestCase):
         self.assertNotIn("닉네임", str(situation))
 
 
+class PersonalMatchTests(unittest.TestCase):
+    """10/3 팀 자체 테스트 J-2·D-6: 개인 판정과 다른 정책 소개·제외 대상 신청 안내 방지"""
+
+    WORKER = {**PROFILE, "job_type": "직장인", "vehicle": "없음"}
+
+    def test_my_situation_lists_policies_by_my_level(self):
+        mine = agent.get_my_situation(self.WORKER)["나의 혜택 판정"]
+        self.assertIn("K-패스(대중교통비 환급)", mine["해당 가능"])
+        self.assertIn("청년 일경험 지원사업", mine["해당 없음(받을 수 있는 혜택으로 소개하지 않음)"])
+        self.assertNotIn("청년 일경험 지원사업", mine["해당 가능"] + mine["조건부 해당 가능"])
+
+    def test_policy_search_without_keyword_skips_excluded_for_me(self):
+        names = [p["사업명"] for p in agent.search_policies("", self.WORKER)["policies"]]
+        self.assertNotIn("청년 일경험 지원사업", names)
+        self.assertTrue(all(p["나의 판정"] != "해당 없음" for p in agent.search_policies("", self.WORKER)["policies"]))
+
+    def test_policy_search_marks_my_level(self):
+        found = agent.search_policies("일경험", self.WORKER)["policies"]
+        self.assertEqual(found[0]["나의 판정"], "해당 없음")
+
+    def test_rule_answer_for_my_support_lists_eligible_only(self):
+        result = agent.rule_based_answer("내가 받을 수 있는 지원 알려줘", self.WORKER)
+        self.assertIn("K-패스", result.answer)
+        self.assertNotIn("일경험", result.answer)
+
+
 class TransitTests(unittest.TestCase):
     def test_bus_question_moves_outskirts_to_car_list(self):
         result = agent.search_activities("야경", by_transit=True)

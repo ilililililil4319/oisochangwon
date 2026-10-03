@@ -915,6 +915,8 @@ def _policy_why(match):
 
 
 def _policy_todo(match):
+    if match["level"] == "해당 없음":
+        return "지금 조건으로는 신청 대상이 아니에요. 조건이 바뀌면 다시 확인해 주세요."
     schedule = list(match["schedule"])
     if match["eligible_date"]:
         schedule.insert(0, f"계속 거주 6개월 기준일: {match['eligible_date']}")
@@ -938,7 +940,7 @@ def _policy_card(match):
             unsafe_allow_html=True,
         )
         with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
-            st.link_button("안내·신청 링크 열기", match["link"], key=f"policy-link-{match['id']}")
+            st.link_button("공식 안내 보기" if match["level"] == "해당 없음" else "안내·신청 링크 열기", match["link"], key=f"policy-link-{match['id']}")
             with st.popover("자세히 보기"):
                 if match["support"]:
                     _detail("지원 내용", match["support"])
@@ -1476,9 +1478,11 @@ def render_explore_page():
         selected_activity_id = None
         if filtered_activities:
             st.divider()
-            activity_by_id = {activity["ID"]: activity for activity in filtered_activities}
+            # 선택 목록은 화면 카드 순서(대중교통 목록 → 차로 가면 좋은 곳)와 같게
+            activity_by_id = {activity["ID"]: activity for activity in [*main_list, *car_only]}
             if st.session_state.get("activity_selection") not in activity_by_id:
-                st.session_state.pop("activity_selection", None)
+                # 필터를 바꿔 이전 선택이 목록에 없으면 첫 장소로 명시적으로 맞춤 — 선택창과 상세가 어긋나지 않게 (10/3 팀 자체 테스트 G-2)
+                st.session_state["activity_selection"] = next(iter(activity_by_id))
             with st.container(key="explore-detail"):
                 selected_activity_id = st.selectbox(
                     "자세히 볼 곳",

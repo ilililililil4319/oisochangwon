@@ -257,9 +257,15 @@ def match_policies(profile, today=None):
     results = []
     for policy in load_policies():
         result = evaluate_policy(policy, profile, today)
-        result["events"] = [
-            (day.isoformat(), label) for day, label in schedule_events(policy, profile.get("move_in_date"))
-        ]
+        if result["level"] == "해당 없음":
+            # 제외 판정이면 신청 예정일·신청 일정을 안내하지 않음 (10/3 팀 자체 테스트 D-6)
+            result["schedule"] = []
+            result["eligible_date"] = None
+            result["events"] = []
+        else:
+            result["events"] = [
+                (day.isoformat(), label) for day, label in schedule_events(policy, profile.get("move_in_date"))
+            ]
         results.append(result)
     order = {level: index for index, level in enumerate(LEVELS)}
     results.sort(key=lambda r: (order[r["level"]], not r["priority"], not r["core"], r["id"]))

@@ -269,8 +269,10 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = _demo_app()
                 _visit(app, "policy")
                 self.assertFalse(app.exception)
-                link_keys = [l for l in app.get("link_button") if l.label == "안내·신청 링크 열기"]
+                # 해당 없음 카드는 ‘공식 안내 보기’(신청 권유 없음, 10/3 팀 자체 테스트 D-6)
+                link_keys = [l for l in app.get("link_button") if l.label in ("안내·신청 링크 열기", "공식 안내 보기")]
                 self.assertEqual(len(link_keys), len(load_policies()))
+                self.assertEqual(len([l for l in app.get("link_button") if l.label == "공식 안내 보기"]), 7)
                 labels = [e.label for e in app.expander]
                 self.assertTrue(any(label.startswith("더 보기") for label in labels))
                 self.assertTrue(any(label.startswith("해당 없음") for label in labels))
@@ -742,6 +744,24 @@ class ApplicationE2ETests(unittest.TestCase):
                 _visit(app, "explore")
                 self.assertEqual(app.selectbox(key="activity_district").value, "성산구")
                 self.assertEqual(app.selectbox(key="activity_category").value, "문화생활")
+
+    def test_detail_selection_matches_detail_after_filter_change(self):
+        # 10/3 팀 자체 테스트 G-2: 전체에서 북 페스타를 본 뒤 성산구·야경 산책으로 바꾸면 선택창과 상세가 같은 장소
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                _visit(app, "explore")
+                first = app.selectbox(key="activity_selection").options[0]
+                app.selectbox(key="activity_selection").set_value(app.selectbox(key="activity_selection").value).run()
+                app.selectbox(key="activity_district").select("성산구").run()
+                app.selectbox(key="activity_category").select("야경·산책").run()
+                self.assertFalse(app.exception)
+                selector = app.selectbox(key="activity_selection")
+                chosen = next(a for a in load_activities() if a["ID"] == selector.value)
+                self.assertEqual(chosen["생활권(구)"], "성산구")
+                self.assertIn(chosen["이름"], [h.value.replace("\\", "") for h in app.header])
+                self.assertEqual(selector.options[0], f"{chosen['이름']} · {chosen['생활권(구)']}")
+                self.assertTrue(first)
 
     def test_activity_data_failure_does_not_hide_p0_results(self):
         with TemporaryDirectory() as temp_dir:
