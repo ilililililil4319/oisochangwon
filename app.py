@@ -1172,7 +1172,9 @@ def _email_alert_box(events, today):
                     )
                     st.session_state["alert_message"] = (
                         "error",
-                        "메일을 보내지 못해 신청을 취소했어요(이메일도 저장하지 않았어요). 잠시 뒤 다시 시도해 주세요." + reason,
+                        "지금은 메일 서버에 연결되지 않아 신청을 취소했어요(이메일도 저장하지 않았어요). "
+                        "일정 알림은 위의 ‘📅 캘린더에 저장’으로 받을 수 있어요 — 하루 전 오전 9시에 휴대폰·PC 캘린더 알림이 떠요."
+                        + reason,
                     )
                 else:
                     st.session_state["alert_message"] = (
