@@ -280,6 +280,24 @@ h1, h2, h3 {color: #063465 !important;}
 [data-testid="stExpander"] details {border-color: #D5DDE7;}
 .st-key-home-ask-row {background: #F7F9FC; border: 1px solid #D5DDE7; border-radius: 12px; padding: .8rem 1rem; gap: .35rem; margin-top: .4rem;}
 .st-key-home-ask-row [data-testid="stCaptionContainer"] p {font-size: .82rem;}
+/* 10/3 UI: 화면 맨 위 흰 띠(Streamlit 공유·별표·편집·GitHub·메뉴 버튼) 숨김 — 왼쪽 메뉴 열기(>>) 버튼만 남김 */
+[data-testid="stHeader"] {background: transparent !important; box-shadow: none !important; pointer-events: none;}
+[data-testid="stHeader"] [data-testid="stExpandSidebarButton"], [data-testid="stHeader"] [data-testid="stExpandSidebarButton"] * {pointer-events: auto;}
+[data-testid="stToolbarActions"], [data-testid="stAppDeployButton"], [data-testid="stMainMenu"], [data-testid="stDecoration"] {display: none !important;}
+[data-testid="stMainBlockContainer"] {padding-top: 1.2rem !important;}
+.st-key-home-hero-band {margin-top: -1.2rem !important; padding-top: 2.4rem !important;}
+/* 10/3 UI 다듬기 2차(기능 변경 없음): 휴대폰 빈 공간·버튼 줄바꿈 줄이기 */
+
+@media (max-width: 640px) {
+    .st-key-home-hero-inner [data-testid="stHorizontalBlock"] {gap: .9rem !important;}
+    .st-key-home-hero-band {padding-bottom: 1rem;}
+    [class*="st-key-tab-"] button {padding: .3rem .65rem; min-height: 2.4rem;}
+    [class*="st-key-tab-"] button p {font-size: .84rem;}
+    .st-key-journey-summary [data-testid="stHorizontalBlock"] {gap: .4rem !important;}
+    [class*="st-key-milestone-"] {padding: .45rem .8rem; min-height: 0 !important;}
+    [class*="st-key-milestone-"] p {margin-bottom: 0;}
+    [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {min-height: 2.6rem;}
+}
 /* 10/3 UX/UI 다듬기(기능 변경 없음): 글자 대비·섹션 제목·간격 통일 */
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {color: #4D5B6A;}
 .stApp [data-testid="stCaptionContainer"] p {line-height: 1.6;}
@@ -1106,14 +1124,19 @@ def _journey_tools(today):
     st.subheader("일정 저장·알림")
     with st.container(key="journey-tools"):
         events, counts = _save_buttons(today, PAGE_JOURNEY)
+        # 긴 설명은 접어 두고 핵심 한 줄만 (10/3 UI 다듬기 — 내용은 그대로)
         _caption(
-            f"캘린더 파일: 정착 일정 {counts['milestone']}개 · 월별 할 일 {counts['missions']}개 · "
-            f"혜택 확인일 {counts['policy']}개. 열면 휴대폰·PC 캘린더에 들어가고 하루 전 오전 9시에 알림이 떠요.  \n"
-            "정착 리포트: 나의 조건·할 일 진행·다가오는 일정·맞는 혜택을 한 파일로 저장해요. "
-            "브라우저에서 열어 인쇄하면 PDF로도 저장돼요. 파일은 내 기기에만 저장되고 실명·연락처는 들어가지 않아요.  \n"
-            "휴대폰에서는 버튼을 누른 뒤 화면 위·아래의 다운로드 알림(또는 ‘내 파일 → 다운로드’)에서 파일을 눌러 "
-            "캘린더 앱·브라우저로 열어요."
+            f"📅 캘린더 파일에는 정착 일정 {counts['milestone']}개 · 월별 할 일 {counts['missions']}개 · "
+            f"혜택 확인일 {counts['policy']}개가 들어가고, 하루 전 오전 9시에 알림이 떠요."
         )
+        with st.popover("저장 방법 자세히 보기"):
+            _caption(
+                "캘린더 파일: 열면 휴대폰·PC 캘린더에 일정이 들어가요.  \n"
+                "정착 리포트: 나의 조건·할 일 진행·다가오는 일정·맞는 혜택을 한 파일로 저장해요. "
+                "브라우저에서 열어 인쇄하면 PDF로도 저장돼요. 파일은 내 기기에만 저장되고 실명·연락처는 들어가지 않아요.  \n"
+                "휴대폰에서는 버튼을 누른 뒤 화면 위·아래의 다운로드 알림(또는 ‘내 파일 → 다운로드’)에서 파일을 눌러 "
+                "캘린더 앱·브라우저로 열어요."
+            )
         _email_alert_box(events, today)
 
 
