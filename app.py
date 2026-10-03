@@ -171,6 +171,11 @@ READABILITY_CSS = """
     background: #F3F8F5; border: 1px solid #D6E9DE; border-radius: 12px; padding: .75rem .9rem; color: #063465;}
 .flow-box b {font-size: .98rem;}
 .flow-box span {font-size: .85rem; color: #4D5B6A; line-height: 1.45;}
+.st-key-hero-cta-help p {margin: .6rem 0 0; padding: .55rem .8rem; border-left: 3px solid #FE6A01; background: #FFF6EF;
+    border-radius: 0 8px 8px 0; color: #063465; font-size: .95rem; line-height: 1.5;}
+.flow-box.flow-ai {background: #EEF3FA; border-color: #B9CCE4;}
+.ai-tag {display: inline-block; margin-left: .35rem; padding: .05rem .45rem; border-radius: 999px; background: #063465;
+    color: #fff; font-size: .72rem; font-style: normal; font-weight: 700; vertical-align: .1rem;}
 .flow-arrow {flex: 0 0 auto; align-self: center; color: #FE6A01; font-weight: 700; font-size: 1.3rem;}
 @media (max-width: 640px) {
     .flow-row {flex-direction: column; gap: .15rem;}
@@ -423,6 +428,9 @@ saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 
 # --- 처음 화면: STEP 1 조건 입력 카드 + STEP 2 기능 버튼 5개 -------------------
 CONDITION_LABEL = "나의 조건 입력"
+PROFILE_EDIT_LABEL = "나의 조건 확인·수정"
+# 첫 화면 주황 버튼 바로 위 안내 (10/3 이혜경 문구)
+CTA_HELP = "창원 생활, 어디서부터 시작할지 고민되나요? 먼저 나의 조건을 확인하면 필요한 정보를 맞춤 안내해 드려요."
 DATA_COUNTS = [
     (label, count, unit)
     for label, count, unit in (
@@ -510,7 +518,7 @@ def _condition_card():
                            "먼저 둘러보려면 들어가서 ‘예시 정보로 채우기’를 눌러 보세요.")
         with button_col:
             if user_key:
-                st.button("조건 확인·수정", key="show-profile", on_click=_go, args=(PAGE_PROFILE,), width="stretch")
+                st.button(PROFILE_EDIT_LABEL, key="show-profile", on_click=_go, args=(PAGE_PROFILE,), width="stretch")
             else:
                 st.button(f"{CONDITION_LABEL}하기 →", key="show-profile", type="primary", on_click=_go,
                           args=(PAGE_PROFILE,), width="stretch")
@@ -523,12 +531,15 @@ HOME_FEATURES = (
     (PAGE_DIALECT, BUTTON_4, "낯선 창원·경상 지역 표현을 문헌 자료 기준으로 풀어드려요."),
 )
 FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
+AI_FLOW_CLASS = " flow-ai"
+AI_TAG_HTML = ' <em class="ai-tag">AI</em>'
+# (제목, 설명, AI 동작 여부) — AI 표시는 GPT-4.1 mini가 실제로 일하는 단계에만
 AGENT_FLOW = (
-    ("내 조건", "나이·전입일·하는 일·차량 소지 여부"),
-    ("조건 비교 · AI 판단", f"정책 {POLICY_COUNT}건 규칙 비교, 질문은 코디네이터 Agent가 이해"),
-    ("검증 자료 확인", "팀이 확인한 공식 자료만 사용"),
-    ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구"),
-    ("다음 할 일 저장", "캘린더·정착 리포트로 내 기기에 보관"),
+    ("내 조건", "나이·전입일·하는 일·차량 소지 여부", False),
+    ("AI 이해 · 조건 비교", f"질문은 AI가 이해하고 필요한 도구를 골라요. 혜택은 정책 {POLICY_COUNT}건과 규칙으로 비교", True),
+    ("검증 자료 확인", "팀이 확인한 공식 자료만 찾고, AI 답의 연락처·링크를 자료와 대조", False),
+    ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구, AI가 답 문장 작성", True),
+    ("다음 할 일 저장", "캘린더·정착 리포트로 내 기기에 보관", False),
 )
 # 예시 카드: 창원·경남에서만 주는 혜택을 먼저, 그다음 청년이 많이 찾는 지원 (모두 data/policies_mvp.json에 있는 사업)
 EXAMPLE_CHECKS = (
@@ -585,9 +596,11 @@ def render_home_page():
                 st.markdown("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.")
                 st.markdown("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **오이소창원**이 함께 챙겨드려요.")
                 st.markdown("오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?")
+                with st.container(key="hero-cta-help"):
+                    st.markdown(CTA_HELP)
                 with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
                     st.button(
-                        f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else "조건 확인·수정",
+                        f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else PROFILE_EDIT_LABEL,
                         key="show-profile",
                         type="primary",
                         on_click=_go,
@@ -619,11 +632,13 @@ def render_home_page():
         st.markdown("**오이소창원은 이렇게 일해요**")
         # 5단계 흐름: 같은 크기 상자 + 화살표(PC는 가로 →, 모바일은 세로 ↓)
         flow_html = '<span class="flow-arrow" aria-hidden="true">→</span>'.join(
-            f'<div class="flow-box"><b>{number}. {html.escape(title)}</b><span>{html.escape(text)}</span></div>'
-            for number, (title, text) in enumerate(AGENT_FLOW, start=1)
+            f'<div class="flow-box{AI_FLOW_CLASS if uses_ai else ""}"><b>{number}. {html.escape(title)}'
+            f'{AI_TAG_HTML if uses_ai else ""}</b><span>{html.escape(text)}</span></div>'
+            for number, (title, text, uses_ai) in enumerate(AGENT_FLOW, start=1)
         )
         with st.container(key="agent-flow"):
             st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
+            st.caption("AI 표시: 코디네이터 Agent의 AI(GPT-4.1 mini)가 실제로 동작하는 단계예요.")
         st.caption(SAVE_HELP)
         with st.container(key="home-ask-row", horizontal=True, vertical_alignment="center"):
             st.caption("궁금한 건 네 기능을 넘나들며 한 문장으로 물어보세요.")

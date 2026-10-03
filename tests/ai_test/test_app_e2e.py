@@ -104,6 +104,10 @@ class ApplicationE2ETests(unittest.TestCase):
                 feature_keys = [b.key for b in app.main.button if b.key in ("show-policy", "show-journey", "show-complaint", "show-dialect")]
                 self.assertEqual(len(feature_keys), 4)
                 self.assertNotIn("내 정보", home_text)
+                # ‘이렇게 일해요’: AI가 실제로 동작하는 2·4단계에만 AI 표시
+                flow = next(m.value for m in app.markdown if "flow-row" in m.value)
+                self.assertEqual(flow.count('class="ai-tag"'), 2)
+                self.assertIn("AI(GPT-4.1 mini)가 실제로 동작하는 단계", home_text)
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertFalse(app.button(key="show-profile").disabled)
                 self.assertTrue(all(b.disabled for b in app.main.button if b.key and b.key.startswith("show-") and b.key != "show-profile"))
@@ -133,7 +137,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertIn("정책 24건·정착 할 일 26개·생활 정보 60곳·지역말 2,253개·접수 창구 6곳", home)
                 self.assertIn("차량 소지 여부", home)
                 self.assertIn("회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요.", home)
-                self.assertEqual(app.button(key="show-profile").label, "조건 확인·수정")
+                self.assertEqual(app.button(key="show-profile").label, "나의 조건 확인·수정")
+                self.assertIn("먼저 나의 조건을 확인하면 필요한 정보를 맞춤 안내해 드려요", _visible_text(app))
         assets = APP_FILE.parent / "assets"
         for name in ("logo_wide.png", "logo_icon.png"):
             self.assertTrue((assets / name).is_file(), name)
