@@ -103,3 +103,37 @@ class EmailAlertTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SendFallbackTests(unittest.TestCase):
+    """10/3 배포 앱 발송 실패 대응: 한 포트가 막히면 다른 방식(587 STARTTLS ↔ 465 SSL)으로 한 번 더"""
+
+    CONFIG = {"SMTP_HOST": "smtp.gmail.com", "SMTP_PORT": 587, "SMTP_USER": "u@gmail.com",
+              "SMTP_PASSWORD": "p", "SMTP_FROM": "u@gmail.com"}
+
+    def test_connection_error_retries_with_other_port(self):
+        from unittest.mock import patch
+        calls = []
+
+        def broken(config, message, port):
+            calls.append(("starttls", port))
+            raise TimeoutError("timed out")
+
+        with patch.object(email_alerts, "_send_starttls", broken), \
+                patch.object(email_alerts, "_send_ssl", lambda c, m, port: calls.append(("ssl", port))):
+            email_alerts.send_message(self.CONFIG, object())
+        self.assertEqual(calls, [("starttls", 587), ("ssl", 465)])
+
+    def test_login_failure_is_not_retried(self):
+        import smtplib
+        from unittest.mock import patch
+        calls = []
+
+        def denied(config, message, port):
+            raise smtplib.SMTPAuthenticationError(535, b"bad")
+
+        with patch.object(email_alerts, "_send_starttls", denied), \
+                patch.object(email_alerts, "_send_ssl", lambda c, m, port: calls.append(port)):
+            with self.assertRaises(smtplib.SMTPAuthenticationError):
+                email_alerts.send_message(self.CONFIG, object())
+        self.assertEqual(calls, [])

@@ -214,20 +214,38 @@ def build_reminder_message(config, email, due_alerts, token, app_url=None):
     return message
 
 
+def _send_ssl(config, message, port=465):
+    with smtplib.SMTP_SSL(config["SMTP_HOST"], port, timeout=20) as server:
+        server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
+        server.send_message(message)
+
+
+def _send_starttls(config, message, port=587):
+    with smtplib.SMTP(config["SMTP_HOST"], port, timeout=20) as server:
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
+        server.send_message(message)
+
+
 def send_message(config, message, smtp_factory=None):
     if smtp_factory is not None:
         with smtp_factory() as server:
             server.send_message(message)
         return
     if config["SMTP_PORT"] == 465:
-        with smtplib.SMTP_SSL(config["SMTP_HOST"], 465, timeout=15) as server:
-            server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
-            server.send_message(message)
+        first, second, fallback_port = _send_ssl, _send_starttls, 587
     else:
-        with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"], timeout=15) as server:
-            server.starttls()
-            server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
-            server.send_message(message)
+        first, second, fallback_port = _send_starttls, _send_ssl, 465
+    try:
+        first(config, message, config["SMTP_PORT"])
+    except smtplib.SMTPAuthenticationError:
+        raise
+    except (OSError, smtplib.SMTPException) as error:
+        # 서버에서 한 포트(587/465)가 막히거나 끊기면 다른 방식으로 한 번 더 시도 (10/3 배포 앱 발송 실패 대응)
+        print(f"[email_alerts] 첫 발송 실패({type(error).__name__}: {error}) → 다른 포트로 재시도", flush=True)
+        second(config, message, fallback_port)
 
 
 def send_due_alerts(config, db_path=None, today=None, app_url=None, smtp_factory=None):

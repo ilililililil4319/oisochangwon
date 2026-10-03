@@ -1159,9 +1159,11 @@ def _email_alert_box(events, today):
                 except Exception as error:
                     # 보내지 못한 이메일은 남기지 않는다
                     email_alerts.unsubscribe(token=result["token"])
+                    print(f"[email_alerts] 환영 메일 발송 실패: {type(error).__name__}: {error}", flush=True)
                     reason = (
                         " (보내는 메일 계정 로그인 실패 — 관리자: Secrets의 앱 비밀번호 확인)"
-                        if type(error).__name__ == "SMTPAuthenticationError" else ""
+                        if type(error).__name__ == "SMTPAuthenticationError"
+                        else f" (오류 종류: {type(error).__name__})"
                     )
                     st.session_state["alert_message"] = (
                         "error",
