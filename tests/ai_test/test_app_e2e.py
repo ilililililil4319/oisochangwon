@@ -117,8 +117,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 for step in ("2. AI 이해 · 조건 비교", "4. AI 맞춤 결과 안내", "5. 일정 저장 및 알림(선택)"):
                     self.assertIn(step, flow)
                 self.assertNotIn("팀이 확인한", flow)
-                self.assertEqual(app.button(key="show-ask").label, "오이소창원에게 물어보기 →")
-                self.assertTrue(app.button(key="show-ask").disabled)
+                # 조건 입력 전: 누를 수 없는 물어보기 버튼 대신 잠금 안내만 (10/3 팀 자체 테스트 모바일)
+                self.assertNotIn("show-ask", [b.key for b in app.main.button])
                 self.assertIn("🔒 조건 입력 후 열려요", [c.value for c in app.main.caption])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertFalse(app.button(key="show-profile").disabled)

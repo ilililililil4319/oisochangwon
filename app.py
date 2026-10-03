@@ -269,7 +269,7 @@ h1, h2, h3 {color: #063465 !important;}
 /* 모바일: 큰 제목·할 일 글씨를 한 줄에 가깝게 */
 @media (max-width: 640px) {
     h2 {font-size: 1.45rem !important;}
-    [data-testid="stExpander"] summary p {font-size: 1.08rem;}
+    [data-testid="stExpander"] summary p {font-size: .98rem; line-height: 1.4;}
     [data-testid="stExpander"] [data-testid="stCheckbox"] p {font-size: 1.1rem;}
 }
 [data-testid="stProgress"] [role="progressbar"] > div > div > div {background-color: #2E9E6B !important;}
@@ -670,8 +670,10 @@ def render_home_page():
         # 설명과 버튼을 한 묶음으로, 잠금 안내는 버튼 아래 작은 글씨로 (10/3 실사용자 피드백)
         with st.container(key="home-ask-row"):
             st.markdown("**궁금한 게 있나요?** 네 기능을 넘나들며 한 문장으로 물어보세요.")
-            st.button(f"{ASK_LABEL} →", key="show-ask", disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
-            if not user_key:
+            # 누를 수 없는 버튼은 두지 않음(10/3 팀 자체 테스트 모바일 의견) — 조건 입력 전에는 잠금 안내만
+            if user_key:
+                st.button(f"{ASK_LABEL} →", key="show-ask", on_click=_go, args=(PAGE_ASK,))
+            else:
                 _caption("🔒 조건 입력 후 열려요")
 
         st.divider()
@@ -1490,6 +1492,9 @@ def render_explore_page():
         if car_only:
             st.markdown("**차로 가면 좋은 곳** · 창원 외곽이라 시내버스로는 가기 어려워요")
             _activity_grid(car_only, app_name, car_only=True)
+        elif no_car and filtered_activities:
+            # 10/3 팀 자체 테스트(모바일 G-5): 목록이 안 보이는 이유를 알려 줌
+            _caption("이 지역·분야에는 ‘차로 가면 좋은 곳’(외곽 차량 권장 장소)이 없어요. 지역을 ‘창원 전체’로 바꾸면 볼 수 있어요.")
 
         selected_activity_id = None
         if filtered_activities:

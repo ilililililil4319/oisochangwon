@@ -59,7 +59,7 @@ oiso_changwon/
 │   │   ├─ ai_test/ (AI 자동 테스트 캡처)       20261002 · 26장
 │   │   └─ work_process/ (개발 작업 과정)       20261002 · 31장
 │   └─ after_development/ (기능 구현 이후 테스트)
-│       ├─ team_self_test/ (팀 자체 테스트 캡처) 20261003 · 32장
+│       ├─ team_self_test/ (팀 자체 테스트 캡처) 20261003 · 37장
 │       └─ user_test/ (실사용자 테스트 캡처)
 ├─ deliverables/ (최종 제출물)    final_report · technical_description · presentation(ppt·video) · submission
 ├─ handoff/ (인수인계)            인수인계서·작업지시서 · team_share(팀 공유 자료) — 대회 제출 전 PC 보관 후 삭제
@@ -79,13 +79,13 @@ Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문�
 | `src/activity_manager.py` · `src/naver_map_links.py` · `src/policy_resource_manager.py` | 생활 정보 · 네이버 지도 링크 · 할 일 공식 링크 검증 |
 | `data/` | 정책 24 · 생활 정보 60(차량 권장 8) · 할 일 26 · 할 일 링크 18 · 지역말 핵심 30 + 확장 2,223 · 불편 접수 창구 6 · 시연 페르소나 |
 | `tests/ai_test/` | AI 자동 테스트 — Claude가 작성한 unittest 코드 123개(정책 판정·일정·저장·Agent 검증·캘린더·이메일 동의 등) |
-| `tests/team_self_test/` | 팀 자체 테스트 — 대표 Test Case 6건, 10/3 최종 자체 테스트 체크리스트(md·pdf·docx), C 이미영 PC 점검 결과, 결과 반영표 |
+| `tests/team_self_test/` | 팀 자체 테스트 — 대표 Test Case 6건, 10/3 최종 자체 테스트 체크리스트(md·pdf·docx), 자체평가 테스트보고서(1차·2차 PC·모바일), 결과 반영표 |
 | `tests/user_test/` | 실사용자 테스트 — 설문 링크, 설문 Apps Script, 종이 평가지 |
 | `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 10/3 갱신본(md·pdf·docx) · 그림 |
 | `docs/work_process/` | 작업 과정 캡처 설명 |
 | `docs/ux_ui/` | UX/UI 개선 작업 프롬프트(10/3, ‘전체 UI가 아쉽다’는 의견을 받아 GPT로 작성) — 전체 테스트 결과가 모이면 이 기준으로 개선 |
 | `screenshots/during_development/` | 기능 구현 과정 테스트 캡처 — `ai_test/20261002/` AI 자동 실행 26장(대표 Test Case 6건 PC·모바일), `work_process/20261002/` 작업 과정 31장(수정 전·후, 에러와 조치, 배포·공유) |
-| `screenshots/after_development/` | 기능 구현 이후 테스트 캡처 — `team_self_test/20261003/` 팀 자체 테스트 32장(전체 기능, 진해 링크 수정 전·후, 배포 확인), `user_test/` 실사용자 테스트(테스트 후 날짜 폴더로 추가) |
+| `screenshots/after_development/` | 기능 구현 이후 테스트 캡처 — `team_self_test/20261003/` 팀 자체 테스트 37장(전체 기능, 진해 링크 수정 전·후, 배포 확인, 휴대폰 점검), `user_test/` 실사용자 테스트(테스트 후 날짜 폴더로 추가) |
 | `deliverables/` | 개발완료보고서(10/3 초안 md·pdf·docx) · AI Agent 기술설명서 · 발표자료 · 시연영상(스크립트) · 출처·AI 활용 신고서(10/3 초안, `submission/`) |
 | `handoff/` | 인수인계서 · 작업지시서 · `team_share/`(팀 공유 자료) — **제출 전 삭제** |
 
