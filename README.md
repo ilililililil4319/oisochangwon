@@ -13,7 +13,7 @@
 
 제4회 경남 AI·SW 경진대회 일반부 · 지정주제 01(사회문제 해결형 AI Agent) · 팀 오이소창원(조준수 팀장 · 이혜경 · 이미영)
 
-![첫 화면 — 코디2026 정착 현황(10/4 UI 수정 후)](screenshots/after_development/ui_update/20261004/02_%ED%99%88_%EC%BD%94%EB%94%942026_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png)
+![첫 화면 — 배포 앱 구현 완료(10/4)](screenshots/after_development/implementation_complete/20261004/01_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png)
 
 ---
 
