@@ -1183,7 +1183,11 @@ def _email_alert_box(events, today):
                 for key in ("alert_email", "alert_consent_privacy", "alert_consent_receive"):
                     st.session_state[f"clear:{key}"] = True
                 st.rerun()
-        st.markdown("**알림 그만 받기**")
+        # 신청 버튼과 해지 칸이 붙어 헷갈리지 않게 구분선·간격 (10/3 이혜경)
+        st.divider()
+        with st.container(key="email-unsubscribe-box"):
+            st.markdown("**알림 그만 받기**")
+            _caption("이미 신청한 이메일의 알림을 끊고 이메일을 지울 때만 써요.")
         with st.form("email-unsubscribe-form", border=False):
             unsubscribe_email = st.text_input("신청한 이메일 주소", key="unsubscribe_email")
             if st.form_submit_button("알림 해지·이메일 삭제"):

@@ -221,7 +221,7 @@ class SendFailure(Exception):
 def _send_ssl(config, message, port=465, stage=None):
     stage = stage if stage is not None else {}
     stage["name"] = "연결"
-    with smtplib.SMTP_SSL(config["SMTP_HOST"], port, timeout=20) as server:
+    with smtplib.SMTP_SSL(config["SMTP_HOST"], port, timeout=45) as server:
         stage["name"] = "로그인"
         server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
         stage["name"] = "발송"
@@ -231,7 +231,7 @@ def _send_ssl(config, message, port=465, stage=None):
 def _send_starttls(config, message, port=587, stage=None):
     stage = stage if stage is not None else {}
     stage["name"] = "연결"
-    with smtplib.SMTP(config["SMTP_HOST"], port, timeout=20) as server:
+    with smtplib.SMTP(config["SMTP_HOST"], port, timeout=45) as server:
         stage["name"] = "암호화(STARTTLS)"
         server.ehlo()
         server.starttls()
@@ -250,7 +250,13 @@ def _attempt(sender, config, message, port):
     except smtplib.SMTPAuthenticationError:
         raise
     except (OSError, smtplib.SMTPException) as error:
-        detail = f"{port} {stage['name']} {type(error).__name__}"
+        # 오류 문장(예: ‘Connection unexpectedly closed: timed out’)도 짧게 — 비밀번호·주소는 들어가지 않음
+        text = str(error)
+        secret = config.get("SMTP_PASSWORD") or ""
+        if len(secret) >= 6:
+            text = text.replace(secret, "***")
+        text = text[:60]
+        detail = f"{port} {stage['name']} {type(error).__name__}" + (f"({text})" if text else "")
         print(f"[email_alerts] 발송 실패: {detail}: {error}", flush=True)
         return detail
     return None

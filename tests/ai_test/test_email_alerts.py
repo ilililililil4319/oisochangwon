@@ -136,7 +136,7 @@ class SendFallbackTests(unittest.TestCase):
         with patch.object(email_alerts, "_send_starttls", drop), patch.object(email_alerts, "_send_ssl", drop):
             with self.assertRaises(email_alerts.SendFailure) as caught:
                 email_alerts.send_message(self.CONFIG, object())
-        self.assertEqual(str(caught.exception), "587 연결 SMTPServerDisconnected / 465 연결 SMTPServerDisconnected")
+        self.assertEqual(str(caught.exception), "587 연결 SMTPServerDisconnected(Connection unexpectedly closed) / 465 연결 SMTPServerDisconnected(Connection unexpectedly closed)")
 
     def test_login_failure_is_not_retried(self):
         import smtplib
