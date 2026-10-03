@@ -307,6 +307,65 @@ class ApplicationE2ETests(unittest.TestCase):
                         self.assertFalse(any(label.startswith("기업노동자 전입 지원금 신청하기") for label in labels))
                         self.assertIn(theme, _visible_text(app))
 
+    def test_journey_calendar_report_and_opt_in_email(self):
+        import email_alerts
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), \
+                    patch.object(email_alerts, "DB_PATH", Path(temp_dir) / "alerts.sqlite3"), \
+                    patch.dict("os.environ", {key: "" for key in email_alerts.SMTP_KEYS}):
+                app = _demo_app()
+                _visit(app, "journey")
+                self.assertFalse(app.exception)
+                text = _visible_text(app)
+                for label in ("정착 1~2개월", "정착 3-5개월", "정착 6개월 이후"):
+                    self.assertIn(label, " ".join(m.value for m in app.markdown))
+                for old in ("한 달쯤 뒤", "정착 중반", "여섯 달쯤 뒤"):
+                    self.assertNotIn(old, " ".join(m.value for m in app.markdown))
+                downloads = [element.proto.label for element in app.get("download_button")]
+                self.assertEqual(downloads, ["캘린더에 넣기 (.ics)", "정착 리포트 저장"])
+                # 켜지 않으면 이메일 입력칸이 없다
+                self.assertNotIn("alert_email", [t.key for t in app.text_input])
+                # 켜도 발송 설정이 없으면 이메일을 받지 않는다
+                app.toggle(key="alert_opt_in").set_value(True).run()
+                self.assertNotIn("alert_email", [t.key for t in app.text_input])
+                self.assertTrue(any("이메일을 받지 않아요" in info.value for info in app.info))
+                self.assertEqual(email_alerts.count_subscriptions(Path(temp_dir) / "alerts.sqlite3"), 0)
+                self.assertIn("일정 저장·알림", text)
+
+    def test_email_alert_needs_both_consents_and_can_be_removed(self):
+        import email_alerts
+        smtp_env = {"SMTP_HOST": "smtp.example.com", "SMTP_PORT": "587", "SMTP_USER": "u",
+                    "SMTP_PASSWORD": "p", "SMTP_FROM": "noreply@example.com"}
+        sent = []
+        with TemporaryDirectory() as temp_dir:
+            alerts_db = Path(temp_dir) / "alerts.sqlite3"
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), \
+                    patch.object(email_alerts, "DB_PATH", alerts_db), \
+                    patch.object(email_alerts, "send_message", lambda config, message, *a: sent.append(message)), \
+                    patch.object(email_alerts, "send_due_alerts", lambda *a, **k: 0), \
+                    patch.dict("os.environ", smtp_env):
+                app = _demo_app()
+                _visit(app, "journey")
+                app.toggle(key="alert_opt_in").set_value(True).run()
+                submit = next(b for b in app.button if b.label == "알림 신청하기")
+                app.text_input(key="alert_email").input("user@example.com")
+                app.checkbox(key="alert_consent_privacy").check()
+                submit.click().run()
+                self.assertTrue(any("모두 동의" in e.value for e in app.error))
+                self.assertEqual(email_alerts.count_subscriptions(alerts_db), 0)
+                self.assertEqual(sent, [])
+                app.checkbox(key="alert_consent_receive").check()
+                next(b for b in app.button if b.label == "알림 신청하기").click().run()
+                self.assertFalse(app.exception)
+                self.assertEqual(email_alerts.count_subscriptions(alerts_db), 1)
+                self.assertEqual(len(sent), 1)
+                self.assertTrue(any("신청했어요" in m.value for m in app.success))
+                self.assertEqual(app.text_input(key="alert_email").value, "")
+                app.text_input(key="unsubscribe_email").input("user@example.com")
+                next(b for b in app.button if b.label == "알림 해지·이메일 삭제").click().run()
+                self.assertEqual(email_alerts.count_subscriptions(alerts_db), 0)
+                self.assertTrue(any("삭제했어요" in m.value for m in app.success))
+
     def test_vehicle_choice_changes_policy_order_explore_and_sidebar(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):

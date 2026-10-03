@@ -107,6 +107,19 @@ def schedule_lines(policy, move_in_date):
     return [f"신청 기간(2026): {period}"] if period else []
 
 
+def schedule_events(policy, move_in_date):
+    """날짜가 정해진 일정만 (날짜, 설명)으로 돌려준다 — 캘린더·알림용. 날짜 없는 규칙은 넣지 않는다."""
+    rule = policy.get("planner_rule") or {}
+    kind = rule.get("type")
+    if kind == "after_move_in" and move_in_date:
+        return [(move_in_date + relativedelta(months=rule["months"]), rule["label"])]
+    if kind == "notice_check":
+        return [(date.fromisoformat(rule["date"]), rule["label"])]
+    if kind == "fixed_dates":
+        return [(date.fromisoformat(e["date"]), e["label"]) for e in rule.get("events", [])]
+    return []
+
+
 def _employment_rule(text):
     if text.startswith("무관"):
         return None
@@ -241,7 +254,13 @@ def _result(policy, level, message, reasons, move_in_date):
 
 
 def match_policies(profile, today=None):
-    results = [evaluate_policy(p, profile, today) for p in load_policies()]
+    results = []
+    for policy in load_policies():
+        result = evaluate_policy(policy, profile, today)
+        result["events"] = [
+            (day.isoformat(), label) for day, label in schedule_events(policy, profile.get("move_in_date"))
+        ]
+        results.append(result)
     order = {level: index for index, level in enumerate(LEVELS)}
     results.sort(key=lambda r: (order[r["level"]], not r["priority"], not r["core"], r["id"]))
     return results

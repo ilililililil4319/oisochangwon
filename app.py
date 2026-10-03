@@ -39,6 +39,8 @@ from progress_manager import (
     encouragement_message,
 )
 from settlement_engine import build_settlement_plan
+from schedule_export import build_ics, build_report_html, build_schedule_events
+import email_alerts
 from state_manager import (
     format_korea_timestamp,
     load_mission_notes,
@@ -51,9 +53,9 @@ from state_manager import (
 MILESTONE_LABELS = {
     0: "전입한 날",
     7: "첫 주",
-    30: "한 달쯤 뒤",
-    90: "정착 중반",
-    180: "여섯 달쯤 뒤",
+    30: "정착 1~2개월",
+    90: "정착 3-5개월",
+    180: "정착 6개월 이후",
 }
 MONTH_LABELS = {
     1: "1개월 차",
@@ -119,6 +121,8 @@ READABILITY_CSS = """
 [class*="st-key-policy-card-"] [data-testid="stHeadingWithActionElements"] h2 {font-size: 1.35rem !important; padding: .2rem 0 0 0 !important;}
 .st-key-journey-summary {background: #EEF4FB; border: 1px solid #C9D8EA; border-left: 5px solid #2E9E6B; border-radius: 14px; padding: .9rem 1.3rem;}
 .st-key-journey-summary h3 {font-size: 1.35rem !important; color: #063465; padding: 0 !important;}
+.st-key-journey-tools {border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.3rem; background: #FFFFFF;}
+.st-key-email-alert {max-width: 760px; border-top: 1px dashed #D5DDE7; padding-top: .7rem;}
 [class*="st-key-milestone-"] {border-radius: 12px; padding: .5rem .8rem; border: 1px solid #D5DDE7; background: #FFFFFF; gap: .1rem;}
 [class*="st-key-milestone-"][class*="-done"] {background: #F3F8F5; border-color: #D6E9DE;}
 [class*="st-key-milestone-"][class*="-next"] {border: 2px solid #FE6A01;}
@@ -923,6 +927,133 @@ def _feature_2_header(current):
             )
 
 
+APP_URL = "https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/"
+
+
+def _journey_tools(today):
+    """캘린더 파일·정착 리포트 저장, 이메일 알림(선택). 실명·연락처·닉네임은 넣지 않는다."""
+    matches = match_policies(_current_profile())
+    events = build_schedule_events(move_in_date, MILESTONE_LABELS, mission_groups, matches)
+    notes = {
+        mission["ID"]: st.session_state.get(
+            f"mission-note:{user_key}:{mission['ID']}", saved_mission_notes.get(mission["ID"], "")
+        )
+        for mission in all_missions
+    }
+    profile = {
+        "move_in_date": move_in_date.isoformat(),
+        "job_type": st.session_state["employment_status"],
+        "age": st.session_state["age"],
+        "vehicle": st.session_state["vehicle"],
+    }
+    counts = {kind: sum(1 for event in events if event["kind"] == kind) for kind in ("milestone", "missions", "policy")}
+    st.subheader("일정 저장·알림")
+    with st.container(key="journey-tools"):
+        with st.container(horizontal=True, wrap=True):
+            st.download_button(
+                "캘린더에 넣기 (.ics)",
+                data=build_ics(events),
+                file_name="oisochangwon_schedule.ics",
+                mime="text/calendar",
+                key="download-ics",
+                icon=":material/calendar_month:",
+                type="primary",
+                on_click="ignore",
+            )
+            st.download_button(
+                "정착 리포트 저장",
+                data=build_report_html(
+                    profile, _settlement_day(), progress_summary, mission_groups,
+                    completion_states, notes, matches, events,
+                ),
+                file_name=f"oisochangwon_report_{today.isoformat()}.html",
+                mime="text/html",
+                key="download-report",
+                icon=":material/description:",
+                on_click="ignore",
+            )
+        st.caption(
+            f"캘린더 파일: 정착 일정 {counts['milestone']}개 · 월별 할 일 {counts['missions']}개 · "
+            f"혜택 확인일 {counts['policy']}개. 열면 휴대폰·PC 캘린더에 들어가고 하루 전 오전 9시에 알림이 떠요.  \n"
+            "정착 리포트: 나의 조건·할 일 진행·다가오는 일정·맞는 혜택을 한 파일로 저장해요. "
+            "브라우저에서 열어 인쇄하면 PDF로도 저장돼요. 파일은 내 기기에만 저장되고 실명·연락처는 들어가지 않아요."
+        )
+        _email_alert_box(events, today)
+
+
+def _email_alert_box(events, today):
+    for key in ("alert_email", "alert_consent_privacy", "alert_consent_receive", "unsubscribe_email"):
+        if st.session_state.pop(f"clear:{key}", False):
+            st.session_state.pop(key, None)
+    config = email_alerts.smtp_config(_setting)
+    with st.container(key="email-alert"):
+        message = st.session_state.pop("alert_message", None)
+        if not st.toggle("이메일로 일정 알림 받기 (선택)", key="alert_opt_in"):
+            if message:
+                (st.success if message[0] == "ok" else st.error)(message[1])
+            st.caption("켜지 않으면 이메일을 묻거나 저장하지 않아요.")
+            return
+        if message:
+            (st.success if message[0] == "ok" else st.error)(message[1])
+        if config is None:
+            st.info(
+                "이메일 발송 설정이 아직 준비되지 않아 지금은 이메일을 받지 않아요. "
+                "위 ‘캘린더에 넣기’로 내 캘린더에서 알림을 받아 주세요."
+            )
+            return
+        st.caption(
+            "신청하지 않으면 이메일을 받지 않아요. 신청하면 바로 전체 일정(캘린더 파일 첨부)을 보내 드리고, "
+            "일정 하루 전에 알림 메일을 보내요. 메일은 앱 서버가 깨어 있을 때 보내져 늦어질 수 있어 "
+            "정확한 알림은 캘린더 파일을 함께 쓰는 걸 권해요."
+        )
+        with st.form("email-alert-form", border=False):
+            email = st.text_input("이메일 주소", key="alert_email", placeholder="example@email.com")
+            st.markdown(email_alerts.PRIVACY_NOTICE)
+            agree_privacy = st.checkbox("[필수] 개인정보 수집·이용에 동의해요", key="alert_consent_privacy")
+            agree_receive = st.checkbox("[필수] 창원 정착 일정 알림 메일 수신에 동의해요", key="alert_consent_receive")
+            submitted = st.form_submit_button("알림 신청하기", type="primary")
+        if submitted:
+            try:
+                result = email_alerts.subscribe(email, events, agree_privacy, agree_receive)
+            except email_alerts.AlertError as error:
+                st.error(str(error))
+            else:
+                try:
+                    email_alerts.send_message(
+                        config,
+                        email_alerts.build_welcome_message(
+                            config, result["email"], result["alerts"], result["token"], build_ics(events), APP_URL
+                        ),
+                    )
+                except Exception:
+                    # 보내지 못한 이메일은 남기지 않는다
+                    email_alerts.unsubscribe(token=result["token"])
+                    st.session_state["alert_message"] = (
+                        "error", "메일을 보내지 못해 신청을 취소했어요(이메일도 저장하지 않았어요). 잠시 뒤 다시 시도해 주세요."
+                    )
+                else:
+                    st.session_state["alert_message"] = (
+                        "ok", f"신청했어요. 일정 {len(result['alerts'])}개를 알려 드릴게요. 받은 편지함을 확인해 주세요."
+                    )
+                for key in ("alert_email", "alert_consent_privacy", "alert_consent_receive"):
+                    st.session_state[f"clear:{key}"] = True
+                st.rerun()
+        st.markdown("**알림 그만 받기**")
+        with st.form("email-unsubscribe-form", border=False):
+            unsubscribe_email = st.text_input("신청한 이메일 주소", key="unsubscribe_email")
+            if st.form_submit_button("알림 해지·이메일 삭제"):
+                try:
+                    removed = email_alerts.unsubscribe(email=unsubscribe_email)
+                except email_alerts.AlertError as error:
+                    st.session_state["alert_message"] = ("error", str(error))
+                else:
+                    st.session_state["alert_message"] = (
+                        "ok", "알림을 해지하고 이메일을 삭제했어요." if removed else "신청된 이메일이 없어요."
+                    )
+                st.session_state["clear:unsubscribe_email"] = True
+                st.rerun()
+
+
 def render_journey_page():
     _back_home_button("journey")
     _feature_2_header(PAGE_JOURNEY)
@@ -966,6 +1097,7 @@ def render_journey_page():
         "마지막 일정과 계속 거주 6개월 기준일은 서로 다른 방식으로 계산되어 "
         "날짜가 다를 수 있어요."
     )
+    _journey_tools(today)
 
     try:
         mission_resources = load_mission_resources()
@@ -1662,6 +1794,43 @@ PAGE_RENDERERS = {
     PAGE_EXPLORE: render_explore_page,
 }
 # 화면을 바꾸면 이전 화면을 통째로 지우고 새 화면만 그린다(이전 화면이 아래에 남지 않게).
+@st.cache_resource(show_spinner=False)
+def _alert_runner_state():
+    return {"last": None}
+
+
+def _run_due_alerts():
+    """상시 스케줄러가 없으므로 앱이 실행될 때 한 시간에 한 번만 보낼 날이 된 알림을 보낸다."""
+    config = email_alerts.smtp_config(_setting)
+    if config is None:
+        return
+    state = _alert_runner_state()
+    hour = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y%m%d%H")
+    if state["last"] == hour:
+        return
+    state["last"] = hour
+    import threading
+
+    def _work():
+        try:
+            email_alerts.send_due_alerts(config, app_url=APP_URL)
+        except Exception:
+            pass
+
+    threading.Thread(target=_work, daemon=True).start()
+
+
+_unsubscribe_token = st.query_params.get("unsubscribe")
+if _unsubscribe_token:
+    removed = email_alerts.unsubscribe(token=_unsubscribe_token)
+    st.query_params.clear()
+    st.session_state["unsubscribe_notice"] = (
+        "이메일 알림을 해지하고 이메일 주소를 삭제했어요." if removed else "이미 해지되었거나 신청 내역이 없어요."
+    )
+if st.session_state.get("unsubscribe_notice"):
+    st.success(st.session_state.pop("unsubscribe_notice"))
+_run_due_alerts()
+
 page_root = st.empty()
 with page_root.container(key=f"page-{page}"):
     PAGE_RENDERERS.get(page, render_home_page)()
