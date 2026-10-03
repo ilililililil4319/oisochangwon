@@ -93,6 +93,11 @@ DIALECT_COUNT = _safe_count(
     lambda: {item["표현"].replace(" ", "") for item in _agent_items("dialects_core30.json") + _agent_items("dialects_ext.json")}
 )
 # 회원가입 없이 저장되는 방식 안내(홈·정착 일정 화면)
+POLICY_SAVE_HELP = (
+    "회원가입이 없어 다시 접속하면 내용이 사라질 수 있어요. "
+    "📅 캘린더(해당 가능·조건부 혜택 확인일 포함)나 📄 정착 리포트로 내 기기에 저장해 두세요. "
+    "✉️ 이메일 알림은 선택이고, 신청할 때만 개인정보 수집·이용과 수신 동의를 받아요."
+)
 SAVE_HELP = (
     "회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요. "
     "오래 보관하려면 ‘📅 캘린더에 저장’이나 ‘📄 정착 리포트 저장’으로 내 기기에 저장해 두는 게 가장 확실해요. "
@@ -281,8 +286,10 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-home-ask-row {background: #F7F9FC; border: 1px solid #D5DDE7; border-radius: 12px; padding: .8rem 1rem; gap: .35rem; margin-top: .4rem;}
 .st-key-home-ask-row [data-testid="stCaptionContainer"] p {font-size: .82rem;}
 /* 10/3 UI: 화면 맨 위 흰 띠(Streamlit 공유·별표·편집·GitHub·메뉴 버튼) 숨김 — 왼쪽 메뉴 열기(>>) 버튼만 남김 */
-[data-testid="stHeader"] {background: transparent !important; box-shadow: none !important; pointer-events: none;}
-[data-testid="stHeader"] [data-testid="stExpandSidebarButton"], [data-testid="stHeader"] [data-testid="stExpandSidebarButton"] * {pointer-events: auto;}
+[data-testid="stHeader"] {background: transparent !important; box-shadow: none !important;}
+/* 투명한 머리 띠가 ‘← 처음으로’ 버튼 클릭을 가로채지 않게 (10/4 이혜경: 처음으로가 안 눌림) */
+[data-testid="stHeader"], [data-testid="stHeader"] * {pointer-events: none !important;}
+[data-testid="stHeader"] [data-testid="stExpandSidebarButton"], [data-testid="stHeader"] [data-testid="stExpandSidebarButton"] * {pointer-events: auto !important;}
 [data-testid="stToolbarActions"], [data-testid="stAppDeployButton"], [data-testid="stMainMenu"], [data-testid="stDecoration"] {display: none !important;}
 [data-testid="stMainBlockContainer"] {padding-top: 1.2rem !important;}
 .st-key-home-hero-band {margin-top: -1.2rem !important; padding-top: 2.4rem !important;}
@@ -305,17 +312,22 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-home-hero-band .st-key-slogan h3 {font-size: 1.4rem !important; padding-bottom: .2rem;}
 .st-key-hero-intro {gap: .15rem; margin-bottom: 1.1rem;}
 .st-key-hero-intro p {font-size: 1.05rem !important; line-height: 1.8;}
-p.hero-lines {line-height: 1.8; margin: 0;}
+p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 .st-key-hero-cta-help p.cta-help {margin-top: .2rem;}
-.st-key-hero-progress, .st-key-hero-example {padding: .75rem 1.1rem !important; gap: .25rem !important;}
-.st-key-hero-progress p, .st-key-hero-example p {line-height: 1.5;}
-[class*="st-key-home-card-"] {padding: .85rem .95rem !important; min-height: 11.9rem !important;}
+/* 예시·현황 카드: 글자 겹침 없게 원래 간격으로 (10/4) */
+.st-key-hero-progress, .st-key-hero-example {padding: 1rem 1.3rem !important; gap: .6rem !important;}
+/* ‘이렇게 일해요’ 상자와 ‘이 서비스가 하는 일’ 카드: 같은 높이·여백·모서리 (10/4) */
+[class*="st-key-home-card-"] {padding: .9rem 1rem !important; min-height: 12.5rem !important; border-radius: 14px !important;}
+.flow-box {min-height: 12.5rem !important; padding: .9rem 1rem !important; border-radius: 14px !important; box-sizing: border-box;}
+.flow-box b {font-size: 1.02rem !important;}
+.flow-box span {font-size: .9rem !important;}
+@media (max-width: 640px) {.flow-box {min-height: 0 !important;}}
 @media (max-width: 640px) {[class*="st-key-home-card-"] {min-height: 0 !important;}}
 .sec-title.sec-gap {margin-top: 2.4rem;}
 
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {color: #4D5B6A;}
 .stApp [data-testid="stCaptionContainer"] p {line-height: 1.6;}
-.sec-title {font-size: 1.2rem; font-weight: 700; color: #063465; margin: 1.6rem 0 .35rem;}
+.stApp p.sec-title {font-size: 1.4rem !important; font-weight: 700; color: #063465; margin: 1.6rem 0 .5rem;}
 .st-key-hero-cta-help {margin-bottom: .45rem;}
 .st-key-hero-cta-help p {line-height: 1.7;}
 .st-key-agent-flow {margin-bottom: .8rem;}
@@ -683,6 +695,8 @@ def render_home_page():
                 # 안내 문구는 주황 버튼 아래 (10/3 이혜경)
                 with st.container(key="hero-cta-help"):
                     st.markdown(CTA_HELP_HTML, unsafe_allow_html=True)
+                    # 신뢰 안내는 시작 안내 바로 아래 한 줄로 (10/4 이혜경: 하단에 홀로 있던 문구)
+                    _caption("🔒 실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관")
             with preview_col:
                 if user_key:
                     _hero_progress_card()
@@ -699,7 +713,9 @@ def render_home_page():
         )
         with st.container(key="agent-flow"):
             st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
-        st.markdown('<p class="sec-title sec-gap">이 서비스가 하는 일</p>', unsafe_allow_html=True)
+        # 두 영역 사이 구분선 (10/4 이혜경)
+        st.divider()
+        st.markdown('<p class="sec-title">이 서비스가 하는 일</p>', unsafe_allow_html=True)
         columns = st.columns(4, gap="medium")
         for column, (target_page, title, text) in zip(columns, HOME_FEATURES):
             with column:
@@ -713,20 +729,15 @@ def render_home_page():
                         st.button("🔒 조건 입력 후 열려요", key=FEATURE_KEYS[target_page],
                                   disabled=True, width="stretch")
 
-        _caption(SAVE_HELP)
         # 설명과 버튼을 한 묶음으로, 잠금 안내는 버튼 아래 작은 글씨로 (10/3 실사용자 피드백)
         with st.container(key="home-ask-row"):
-            st.markdown("**궁금한 게 있나요?** 네 기능을 넘나들며 한 문장으로 물어보세요.")
+            st.markdown("**궁금한 게 있나요?** 오이소창원에게 한 문장으로 물어보세요.")
             # 누를 수 없는 버튼은 두지 않음(10/3 팀 자체 테스트 모바일 의견) — 조건 입력 전에는 잠금 안내만
             if user_key:
                 st.button(f"{ASK_LABEL} →", key="show-ask", on_click=_go, args=(PAGE_ASK,))
             else:
                 _caption("🔒 조건 입력 후 열려요")
 
-        st.divider()
-        _caption(
-            "실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관"
-        )
         with st.expander("이용 참고사항 자세히 보기"):
             st.markdown(APP_INTRO)
             st.markdown("\n".join(f"- {note}" for note in USAGE_NOTES))
@@ -1066,7 +1077,8 @@ def render_policy_page():
     if move_in_date is not None:
         st.markdown("**혜택 확인일·정착 일정 저장**")
         _save_buttons(datetime.now(ZoneInfo("Asia/Seoul")).date(), PAGE_POLICY)
-        _caption("해당 가능·조건부 혜택의 확인일이 캘린더에 들어가요. 이메일 알림은 선택이고, 신청할 때만 동의를 받아요.")
+        # 첫 화면에 있던 저장 안내를 여기로 옮겨 짧게 (10/4 이혜경)
+        _caption(POLICY_SAVE_HELP)
     with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
         st.link_button(
             "창원시 청년정책 전체 보기",

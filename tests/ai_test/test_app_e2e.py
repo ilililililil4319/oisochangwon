@@ -151,7 +151,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertNotIn("앱 이용 문의", home)  # 화면 아래 ‘앱 문의’ 한 곳에만
                 self.assertIn("정책 24건·정착 할 일 26개·생활 정보 60곳·지역말 2,253개·접수 창구 6곳", home)
                 self.assertIn("차량 소지 여부", home)
-                self.assertIn("회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요.", home)
+                # 10/4: 저장 안내는 첫 화면에서 빼고 혜택 화면 저장 버튼 아래로 옮김
+                self.assertNotIn("회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요.", home)
                 self.assertEqual(app.button(key="show-profile").label, "나의 조건 확인·수정")
                 self.assertIn("먼저 나의 조건을 확인하면 필요한 정보를 맞춤 안내해 드려요", _visible_text(app))
         assets = APP_FILE.parent / "assets"
