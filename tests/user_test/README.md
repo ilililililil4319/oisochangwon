@@ -6,7 +6,7 @@
 
 | 항목 | 결과 |
 | --- | --- |
-| 참여 | 3명(U01~U03) · 연령 19~24 / 30~34 / 35~39 · 하는 일 자영업·학생·기타 |
+| 참여 | 3명(U01–U03) · 연령 19–24 / 30–34 / 35–39 · 하는 일 자영업·학생·기타 |
 | 문항 평균 · 전체 만족도 | 4.84 / 5 · 4.67 / 5 |
 | 다시 사용·추천 | 3명 중 3명 ‘예’ |
 | 가장 유용 · 가장 개선 필요 | ① 맞춤 혜택(3명) · ② 생활 정보 둘러보기(3명) |
@@ -18,7 +18,7 @@
 
 | 구분 | 링크 |
 |---|---|
-| 응답자용 설문지 | https://docs.google.com/forms/d/e/1FAIpQLScBkBtZlu1CbUqULk4vNZqIqq88lBc6Vj3qyIcAF_mUxSS9Qg/viewform |
+| 오이소창원 설문지(실사용자 링크) | https://docs.google.com/forms/d/e/1FAIpQLScBkBtZlu1CbUqULk4vNZqIqq88lBc6Vj3qyIcAF_mUxSS9Qg/viewform |
 | 테스트 앱 | https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/ |
 
 설문지 편집 화면과 응답 스프레드시트 링크는 공개 저장소에 두지 않고 설문 담당자만 보관합니다.
