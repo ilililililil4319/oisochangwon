@@ -171,6 +171,15 @@ class LLMLoopTests(unittest.TestCase):
         self.assertFalse(any(str(layer).startswith("핵심 후보") or "능력고사" in str(layer) for layer in layers))
         self.assertFalse(any("제보" in item["출처"] for item in items))
 
+    def test_place_answer_has_official_link_next_to_each_place(self):
+        answer = agent.run_agent("이번 주말 버스로 갈 만한 야경 명소 추천해 줘", {"vehicle": "없음"}).answer
+        lines = answer.splitlines()
+        yongji = next(line for line in lines if "용지호수공원" in line)
+        self.assertIn("[공식 안내](https://", yongji)
+        jeodo = next(line for line in lines if "저도" in line)
+        self.assertNotIn("[공식 안내]", jeodo)  # 언론 기사 링크는 공식 안내로 쓰지 않음
+        self.assertTrue(agent.verify_answer(answer, [agent.search_activities("야경", by_transit=True)])[0])
+
     def test_api_error_falls_back_to_rules(self):
         class Broken:
             messages = SimpleNamespace(create=lambda **kw: (_ for _ in ()).throw(RuntimeError("401")))

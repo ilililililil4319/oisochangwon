@@ -43,6 +43,17 @@ def evaluate_p01(profile):
             "eligible_date": None,
         }
 
+    # 지원 대상은 '창원 소재 영리기업·소상공인 사업장에 근무하는 노동자'(창원시 인구정책 누리집) → 사업주(자영업)는 제외
+    if profile.get("job_type") == "자영업":
+        return {
+            "policy_id": "P01",
+            "policy_name": "기업노동자 전입지원금",
+            "status": "not_eligible",
+            "reason": "창원 소재 사업장에 근무하는 노동자가 대상이라 자영업(사업주)은 해당하지 않습니다.",
+            "missing_fields": [],
+            "eligible_date": None,
+        }
+
     # 창원 소재 기업에 재직 중인지
     if not employed_in_changwon:
         return {

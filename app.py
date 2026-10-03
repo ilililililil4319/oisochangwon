@@ -31,7 +31,7 @@ from activity_manager import (
 from naver_map_links import naver_map_web_url
 from policy_engine import evaluate_p01
 from policy_matcher import LEVELS, load_policies, match_policies
-from mission_manager import group_missions_by_month, load_missions
+from mission_manager import group_missions_by_month, load_missions, personalize_missions
 from policy_resource_manager import load_mission_resources
 from progress_manager import (
     calculate_mission_progress,
@@ -283,7 +283,7 @@ FEATURE_BUTTONS = (
     (PAGE_DIALECT, BUTTON_4, "show-dialect"),
 )
 DISTRICT_PLACEHOLDER = "지역을 선택해 주세요"
-# 창원에서 하는 일 — 직장인·자영업은 창원 기업노동자 전입지원금(소상공인 사업장 포함) 판단에 쓰인다.
+# 창원에서 하는 일 — 직장인만 기업노동자 전입지원금 대상(근무하는 노동자), 자영업은 재직 대상 사업마다 기관 확인.
 EMPLOYMENT_OPTIONS = ("직장인", "자영업", "학생", "기타")
 WORKING_OPTIONS = ("직장인", "자영업")
 VEHICLE_OPTIONS = ("없음", "있음")
@@ -681,7 +681,7 @@ def render_profile_page():
                 EMPLOYMENT_OPTIONS,
                 key="employment_status",
                 horizontal=True,
-                help="직장인·자영업 = 창원에 있는 회사·가게에서 일해요(기업노동자 전입지원금 등). "
+                help="직장인 = 창원에 있는 회사·가게에서 근무해요. 자영업 = 창원에서 직접 사업을 해요. "
                 "학생 = 대학·대학원 재학. 기타 = 구직 중·쉬는 중 등. 하는 일에 따라 받을 수 있는 혜택이 달라져요.",
             )
             st.radio(
@@ -702,7 +702,7 @@ home_district = (
 )
 neighborhood = st.session_state["neighborhood"] or ""
 
-all_missions = load_missions()
+all_missions = personalize_missions(load_missions(), st.session_state["employment_status"])
 mission_groups = group_missions_by_month(all_missions)
 current_month = current_settlement_month(move_in_date) if move_in_date else None
 completion_states = {
@@ -1006,9 +1006,12 @@ def render_journey_page():
                         on_click=_go,
                         args=(feature_page,),
                     )
-                if mission_id in MISSION_POLICY_IDS:
+                if mission.get("_variant"):
+                    resource = None  # 직장인 기준 공식 링크는 바뀐 할 일과 맞지 않으므로 숨김
+                policy_ids = mission.get("_policy_ids", MISSION_POLICY_IDS.get(mission_id))
+                if policy_ids is not None:
                     # 할 일은 '무엇을 할까'만 — 지원 내용·대상 여부는 지원 화면 카드로 연결
-                    related = [POLICY_NAMES[pid] for pid in MISSION_POLICY_IDS[mission_id] if pid in POLICY_NAMES]
+                    related = [POLICY_NAMES[pid] for pid in policy_ids if pid in POLICY_NAMES]
                     st.caption(
                         f"지원 내용·대상 여부는 ‘{BUTTON_1}’에서 확인해요"
                         + (f" ({', '.join(related)})" if related else "")
@@ -1263,7 +1266,7 @@ def _render_agent_item(item, key_prefix):
     with st.chat_message("user"):
         st.text(item["question"])
     with st.chat_message("assistant"):
-        st.text(item["answer"])
+        st.markdown(_answer_markdown(item["answer"]))
         badge = MODE_LABELS[item["mode"]]
         if item["mode"] == "llm":
             badge += f" · {item['model']}"
@@ -1272,11 +1275,29 @@ def _render_agent_item(item, key_prefix):
         error_step = next((step for step in item["steps"] if step["단계"] == "AI 연결 오류"), None)
         if error_step:
             st.caption(f"AI가 답하지 못한 이유: {error_step['내용']} — ‘Agent 실행 기록 보기’의 ‘오류 상세’ 줄을 확인해 주세요.")
-        for link_index, (label, url) in enumerate(item.get("links", [])):
+        inline_urls = {url for _, url in MD_LINK_RE.findall(item["answer"])}
+        for link_index, (label, url) in enumerate(l for l in item.get("links", []) if l[1] not in inline_urls):
             st.link_button(label, url, key=f"{key_prefix}-link-{link_index}")
         with st.expander("Agent 실행 기록 보기"):
             for number, step in enumerate(item["steps"], start=1):
                 st.text(f"{number}. [{step['단계']}] {step['내용']}")
+
+
+MD_LINK_RE = re.compile(r"\[([^\]\n]+)\]\((https://[^)\s]+)\)")
+MD_SPECIAL_RE = re.compile(r"([\\`*_{}\[\]()<>#+!|~])")
+
+
+def _answer_markdown(text):
+    """AI·규칙 답을 그대로 보여 주되, 검증된 https 링크([공식 안내](주소))만 클릭되는 링크로 바꾼다.
+    나머지 글자는 서식으로 바뀌지 않게(예: 4~10월의 ~) 이스케이프한다."""
+    parts, last = [], 0
+    for match in MD_LINK_RE.finditer(text or ""):
+        parts.append(MD_SPECIAL_RE.sub(r"\\\1", text[last:match.start()]))
+        label = MD_SPECIAL_RE.sub(r"\\\1", match.group(1))
+        parts.append("[" + label + "](" + match.group(2) + ")")
+        last = match.end()
+    parts.append(MD_SPECIAL_RE.sub(r"\\\1", (text or "")[last:]))
+    return "".join(parts).replace("\n", "  \n")
 
 
 def _scroll_into_view(key):

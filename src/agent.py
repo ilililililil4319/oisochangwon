@@ -48,7 +48,8 @@ SYSTEM_PROMPT = """너는 '오이소창원'의 정착 코디네이터 Agent야. 
 9. 쉬운 한국어로 5~8문장 이내, 필요하면 짧은 목록. 어려운 용어는 풀어 쓴다(예: 전입일 = 새 주소로 전입신고를 한 날).
 10. 사용자 정보가 필요하면 get_my_situation을 먼저 호출한다.
 11. 사용자가 차량이 '없음'이거나 버스·대중교통으로 갈 곳을 물으면 search_activities에 by_transit=true를 주고, 대중교통 기준으로 안내하며 교통 혜택(K-패스)을 함께 알려 준다.
-12. '이동 권장'이 '차량 권장'인 곳(car_recommended, 귀산동·저도 등 외곽)은 버스 추천 목록에 넣지 말고 "차로 가면 좋은 곳"으로 따로 짧게 안내한다."""
+12. '이동 권장'이 '차량 권장'인 곳(car_recommended, 귀산동·저도 등 외곽)은 버스 추천 목록에 넣지 말고 "차로 가면 좋은 곳"으로 따로 짧게 안내한다.
+13. 장소를 안내할 때는 장소마다 한 줄로 쓰고, 장소 이름 바로 뒤에 도구 결과의 '링크' 값을 [공식 안내](링크) 형식으로 붙인다. 링크 값이 비어 있으면 붙이지 않고, 도구 결과에 없는 주소는 절대 쓰지 않는다."""
 
 TOOLS = [
     {
@@ -155,6 +156,12 @@ def search_policies(keyword=""):
     }
 
 
+def _official_place_url(activity):
+    """장소 링크는 생활 정보 화면과 같은 기준(공공기관·운영주체 공식 주소만)으로 고른다. 언론·블로그·디렉터리는 제외."""
+    from activity_manager import classify_activity_url
+    return classify_activity_url(activity.get("공식 URL"))["url"]
+
+
 def search_activities(keyword="", district="", indoor_only=False, by_transit=False):
     activities = _items("activities_mvp.json")
     results = []
@@ -174,7 +181,7 @@ def search_activities(keyword="", district="", indoor_only=False, by_transit=Fal
         "count": len(picked),
         "note": "특정 업체 홍보 아님. 방문 전 운영시간을 확인하세요.",
         "car_recommended": [
-            {"이름": a["이름"], "구": a.get("생활권(구)"), "이동 권장": "차량 권장", "이유": a.get("이동 메모")}
+            {"이름": a["이름"], "구": a.get("생활권(구)"), "이동 권장": "차량 권장", "이유": a.get("이동 메모"), "링크": _official_place_url(a)}
             for a in car_only[:3]
         ],
         "activities": [
@@ -186,7 +193,7 @@ def search_activities(keyword="", district="", indoor_only=False, by_transit=Fal
                 "실내·실외": a.get("실내·실외"),
                 "일정·운영시간": a.get("일정·운영시간"),
                 "이동 권장": a.get("이동 권장") or "",
-                "링크": _clean_url(a.get("공식 URL")),
+                "링크": _official_place_url(a),
                 "최종 확인일": a.get("최종 확인일"),
             }
             for a in picked
@@ -270,7 +277,7 @@ def find_complaint_channel(level):
 
 
 def get_my_situation(profile):
-    from mission_manager import group_missions_by_month, load_missions
+    from mission_manager import group_missions_by_month, load_missions, personalize_missions
     from policy_engine import evaluate_p01
     from progress_manager import current_settlement_month
 
@@ -294,7 +301,7 @@ def get_my_situation(profile):
     }
     if isinstance(move_in_date, date):
         month = current_settlement_month(move_in_date)
-        group = next(g for g in group_missions_by_month(load_missions()) if g["month"] == month)
+        group = next(g for g in group_missions_by_month(personalize_missions(load_missions(), profile.get("job_type"))) if g["month"] == month)
         situation["정착 단계"] = f"{month}개월 차 · {group['theme']}"
         situation["이번 단계 할 일"] = [m["미션"] for m in group["missions"]]
         situation["180일 범위"] = f"{move_in_date.isoformat()} ~ {(move_in_date + relativedelta(days=179)).isoformat()}"
@@ -344,7 +351,7 @@ def collect_links(tool_outputs, limit=5):
             continue
         for policy in output.get("policies", []):
             add(f"{policy['사업명']} 안내·신청", policy.get("링크"))
-        for activity in output.get("activities", []):
+        for activity in output.get("activities", []) + output.get("car_recommended", []):
             add(f"{activity['이름']} 공식 안내", activity.get("링크"))
         for contact in output.get("연락처", []):
             url = _clean_url(contact)
@@ -355,6 +362,11 @@ def collect_links(tool_outputs, limit=5):
         if "기업노동자 전입지원금 판정" in output:
             add("창원청년정보플랫폼 청년지원 서비스", YOUTH_PLATFORM_URL)
     return links
+
+
+def _link_md(url):
+    """장소 이름 바로 옆에 붙이는 공식 안내 링크(검증 DB의 https 주소만)."""
+    return f" · [공식 안내]({url})" if url and str(url).startswith("https://") else ""
 
 
 def _step(steps, kind, detail):
@@ -409,10 +421,10 @@ def _format_rule_answer(tool_name, output, question):
     if tool_name == "search_activities":
         if not output["activities"]:
             return f"조건에 맞는 장소를 확인된 정보에서 찾지 못했어요. ‘창원 둘러보기’ 화면에서 지역·분야를 바꿔 보세요."
-        lines = [f"- {a['이름']} ({a['구']}, {a['분야']})" for a in output["activities"]]
+        lines = [f"- {a['이름']} ({a['구']}, {a['분야']})" + _link_md(a.get("링크")) for a in output["activities"]]
         text = "확인된 장소 중 이런 곳이 있어요.\n" + "\n".join(lines)
         if output.get("car_recommended"):
-            car = "\n".join(f"- {a['이름']}" for a in output["car_recommended"])
+            car = "\n".join(f"- {a['이름']}" + _link_md(a.get("링크")) for a in output["car_recommended"])
             text += f"\n\n차로 가면 좋은 곳(외곽이라 버스로는 어려워요)\n{car}"
         return text + "\n\n특정 업체 홍보가 아니며, 방문 전 운영시간을 확인해 주세요."
     if tool_name == "search_policies":

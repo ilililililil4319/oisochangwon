@@ -283,6 +283,30 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.button(key="to-feature-M1-5").click().run()
                 self.assertEqual(app.session_state["page"], "dialect")
 
+    def test_missions_follow_job_type(self):
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                _visit(app, "journey")
+                worker_text = _visible_text(app)
+                self.assertIn("일·생활과 연결하기", worker_text)
+                self.assertIn("(재직자) 우리 회사가 근로자 휴가지원사업에 참여하는지 확인하기", [c.label for c in app.checkbox])
+                for job, theme, mission in (
+                    ("학생", "학업·생활과 연결하기", "전입 대학(원)생 생활안정지원(월 6만원) 신청 조건 확인하기"),
+                    ("기타", "취업 준비·생활과 연결하기", "청년 면접수당·자격증 시험 응시료 지원 신청하기"),
+                    ("자영업", "일·생활과 연결하기", "청년 스포츠 패스 다음 모집 공고에서 자영업 참여 가능 여부 확인하기"),
+                ):
+                    with self.subTest(job=job):
+                        _visit(app, "profile")
+                        app.radio(key="employment_status").set_value(job).run()
+                        _visit(app, "journey")
+                        self.assertFalse(app.exception)
+                        labels = [c.label for c in app.checkbox]
+                        self.assertIn(mission, labels)
+                        self.assertFalse(any(label.startswith("(재직자)") or label.startswith("(중소기업 재직자)") for label in labels))
+                        self.assertFalse(any(label.startswith("기업노동자 전입 지원금 신청하기") for label in labels))
+                        self.assertIn(theme, _visible_text(app))
+
     def test_vehicle_choice_changes_policy_order_explore_and_sidebar(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):

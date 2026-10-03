@@ -96,3 +96,43 @@ def group_missions_by_month(missions):
         group["missions"].append(mission)
 
     return [groups[month] for month in sorted(groups)]
+
+
+# 하는 일별 할 일 문구 — 직장인 기준 할 일(재직자·중소기업 재직자·기업노동자 전입지원금)을
+# 학생·기타(구직)·자영업에 맞게 바꿔 보여 준다. 미션 ID(저장 키)는 그대로 두고, 팀 데이터에 있는 지원만 안내한다.
+JOB_THEMES = {4: {"학생": "학업·생활과 연결하기", "기타": "취업 준비·생활과 연결하기"}}
+_P01_OTHERS = (
+    "내 조건으로 받을 수 있는 혜택 다시 확인하기 (기업노동자 전입지원금은 창원 사업장에 근무하는 직장인 대상)",
+    "혜택 목록 다시 열람",
+    (),
+)
+JOB_MISSIONS = {
+    "M4-1": {
+        "학생": ("전입 대학(원)생 생활안정지원(월 6만원) 신청 조건 확인하기", "조건 확인 + 신청 여부 기록", ("P32",)),
+        "기타": ("국민취업지원제도(구직촉진수당·취업지원) 조건 확인하기", "조건 확인 기록", ("P29",)),
+        "자영업": ("‘창원시 청년정책 전체 보기’에서 자영업 청년이 받을 수 있는 지원 찾아보기", "찾은 지원 1개 이상 메모", ()),
+    },
+    "M4-3": {
+        "학생": ("졸업 후 취업 준비 대비 — 청년 면접수당·자격증 시험 응시료 지원 조건 미리 보기", "조건 확인 기록", ("P07", "P08")),
+        "기타": ("청년 면접수당·자격증 시험 응시료 지원 신청하기", "신청 완료 체크", ("P07", "P08")),
+        "자영업": ("청년 스포츠 패스 다음 모집 공고에서 자영업 참여 가능 여부 확인하기", "확인 결과 기록", ("P09",)),
+    },
+    "M6-1": {"학생": _P01_OTHERS, "기타": _P01_OTHERS, "자영업": _P01_OTHERS},
+}
+
+
+def personalize_missions(missions, job_type):
+    if job_type not in ("학생", "기타", "자영업"):
+        return missions
+    personalized = []
+    for mission in missions:
+        mission = dict(mission)
+        theme = JOB_THEMES.get(mission["개월"], {}).get(job_type)
+        if theme:
+            mission["월별 테마"] = theme
+        variant = JOB_MISSIONS.get(mission["ID"], {}).get(job_type)
+        if variant:
+            mission["미션"], mission["완료 기준"], mission["_policy_ids"] = variant
+            mission["_variant"] = True
+        personalized.append(mission)
+    return personalized

@@ -46,9 +46,10 @@ class PolicyMatcherTests(unittest.TestCase):
         owner = by_id(match_policies(dict(PERSONA, job_type="자영업", employed_in_changwon=True), TODAY))
         student = by_id(match_policies(dict(PERSONA, job_type="학생", employed_in_changwon=False), TODAY))
         other = by_id(match_policies(dict(PERSONA, job_type="기타", employed_in_changwon=False), TODAY))
-        # 기업노동자 전입지원금: 직장인·자영업(소상공인 사업장 포함)은 판정 대상, 학생·기타는 해당 없음
+        # 기업노동자 전입지원금: '근무하는 노동자' 대상(창원시 공고) → 직장인만 판정 대상, 자영업(사업주)·학생·기타는 해당 없음
         self.assertEqual(worker["P01"]["level"], "조건부 해당 가능")
-        self.assertEqual(owner["P01"]["level"], "조건부 해당 가능")
+        self.assertEqual(owner["P01"]["level"], "해당 없음")
+        self.assertIn("자영업", " ".join(owner["P01"]["reasons"]))
         self.assertEqual(student["P01"]["level"], "해당 없음")
         self.assertEqual(other["P01"]["level"], "해당 없음")
         # '재직' 대상 사업에서 자영업은 기관 확인, 미취업 대상 사업에서 학생은 재학생 여부 확인
