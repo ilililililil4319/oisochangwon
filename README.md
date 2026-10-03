@@ -53,7 +53,7 @@ oiso_changwon/
 │   ├─ ai_test/ (AI 자동 테스트)          unittest 코드
 │   ├─ team_self_test/ (팀 자체 테스트)   대표 Test Case · 최종 체크리스트
 │   └─ user_test/ (실사용자 테스트)       설문 Apps Script · 평가지 · 설문 링크
-├─ docs/ (문서)                   planning(기획안 10/3) · work_process(작업 과정 설명)
+├─ docs/ (문서)                   planning(기획안 10/3) · work_process(작업 과정 설명) · ux_ui(UX/UI 개선 작업 프롬프트)
 ├─ screenshots/ (화면 캡처)       기능 구현 과정 · 이후로 구분
 │   ├─ during_development/ (기능 구현 과정 테스트)
 │   │   ├─ ai_test/ (AI 자동 테스트 캡처)       20261002 · 26장
@@ -83,6 +83,7 @@ Streamlit은 화면과 처리 로직을 같은 파이썬으로 만들기 때문�
 | `tests/user_test/` | 실사용자 테스트 — 설문 링크, 설문 Apps Script, 종이 평가지 |
 | `docs/planning/` | 기획안 초안(10/1 PDF) · 기획안 10/3 갱신본(md·pdf·docx) · 그림 |
 | `docs/work_process/` | 작업 과정 캡처 설명 |
+| `docs/ux_ui/` | UX/UI 개선 작업 프롬프트(10/3, ‘전체 UI가 아쉽다’는 의견을 받아 GPT로 작성) — 전체 테스트 결과가 모이면 이 기준으로 개선 |
 | `screenshots/during_development/` | 기능 구현 과정 테스트 캡처 — `ai_test/20261002/` AI 자동 실행 26장(대표 Test Case 6건 PC·모바일), `work_process/20261002/` 작업 과정 31장(수정 전·후, 에러와 조치, 배포·공유) |
 | `screenshots/after_development/` | 기능 구현 이후 테스트 캡처 — `team_self_test/20261003/` 팀 자체 테스트 32장(전체 기능, 진해 링크 수정 전·후, 배포 확인), `user_test/` 실사용자 테스트(테스트 후 날짜 폴더로 추가) |
 | `deliverables/` | 개발완료보고서(10/3 초안 md·pdf·docx) · AI Agent 기술설명서 · 발표자료 · 시연영상(스크립트) · 출처·AI 활용 신고서(10/3 초안, `submission/`) |
