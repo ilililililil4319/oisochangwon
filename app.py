@@ -305,6 +305,10 @@ h1, h2, h3 {color: #063465 !important;}
     [class*="st-key-milestone-"] p {margin-bottom: 0;}
     [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {min-height: 2.6rem;}
 }
+/* 10/4: 신뢰 안내와 위 안내 상자 사이 간격, 생활 정보 필터 선택칸을 흰색+테두리로 구분 */
+.st-key-hero-trust {margin-top: .55rem;}
+.st-key-explore-filters [data-testid="stSelectbox"] > div > div {background: #FFFFFF !important; border: 1px solid #9FB0C6 !important; border-radius: .6rem;}
+.st-key-explore-filters [data-testid="stSelectbox"] > div > div:hover {border-color: #063465 !important;}
 /* 10/3 UX/UI 다듬기(기능 변경 없음): 글자 대비·섹션 제목·간격 통일 */
 /* 10/3 첫 화면 다듬기(이혜경 요청): 파란 영역 15% 줄이기·소개 3줄 간격·버튼과 구분·현황 카드·기능 카드 여백 */
 .st-key-home-hero-band {padding-top: 1.6rem !important; padding-bottom: 1.1rem !important;}
@@ -317,8 +321,8 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 /* 예시·현황 카드: 글자 겹침 없게 원래 간격으로 (10/4) */
 .st-key-hero-progress, .st-key-hero-example {padding: 1rem 1.3rem !important; gap: .6rem !important;}
 /* ‘이렇게 일해요’ 상자와 ‘이 서비스가 하는 일’ 카드: 같은 높이·여백·모서리 (10/4) */
-[class*="st-key-home-card-"] {padding: .9rem 1rem !important; min-height: 12.5rem !important; border-radius: 14px !important;}
-.flow-box {min-height: 12.5rem !important; padding: .9rem 1rem !important; border-radius: 14px !important; box-sizing: border-box;}
+[class*="st-key-home-card-"] {padding: .9rem 1rem !important; min-height: 11rem !important; border-radius: 14px !important;}
+.flow-box {min-height: 9.5rem !important; padding: .9rem 1rem !important; border-radius: 14px !important; box-sizing: border-box;}
 .flow-box b {font-size: 1.02rem !important;}
 .flow-box span {font-size: .9rem !important;}
 @media (max-width: 640px) {.flow-box {min-height: 0 !important;}}
@@ -696,7 +700,8 @@ def render_home_page():
                 with st.container(key="hero-cta-help"):
                     st.markdown(CTA_HELP_HTML, unsafe_allow_html=True)
                     # 신뢰 안내는 시작 안내 바로 아래 한 줄로 (10/4 이혜경: 하단에 홀로 있던 문구)
-                    _caption("🔒 실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관")
+                    with st.container(key="hero-trust"):
+                        _caption("🔒 실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관")
             with preview_col:
                 if user_key:
                     _hero_progress_card()
