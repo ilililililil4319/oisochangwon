@@ -99,7 +99,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertFalse(app.exception)
                 self.assertEqual(app.session_state["page"], "home")
                 home_text = _visible_text(app)
-                for section in ("이 서비스가 하는 일", "코디는 이렇게 일해요", "나의 조건 입력하고 시작하기", "예시 화면이에요", "이용 참고사항", "문의", "개인정보는 받지 않아요"):
+                for section in ("이 서비스가 하는 일", "오이소창원은 이렇게 일해요", "나의 조건 입력하고 시작하기", "예시 화면이에요", "이용 참고사항", "문의", "개인정보는 받지 않아요"):
                     self.assertIn(section, home_text)
                 feature_keys = [b.key for b in app.main.button if b.key in ("show-policy", "show-journey", "show-complaint", "show-dialect")]
                 self.assertEqual(len(feature_keys), 4)
@@ -122,7 +122,17 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
                 self.assertFalse(any("🌱" in t.value for t in app.title))
-                self.assertIn("창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.", [m.value for m in app.markdown])
+                hero = [m.value for m in app.markdown]
+                self.assertIn("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.", hero)
+                self.assertIn("오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?", hero)
+                self.assertLess(hero.index("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다."),
+                                hero.index("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **오이소창원**이 함께 챙겨드려요."))
+                home = _visible_text(app)
+                self.assertNotIn("문의 whwnstn9294", home)
+                self.assertNotIn("앱 이용 문의", home)  # 화면 아래 ‘앱 문의’ 한 곳에만
+                self.assertIn("정책 24건·정착 할 일 26개·생활 정보 60곳·지역말 2,253개·접수 창구 6곳", home)
+                self.assertIn("차량 소지 여부", home)
+                self.assertIn("회원가입 없이 닉네임으로 저장해요", home)
                 self.assertEqual(app.button(key="show-profile").label, "조건 확인·수정")
         assets = APP_FILE.parent / "assets"
         for name in ("logo_wide.png", "logo_icon.png"):

@@ -78,6 +78,26 @@ LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
 LOGO_WIDTH = 560  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
 SLOGAN = "창원에서 너의 내일을 응원해!"
 POLICY_COUNT = len(load_policies())
+def _safe_count(loader):
+    # 데이터 파일을 읽지 못해도 홈 화면은 떠야 하므로, 실패하면 숫자만 빼고 안내한다.
+    try:
+        return len(loader())
+    except Exception:
+        return None
+
+
+MISSION_COUNT = _safe_count(load_missions)
+ACTIVITY_COUNT = _safe_count(load_activities)
+CHANNEL_COUNT = _safe_count(load_complaint_channels)
+DIALECT_COUNT = _safe_count(
+    lambda: {item["표현"].replace(" ", "") for item in _agent_items("dialects_core30.json") + _agent_items("dialects_ext.json")}
+)
+# 회원가입 없이 저장되는 방식 안내(홈·정착 일정 화면)
+SAVE_HELP = (
+    "회원가입 없이 닉네임으로 저장해요. 다음에 같은 닉네임을 입력하면 저장한 체크·기록을 다시 불러와요"
+    "(나이·전입일 등 조건은 다시 입력). 시연용 서버라 재시작되면 기록이 지워질 수 있으니, "
+    "오래 보관하려면 ‘캘린더에 넣기’와 ‘정착 리포트 저장’으로 내 기기에 저장해 두세요."
+)
 CONTACT_EMAIL = "whwnstn9294@gmail.com"
 CONTACT_TEXT = f"앱 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})"
 DEFAULT_NICKNAME = "코디2026"
@@ -143,7 +163,17 @@ READABILITY_CSS = """
     .st-key-profile-next-main > [data-testid="stElementContainer"], .st-key-profile-next-main .stButton, .st-key-profile-next-main button {width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important;}
     .st-key-profile-next-more {gap: .2rem 1rem !important;}
 }
-[class*="st-key-flow-step-"] {background: #F3F8F5; border-radius: 12px; padding: .7rem .9rem; height: 100%; border: 1px solid #D6E9DE;}
+.flow-row {display: flex; align-items: stretch; gap: .35rem; margin: .2rem 0 .3rem;}
+.flow-box {flex: 1 1 0; min-width: 0; min-height: 6.2rem; display: flex; flex-direction: column; gap: .3rem;
+    background: #F3F8F5; border: 1px solid #D6E9DE; border-radius: 12px; padding: .75rem .9rem; color: #063465;}
+.flow-box b {font-size: .98rem;}
+.flow-box span {font-size: .85rem; color: #4D5B6A; line-height: 1.45;}
+.flow-arrow {flex: 0 0 auto; align-self: center; color: #FE6A01; font-weight: 700; font-size: 1.3rem;}
+@media (max-width: 640px) {
+    .flow-row {flex-direction: column; gap: .15rem;}
+    .flow-box {flex: 0 0 auto; min-height: 0;}
+    .flow-arrow {transform: rotate(90deg); line-height: 1;}
+}
 .st-key-home-body {padding-top: 1.2rem;}
 @media (max-width: 640px) {
     .st-key-home-hero-band {margin-left: -1rem !important; width: calc(100% + 2rem) !important; padding: 1rem 1rem 1.2rem;}
@@ -390,9 +420,20 @@ saved_mission_timestamps = load_mission_timestamps(user_key) if user_key else {}
 
 # --- 처음 화면: STEP 1 조건 입력 카드 + STEP 2 기능 버튼 5개 -------------------
 CONDITION_LABEL = "나의 조건 입력"
+DATA_COUNTS = [
+    (label, count, unit)
+    for label, count, unit in (
+        ("정책", POLICY_COUNT, "건"), ("정착 할 일", MISSION_COUNT, "개"), ("생활 정보", ACTIVITY_COUNT, "곳"),
+        ("지역말", DIALECT_COUNT, "개"), ("접수 창구", CHANNEL_COUNT, "곳"),
+    )
+    if count
+]
 APP_INTRO = (
     "창원에 막 이사 온 청년이 처음 6개월 동안 놓치기 쉬운 혜택과 할 일을 한곳에서 챙길 수 있게 돕는 서비스예요. "
-    f"팀이 공식 자료로 확인한 정책 {POLICY_COUNT}건·생활 정보 60곳·지역말 30개·접수 창구를 바탕으로, AI 코디가 내 조건에 맞춰 안내해요."
+    "팀이 공식 자료로 확인한 "
+    + "·".join(f"{label} {count:,}{unit}" for label, count, unit in DATA_COUNTS)
+    + ("를" if DATA_COUNTS and DATA_COUNTS[-1][2] == "개" else "을")
+    + " 바탕으로, AI 코디가 내 조건에 맞춰 안내해요."
 )
 HOW_TO_STEPS = (
     (CONDITION_LABEL, "나이·전입일 같은 조건만 적어요"),
@@ -407,6 +448,8 @@ FEATURE_SUMMARIES = {
 }
 USAGE_NOTES = (
     "실명·연락처 등 개인정보는 받지 않아요. 닉네임과 나이·전입일 같은 조건만 써요.",
+    "이메일 일정 알림은 선택 기능이에요. 직접 신청하지 않으면 이메일을 받지 않고, 신청하면 개인정보 수집·이용 동의와 "
+    "이메일 수신 동의를 받은 뒤에 일정 알림을 보내요. 해지하면 이메일은 바로 삭제돼요.",
     "안내는 팀이 공식 자료로 확인한 정보(확인일 표시) 기준이에요. 지원 대상 여부의 최종 판단은 담당 기관에서 해요.",
     "장소·행사는 방문 전 운영시간을 꼭 확인해 주세요. 특정 업체 홍보가 아니에요.",
     "AI 답변은 검증 자료 안에서만 만들지만 틀릴 수 있어요. 중요한 내용은 링크로 원문을 확인해 주세요.",
@@ -478,11 +521,11 @@ HOME_FEATURES = (
 )
 FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
 AGENT_FLOW = (
-    ("내 조건", "나이·전입일·하는 일·차량"),
+    ("내 조건", "나이·전입일·하는 일·차량 소지 여부"),
     ("조건 비교 · AI 판단", f"정책 {POLICY_COUNT}건 규칙 비교, 질문은 AI 코디가 이해"),
     ("검증 자료 확인", "팀이 확인한 공식 자료만 사용"),
     ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구"),
-    ("다음 할 일 저장", "체크하면 닉네임 기준으로 기록"),
+    ("다음 할 일 저장", "닉네임으로 체크 기록 · 캘린더·리포트로 보관"),
 )
 # 예시 카드: 창원·경남에서만 주는 혜택을 먼저, 그다음 청년이 많이 찾는 지원 (모두 data/policies_mvp.json에 있는 사업)
 EXAMPLE_CHECKS = (
@@ -536,8 +579,9 @@ def render_home_page():
                 st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
                 with st.container(key="slogan"):
                     st.subheader(SLOGAN, anchor=False)
-                st.markdown("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **AI 정착 코디**가 함께 챙겨드려요.")
-                st.markdown("창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.")
+                st.markdown("**오이소창원**은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.")
+                st.markdown("창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 **오이소창원**이 함께 챙겨드려요.")
+                st.markdown("오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?")
                 with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
                     st.button(
                         f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else "조건 확인·수정",
@@ -569,28 +613,27 @@ def render_home_page():
                         st.button("🔒 조건 입력 후 열려요", key=FEATURE_KEYS[target_page],
                                   disabled=True, width="stretch")
 
-        st.markdown("**코디는 이렇게 일해요**")
-        flow_columns = st.columns(len(AGENT_FLOW), gap="small")
-        for number, (column, (title, text)) in enumerate(zip(flow_columns, AGENT_FLOW), start=1):
-            with column:
-                with st.container(key=f"flow-step-{number}"):
-                    st.markdown(f"**{number}. {title}**")
-                    st.caption(text)
+        st.markdown("**오이소창원은 이렇게 일해요**")
+        # 5단계 흐름: 같은 크기 상자 + 화살표(PC는 가로 →, 모바일은 세로 ↓)
+        flow_html = '<span class="flow-arrow" aria-hidden="true">→</span>'.join(
+            f'<div class="flow-box"><b>{number}. {html.escape(title)}</b><span>{html.escape(text)}</span></div>'
+            for number, (title, text) in enumerate(AGENT_FLOW, start=1)
+        )
+        with st.container(key="agent-flow"):
+            st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
+        st.caption(SAVE_HELP)
         with st.container(key="home-ask-row", horizontal=True, vertical_alignment="center"):
             st.caption("궁금한 건 네 기능을 넘나들며 한 문장으로 물어보세요.")
             st.button(f"{ASK_LABEL} →", key="show-ask", disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
 
         st.divider()
         st.caption(
-            f"실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관 · 문의 {CONTACT_EMAIL}"
+            "실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관"
         )
         with st.expander("이용 참고사항 자세히 보기"):
             st.markdown(APP_INTRO)
             st.markdown("\n".join(f"- {note}" for note in USAGE_NOTES))
-            st.markdown(
-                f"- 앱 이용 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})\n"
-                "- 창원시 행정·민원 문의: 창원시 콜센터 1899-1111"
-            )
+            st.markdown("- 창원시 행정·민원 문의: 창원시 콜센터 1899-1111")
 
 
 # --- 나의 조건 입력 --------------------------------------------------------------
@@ -1107,6 +1150,7 @@ def render_journey_page():
 
     st.subheader("이번에 할 일 · 1~6개월 정착 여정")
     st.caption("모든 단계는 제목을 눌러 언제든 열어볼 수 있어요. 체크와 내 기록은 ‘이 단계 저장하기’를 눌러 저장해 주세요.")
+    st.caption(SAVE_HELP)
 
     for mission_group in mission_groups:
         group_title = (
