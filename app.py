@@ -1096,11 +1096,16 @@ def _email_alert_box(events, today):
                             config, result["email"], result["alerts"], result["token"], build_ics(events), APP_URL
                         ),
                     )
-                except Exception:
+                except Exception as error:
                     # 보내지 못한 이메일은 남기지 않는다
                     email_alerts.unsubscribe(token=result["token"])
+                    reason = (
+                        " (보내는 메일 계정 로그인 실패 — 관리자: Secrets의 앱 비밀번호 확인)"
+                        if type(error).__name__ == "SMTPAuthenticationError" else ""
+                    )
                     st.session_state["alert_message"] = (
-                        "error", "메일을 보내지 못해 신청을 취소했어요(이메일도 저장하지 않았어요). 잠시 뒤 다시 시도해 주세요."
+                        "error",
+                        "메일을 보내지 못해 신청을 취소했어요(이메일도 저장하지 않았어요). 잠시 뒤 다시 시도해 주세요." + reason,
                     )
                 else:
                     st.session_state["alert_message"] = (

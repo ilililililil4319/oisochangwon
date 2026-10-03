@@ -2,7 +2,7 @@
 
 - 수집 항목: 이메일 주소, 알림 일정(날짜·제목). 실명·전화번호·닉네임은 받지 않는다.
 - 보유 기간: 마지막 알림 발송 후 즉시 또는 수신 해지 시 즉시 삭제.
-- 발송: Streamlit Secrets의 SMTP 설정(SMTP_HOST·SMTP_PORT·SMTP_USER·SMTP_PASSWORD·SMTP_FROM)이 있을 때만.
+- 발송: Streamlit Secrets에 SMTP_USER·SMTP_PASSWORD(앱 비밀번호)가 있을 때만. 서버는 기본 Gmail.
   설정이 없으면 이메일을 아예 받지 않는다(저장해 놓고 못 보내는 일이 없도록).
 - 앱에 상시 스케줄러가 없으므로, 신청 즉시 전체 일정(.ics, 하루 전 알림 포함)을 메일로 보내고,
   날짜가 다가온 알림은 앱이 실행될 때 확인해 보낸다.
@@ -39,11 +39,23 @@ class AlertError(ValueError):
     pass
 
 
+SMTP_DEFAULTS = {"SMTP_HOST": "smtp.gmail.com", "SMTP_PORT": "587"}
+
+
 def smtp_config(get_setting):
-    """get_setting(name) → 값 또는 None. 다섯 값이 모두 있어야 발송 가능."""
+    """get_setting(name) → 값 또는 None.
+
+    꼭 필요한 값은 SMTP_USER(보내는 메일 주소)와 SMTP_PASSWORD(앱 비밀번호) 두 개뿐이다.
+    SMTP_HOST·SMTP_PORT를 비우면 Gmail(smtp.gmail.com:587), SMTP_FROM을 비우면 SMTP_USER로 보낸다.
+    """
     values = {key: (get_setting(key) or "").strip() for key in SMTP_KEYS}
-    if not all(values.values()):
+    if not values["SMTP_USER"] or not values["SMTP_PASSWORD"]:
         return None
+    for key, default in SMTP_DEFAULTS.items():
+        values[key] = values[key] or default
+    values["SMTP_FROM"] = values["SMTP_FROM"] or values["SMTP_USER"]
+    # Gmail 앱 비밀번호는 4글자씩 띄어 보여 주므로 공백을 지운다
+    values["SMTP_PASSWORD"] = values["SMTP_PASSWORD"].replace(" ", "")
     try:
         values["SMTP_PORT"] = int(values["SMTP_PORT"])
     except ValueError:

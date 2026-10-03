@@ -78,10 +78,17 @@ class EmailAlertTests(unittest.TestCase):
         self.assertEqual(len(FakeSMTP.sent), 2)
         self.assertEqual(email_alerts.count_subscriptions(self.db), 0)
 
-    def test_smtp_config_requires_all_values(self):
-        values = {"SMTP_HOST": "smtp.gmail.com", "SMTP_PORT": "587", "SMTP_USER": "u", "SMTP_PASSWORD": "p", "SMTP_FROM": "f"}
-        self.assertEqual(smtp_config(values.get)["SMTP_PORT"], 587)
+    def test_smtp_config_needs_user_and_password_and_defaults_to_gmail(self):
+        values = {"SMTP_USER": "team@gmail.com", "SMTP_PASSWORD": "abcd efgh ijkl mnop"}
+        config = smtp_config(values.get)
+        self.assertEqual(config["SMTP_HOST"], "smtp.gmail.com")
+        self.assertEqual(config["SMTP_PORT"], 587)
+        self.assertEqual(config["SMTP_FROM"], "team@gmail.com")
+        self.assertEqual(config["SMTP_PASSWORD"], "abcdefghijklmnop")
+        custom = smtp_config({**values, "SMTP_HOST": "smtp.naver.com", "SMTP_PORT": "465", "SMTP_FROM": "f@x.com"}.get)
+        self.assertEqual((custom["SMTP_HOST"], custom["SMTP_PORT"], custom["SMTP_FROM"]), ("smtp.naver.com", 465, "f@x.com"))
         self.assertIsNone(smtp_config({**values, "SMTP_PASSWORD": ""}.get))
+        self.assertIsNone(smtp_config({"SMTP_PASSWORD": "p"}.get))
         self.assertIsNone(smtp_config(lambda name: None))
 
     def test_welcome_mail_has_ics_and_unsubscribe_link(self):
