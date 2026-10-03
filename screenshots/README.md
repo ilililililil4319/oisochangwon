@@ -11,4 +11,4 @@
 | `after_development/team_self_test/20261003/` | 팀 자체 테스트 캡처 37장 — 배포 앱 전체 기능 테스트(01–24), 진해 링크 중복 수정 전·후(25–29), 배포 앱 수정 확인(30–33), 이미영 휴대폰 점검(34–37) |
 | `after_development/user_test/` | 실사용자 테스트 캡처 (설문 응답 화면 등, 이름·연락처는 가리고 저장) |
 | `after_development/ui_update/20261004/` | UX/UI 수정 후 최신 화면 11장(PC 10·휴대폰 1, 로컬 캡처) |
-| `after_development/implementation_complete/20261004/` | 구현 완료 화면 7장(배포 앱, GPT-4.1 mini 답변) |
+| `after_development/implementation_complete/20261004/` | 구현 완료 화면 15장(배포 앱 PC 7·휴대폰 8, GPT-4.1 mini 답변) |

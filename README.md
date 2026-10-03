@@ -87,7 +87,7 @@
 | 시연영상·스크립트 | 3분 이내 · 스크립트 md·pdf·docx | `deliverables/presentation/video/` |
 | 발표자료 | 10장 이내 (10/5 작성) | `deliverables/presentation/ppt/` |
 | 테스트 3종 | 코드·체크리스트·보고서·설문 결과 | `tests/` |
-| 증빙 캡처 | PNG·JPG 112장 | `screenshots/` |
+| 증빙 캡처 | PNG·JPG 120장 | `screenshots/` |
 
 ---
 
@@ -138,7 +138,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (기능 구현 과정)  ai_test 26장 · work_process 31장
-│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 11장 · implementation_complete 7장(구현 완료) · user_test
+│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 11장 · implementation_complete 15장(구현 완료) · user_test
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```

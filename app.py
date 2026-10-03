@@ -301,8 +301,8 @@ h1, h2, h3 {color: #063465 !important;}
     [class*="st-key-tab-"] button {padding: .3rem .65rem; min-height: 2.4rem;}
     [class*="st-key-tab-"] button p {font-size: .84rem;}
     .st-key-journey-summary [data-testid="stHorizontalBlock"] {gap: .4rem !important;}
-    [class*="st-key-milestone-"] {padding: .45rem .8rem; min-height: 0 !important;}
-    [class*="st-key-milestone-"] p {margin-bottom: 0;}
+    [class*="st-key-milestone-"] {padding: .55rem .9rem; gap: .2rem;}
+    [data-testid="stMainBlockContainer"] {padding-top: 3rem !important;}
     [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {min-height: 2.6rem;}
 }
 /* 10/4: 신뢰 안내와 위 안내 상자 사이 간격, 생활 정보 필터 선택칸을 흰색+테두리로 구분 */
@@ -527,7 +527,7 @@ DATA_COUNTS = [
 ]
 APP_INTRO = (
     "창원에 막 이사 온 청년이 처음 6개월 동안 놓치기 쉬운 혜택과 할 일을 한곳에서 챙길 수 있게 돕는 서비스예요. "
-    "팀이 공식 자료로 확인한 "
+    "공식 자료로 확인한 "
     + "·".join(f"{label} {count:,}{unit}" for label, count, unit in DATA_COUNTS)
     + ("를" if DATA_COUNTS and DATA_COUNTS[-1][2] == "개" else "을")
     + " 바탕으로, 오이소창원(코디네이터 Agent)이 내 조건에 맞춰 안내해요."
@@ -547,7 +547,7 @@ USAGE_NOTES = (
     "실명·연락처 등 개인정보는 받지 않아요. 닉네임과 나이·전입일 같은 조건만 써요.",
     "이메일 일정 알림은 선택 기능이에요. 직접 신청하지 않으면 이메일을 받지 않고, 신청하면 개인정보 수집·이용 동의와 "
     "이메일 수신 동의를 받은 뒤에 일정 알림을 보내요. 해지하면 이메일은 바로 삭제돼요.",
-    "안내는 팀이 공식 자료로 확인한 정보(확인일 표시) 기준이에요. 지원 대상 여부의 최종 판단은 담당 기관에서 해요.",
+    "안내는 공식 자료로 확인한 정보(확인일 표시) 기준이에요. 지원 대상 여부의 최종 판단은 담당 기관에서 해요.",
     "장소·행사는 방문 전 운영시간을 꼭 확인해 주세요. 특정 업체 홍보가 아니에요.",
     "AI 답변은 검증 자료 안에서만 만들지만 틀릴 수 있어요. 중요한 내용은 링크로 원문을 확인해 주세요.",
 )
@@ -1059,7 +1059,7 @@ def render_policy_page():
                     unsafe_allow_html=True,
                 )
     _caption(
-        f"팀이 검증한 창원·청년 정책 {len(matches)}건과 입력한 조건을 규칙으로 비교했어요. "
+        f"검증한 창원·청년 정책 {len(matches)}건과 입력한 조건을 규칙으로 비교했어요. "
         "받을 수 있다고 단정하지 않아요 — 최종 판단은 담당 기관에서 해요."
     )
     p01 = evaluate_p01(profile)
@@ -1786,7 +1786,7 @@ def _scroll_into_view(key):
 def _ai_status_caption():
     provider, _, model = llm_settings()
     if provider:
-        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료로만 답해요.")
+        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 검증된 자료로만 답해요.")
     else:
         _caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
 
@@ -1796,7 +1796,7 @@ def render_ask_page():
     st.subheader(ASK_LABEL)
     provider, api_key, model = llm_settings()
     if provider:
-        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 팀이 검증한 자료(정책·장소·지역말·접수 창구)로만 답해요.")
+        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 검증된 자료(정책·장소·지역말·접수 창구)로만 답해요.")
     else:
         _caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
     _caption("실명·연락처 같은 개인정보는 입력하지 마세요. 질문은 답변을 만들기 위해 AI 모델로 전송돼요.")
