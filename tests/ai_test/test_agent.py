@@ -222,5 +222,14 @@ class LLMLoopTests(unittest.TestCase):
         self.assertIn("수고했다", result.answer)
 
 
+class PlaceLinkButtonTests(unittest.TestCase):
+    def test_place_links_are_not_repeated_as_buttons(self):
+        from agent import collect_links, search_activities
+        output = search_activities("야경", by_transit=True)
+        self.assertTrue(output.get("car_recommended"))
+        labels = [label for label, _ in collect_links([output])]
+        self.assertFalse(any(label.endswith("공식 안내") for label in labels))
+
+
 if __name__ == "__main__":
     unittest.main()

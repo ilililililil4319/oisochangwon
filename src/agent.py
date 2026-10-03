@@ -351,8 +351,7 @@ def collect_links(tool_outputs, limit=5):
             continue
         for policy in output.get("policies", []):
             add(f"{policy['사업명']} 안내·신청", policy.get("링크"))
-        for activity in output.get("activities", []) + output.get("car_recommended", []):
-            add(f"{activity['이름']} 공식 안내", activity.get("링크"))
+        # 장소 링크는 답변 문장 속 장소 이름 바로 옆([공식 안내])에만 둔다 — 아래 링크 버튼으로 다시 보여 주지 않음
         for contact in output.get("연락처", []):
             url = _clean_url(contact)
             if url:
