@@ -332,15 +332,35 @@ class ApplicationE2ETests(unittest.TestCase):
                 for old in ("한 달쯤 뒤", "정착 중반", "여섯 달쯤 뒤"):
                     self.assertNotIn(old, " ".join(m.value for m in app.markdown))
                 downloads = [element.proto.label for element in app.get("download_button")]
-                self.assertEqual(downloads, ["캘린더에 넣기 (.ics)", "정착 리포트 저장"])
+                self.assertEqual(downloads, ["📅 캘린더에 저장", "📄 정착 리포트 저장"])
+                self.assertEqual(app.button(key="email-open-journey").label, "✉️ 이메일 알림 신청")
                 # 켜지 않으면 이메일 입력칸이 없다
                 self.assertNotIn("alert_email", [t.key for t in app.text_input])
                 # 켜도 발송 설정이 없으면 이메일을 받지 않는다
-                app.toggle(key="alert_opt_in").set_value(True).run()
+                app.button(key="email-open-journey").click().run()
                 self.assertNotIn("alert_email", [t.key for t in app.text_input])
                 self.assertTrue(any("이메일을 받지 않아요" in info.value for info in app.info))
                 self.assertEqual(email_alerts.count_subscriptions(Path(temp_dir) / "alerts.sqlite3"), 0)
                 self.assertIn("일정 저장·알림", text)
+
+    def test_policy_page_save_buttons_open_email_form_on_journey(self):
+        import email_alerts
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"), \
+                    patch.object(email_alerts, "DB_PATH", Path(temp_dir) / "alerts.sqlite3"), \
+                    patch.dict("os.environ", {key: "" for key in email_alerts.SMTP_KEYS}):
+                app = _demo_app()
+                _visit(app, "policy")
+                self.assertFalse(app.exception)
+                labels = [element.proto.label for element in app.get("download_button")]
+                self.assertEqual(labels, ["📅 캘린더에 저장", "📄 정착 리포트 저장"])
+                app.button(key="email-open-policy").click().run()
+                self.assertEqual(app.session_state["page"], "journey")
+                self.assertTrue(any("이메일을 받지 않아요" in info.value for info in app.info))
+                app.button(key="email-close").click().run()
+                self.assertFalse(any("이메일을 받지 않아요" in info.value for info in app.info))
+                text = _visible_text(app)
+                self.assertNotIn("AI 코디", text)
 
     def test_email_alert_needs_both_consents_and_can_be_removed(self):
         import email_alerts
@@ -356,7 +376,7 @@ class ApplicationE2ETests(unittest.TestCase):
                     patch.dict("os.environ", smtp_env):
                 app = _demo_app()
                 _visit(app, "journey")
-                app.toggle(key="alert_opt_in").set_value(True).run()
+                app.button(key="email-open-journey").click().run()
                 submit = next(b for b in app.button if b.label == "알림 신청하기")
                 app.text_input(key="alert_email").input("user@example.com")
                 app.checkbox(key="alert_consent_privacy").check()
@@ -478,8 +498,8 @@ class ApplicationE2ETests(unittest.TestCase):
                 state_manager.save_mission_group("코디2026", {"M1-1": {"completed": True, "note": "기존 기록"}})
                 app = _demo_app()
                 self.assertFalse(app.exception)
-                self.assertEqual([b.label for b in app.main.button], ["← 처음으로", "예시 정보로 채우기 (코디2026)", "입력 지우기", "내 맞춤 혜택 확인하기 →", "정착 일정 만들기", "AI 코디에게 바로 물어보기", "불편사항 행정 접수안내", "창원 지역말 번역"])
-                self.assertEqual([b.label for b in app.sidebar.button], ["홈", "조건 입력 · 완료", "맞춤 혜택 · 해당 가능 4건", "정착 일정 · 이번 단계 1/5", "생활 정보", "불편사항", "지역말", "AI 코디에게 물어보기"])
+                self.assertEqual([b.label for b in app.main.button], ["← 처음으로", "예시 정보로 채우기 (코디2026)", "입력 지우기", "내 맞춤 혜택 확인하기 →", "정착 일정 만들기", "오이소창원에게 바로 물어보기", "불편사항 행정 접수안내", "창원 지역말 번역"])
+                self.assertEqual([b.label for b in app.sidebar.button], ["홈", "조건 입력 · 완료", "맞춤 혜택 · 해당 가능 4건", "정착 일정 · 이번 단계 1/5", "생활 정보", "불편사항", "지역말", "오이소창원에게 물어보기"])
                 self.assertEqual(len(app.get("image")), 0)
                 self.assertNotIn("지원과 할 일 확인하기", _visible_text(app))
                 self.assertEqual(len(app.expander), 0)

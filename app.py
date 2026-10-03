@@ -95,7 +95,7 @@ DIALECT_COUNT = _safe_count(
 # 회원가입 없이 저장되는 방식 안내(홈·정착 일정 화면)
 SAVE_HELP = (
     "회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요. "
-    "오래 보관하려면 ‘캘린더에 넣기’나 ‘정착 리포트 저장’으로 내 기기에 저장해 두는 게 가장 확실해요. "
+    "오래 보관하려면 ‘📅 캘린더에 저장’이나 ‘📄 정착 리포트 저장’으로 내 기기에 저장해 두는 게 가장 확실해요. "
     "이메일 일정 알림은 선택 사항이고, 원할 때만 개인정보 수집·이용 동의와 이메일 수신 동의를 받은 뒤 보내 드려요."
 )
 CONTACT_EMAIL = "whwnstn9294@gmail.com"
@@ -143,6 +143,9 @@ READABILITY_CSS = """
 .st-key-journey-summary h3 {font-size: 1.35rem !important; color: #063465; padding: 0 !important;}
 .st-key-journey-tools {border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.3rem; background: #FFFFFF;}
 .st-key-email-alert {max-width: 760px; border-top: 1px dashed #D5DDE7; padding-top: .7rem;}
+[class*="st-key-save-row-"] {gap: .6rem; align-items: center !important;}
+[class*="st-key-save-row-"] [data-testid="stElementContainer"] {margin: 0 !important;}
+.st-key-email-alert {scroll-margin-top: 90px;}
 [class*="st-key-milestone-"] {border-radius: 12px; padding: .5rem .8rem; border: 1px solid #D5DDE7; background: #FFFFFF; gap: .1rem;}
 [class*="st-key-milestone-"][class*="-done"] {background: #F3F8F5; border-color: #D6E9DE;}
 [class*="st-key-milestone-"][class*="-next"] {border: 2px solid #FE6A01;}
@@ -302,7 +305,7 @@ FEATURE_1 = "① 창원 청년 맞춤형 혜택 알림"
 FEATURE_2 = "② 창원 생활 정보 안내 및 일정 편성"
 FEATURE_3 = "③ 불편사항 행정 접수안내"
 FEATURE_4 = "④ 창원 지역말 번역"
-ASK_LABEL = "AI 코디에게 물어보기"
+ASK_LABEL = "오이소창원에게 물어보기"
 # 버튼에는 순번 없이 이름만(제목에는 기획안 순번 유지)
 BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4 = (name[2:] for name in (FEATURE_1, FEATURE_2, FEATURE_3, FEATURE_4))
 FEATURE_2_TABS = {PAGE_JOURNEY: "정착 할 일 · 1~6개월 일정", PAGE_EXPLORE: "창원 생활 정보 둘러보기"}
@@ -317,7 +320,7 @@ PAGE_LABELS = {
     PAGE_COMPLAINT: BUTTON_3,
     PAGE_DIALECT: BUTTON_4,
 }
-# 기획안 핵심기능 4개만 '기능 버튼'. 조건 입력(STEP 1)과 AI 코디(STEP 3)는 별도 안내 칸.
+# 기획안 핵심기능 4개만 '기능 버튼'. 조건 입력(STEP 1)과 오이소창원에게 물어보기(STEP 3)는 별도 안내 칸.
 FEATURE_BUTTONS = (
     (PAGE_POLICY, BUTTON_1, "show-policy"),
     (PAGE_JOURNEY, BUTTON_2, "show-journey"),
@@ -433,12 +436,12 @@ APP_INTRO = (
     "팀이 공식 자료로 확인한 "
     + "·".join(f"{label} {count:,}{unit}" for label, count, unit in DATA_COUNTS)
     + ("를" if DATA_COUNTS and DATA_COUNTS[-1][2] == "개" else "을")
-    + " 바탕으로, AI 코디가 내 조건에 맞춰 안내해요."
+    + " 바탕으로, 오이소창원(코디네이터 Agent)이 내 조건에 맞춰 안내해요."
 )
 HOW_TO_STEPS = (
     (CONDITION_LABEL, "나이·전입일 같은 조건만 적어요"),
     ("기능 4개 중 고르기", "혜택·정착 일정·불편 접수·지역말"),
-    ("AI 코디에게 묻기", "궁금한 건 한 문장으로"),
+    ("오이소창원에게 묻기", "궁금한 건 한 문장으로"),
 )
 FEATURE_SUMMARIES = {
     PAGE_POLICY: f"정책 {POLICY_COUNT}건을 내 조건과 비교해 해당 가능·조건부·신청 시기를 알려 줘요.",
@@ -522,7 +525,7 @@ HOME_FEATURES = (
 FEATURE_KEYS = {target: key for target, _, key in FEATURE_BUTTONS}
 AGENT_FLOW = (
     ("내 조건", "나이·전입일·하는 일·차량 소지 여부"),
-    ("조건 비교 · AI 판단", f"정책 {POLICY_COUNT}건 규칙 비교, 질문은 AI 코디가 이해"),
+    ("조건 비교 · AI 판단", f"정책 {POLICY_COUNT}건 규칙 비교, 질문은 코디네이터 Agent가 이해"),
     ("검증 자료 확인", "팀이 확인한 공식 자료만 사용"),
     ("맞춤 결과", "해당 가능 혜택·추천 장소·접수 창구"),
     ("다음 할 일 저장", "캘린더·정착 리포트로 내 기기에 보관"),
@@ -640,7 +643,7 @@ def render_home_page():
 PROFILE_NEXT_STEPS = (
     (PAGE_POLICY, "show-policy", "내 맞춤 혜택 확인하기 →", "primary"),
     (PAGE_JOURNEY, "show-journey", "정착 일정 만들기", "secondary"),
-    (PAGE_ASK, "show-ask", "AI 코디에게 바로 물어보기", "secondary"),
+    (PAGE_ASK, "show-ask", "오이소창원에게 바로 물어보기", "secondary"),
 )
 PROFILE_MORE_STEPS = (
     (PAGE_COMPLAINT, "show-complaint", BUTTON_3),
@@ -672,7 +675,7 @@ def render_profile_page():
     with st.container(key="profile-head", horizontal=True, wrap=True, vertical_alignment="bottom"):
         with st.container():
             st.caption(CONDITION_LABEL)
-            st.subheader("먼저, 코디가 알아야 할 조건을 알려주세요.", anchor=False)
+            st.subheader("먼저, 오이소창원이 알아야 할 조건을 알려주세요.", anchor=False)
             st.markdown(
                 "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. **실명과 연락처는 받지 않아요.**"
             )
@@ -938,7 +941,7 @@ def render_policy_page():
         ]
         st.info("더 정확히 보려면 입력해 주세요: " + ", ".join(missing_labels))
 
-    st.markdown("**코디가 먼저 볼 혜택을 정리했어요.**")
+    st.markdown("**오이소창원이 먼저 볼 혜택을 정리했어요.**")
     _policy_grid(candidates[:POLICY_CARDS_SHOWN])
     if len(candidates) > POLICY_CARDS_SHOWN:
         with st.expander(f"더 보기 · 다른 지원 {len(candidates) - POLICY_CARDS_SHOWN}개"):
@@ -947,6 +950,10 @@ def render_policy_page():
         with st.expander(f"해당 없음 {len(excluded)}개 · 이유 보기"):
             _policy_grid(excluded)
 
+    if move_in_date is not None:
+        st.markdown("**혜택 확인일·정착 일정 저장**")
+        _save_buttons(datetime.now(ZoneInfo("Asia/Seoul")).date(), PAGE_POLICY)
+        st.caption("해당 가능·조건부 혜택의 확인일이 캘린더에 들어가요. 이메일 알림은 선택이고, 신청할 때만 동의를 받아요.")
     with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
         st.link_button(
             "창원시 청년정책 전체 보기",
@@ -973,8 +980,8 @@ def _feature_2_header(current):
 APP_URL = "https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/"
 
 
-def _journey_tools(today):
-    """캘린더 파일·정착 리포트 저장, 이메일 알림(선택). 실명·연락처·닉네임은 넣지 않는다."""
+def _export_files(today):
+    """캘린더 파일·정착 리포트 바이트. 실명·연락처·닉네임은 넣지 않는다."""
     matches = match_policies(_current_profile())
     events = build_schedule_events(move_in_date, MILESTONE_LABELS, mission_groups, matches)
     notes = {
@@ -989,32 +996,50 @@ def _journey_tools(today):
         "age": st.session_state["age"],
         "vehicle": st.session_state["vehicle"],
     }
+    report = build_report_html(
+        profile, _settlement_day(), progress_summary, mission_groups,
+        completion_states, notes, matches, events,
+    )
     counts = {kind: sum(1 for event in events if event["kind"] == kind) for kind in ("milestone", "missions", "policy")}
+    return events, build_ics(events), report, counts
+
+
+def _open_email_alert(where):
+    st.session_state["alert_open"] = True
+    st.session_state["email_scroll"] = True
+    if where != PAGE_JOURNEY:
+        _go(PAGE_JOURNEY)
+
+
+def _save_buttons(today, where):
+    """📅 캘린더에 저장 · 📄 정착 리포트 저장 · ✉️ 이메일 알림 신청 — 필요한 화면에 같은 버튼 줄."""
+    events, ics, report, counts = _export_files(today)
+    with st.container(key=f"save-row-{where}", horizontal=True, wrap=True):
+        st.download_button(
+            "📅 캘린더에 저장",
+            data=ics,
+            file_name="oisochangwon_schedule.ics",
+            mime="text/calendar",
+            key=f"download-ics-{where}",
+            type="primary",
+            on_click="ignore",
+        )
+        st.download_button(
+            "📄 정착 리포트 저장",
+            data=report,
+            file_name=f"oisochangwon_report_{today.isoformat()}.html",
+            mime="text/html",
+            key=f"download-report-{where}",
+            on_click="ignore",
+        )
+        st.button("✉️ 이메일 알림 신청", key=f"email-open-{where}", on_click=_open_email_alert, args=(where,))
+    return events, counts
+
+
+def _journey_tools(today):
     st.subheader("일정 저장·알림")
     with st.container(key="journey-tools"):
-        with st.container(horizontal=True, wrap=True):
-            st.download_button(
-                "캘린더에 넣기 (.ics)",
-                data=build_ics(events),
-                file_name="oisochangwon_schedule.ics",
-                mime="text/calendar",
-                key="download-ics",
-                icon=":material/calendar_month:",
-                type="primary",
-                on_click="ignore",
-            )
-            st.download_button(
-                "정착 리포트 저장",
-                data=build_report_html(
-                    profile, _settlement_day(), progress_summary, mission_groups,
-                    completion_states, notes, matches, events,
-                ),
-                file_name=f"oisochangwon_report_{today.isoformat()}.html",
-                mime="text/html",
-                key="download-report",
-                icon=":material/description:",
-                on_click="ignore",
-            )
+        events, counts = _save_buttons(today, PAGE_JOURNEY)
         st.caption(
             f"캘린더 파일: 정착 일정 {counts['milestone']}개 · 월별 할 일 {counts['missions']}개 · "
             f"혜택 확인일 {counts['policy']}개. 열면 휴대폰·PC 캘린더에 들어가고 하루 전 오전 9시에 알림이 떠요.  \n"
@@ -1031,17 +1056,20 @@ def _email_alert_box(events, today):
     config = email_alerts.smtp_config(_setting)
     with st.container(key="email-alert"):
         message = st.session_state.pop("alert_message", None)
-        if not st.toggle("이메일로 일정 알림 받기 (선택)", key="alert_opt_in"):
-            if message:
-                (st.success if message[0] == "ok" else st.error)(message[1])
-            st.caption("켜지 않으면 이메일을 묻거나 저장하지 않아요.")
-            return
         if message:
             (st.success if message[0] == "ok" else st.error)(message[1])
+        if st.session_state.pop("email_scroll", False):
+            _scroll_into_view("email-alert")
+        if not st.session_state.get("alert_open"):
+            st.caption("이메일 알림은 선택이에요. ‘✉️ 이메일 알림 신청’을 누르지 않으면 이메일을 묻거나 저장하지 않아요.")
+            return
+        with st.container(horizontal=True, vertical_alignment="center"):
+            st.markdown("**✉️ 이메일 알림 신청 (선택)**")
+            st.button("닫기", key="email-close", type="tertiary", on_click=lambda: st.session_state.update(alert_open=False))
         if config is None:
             st.info(
                 "이메일 발송 설정이 아직 준비되지 않아 지금은 이메일을 받지 않아요. "
-                "위 ‘캘린더에 넣기’로 내 캘린더에서 알림을 받아 주세요."
+                "위 ‘📅 캘린더에 저장’으로 내 캘린더에서 알림을 받아 주세요."
             )
             return
         st.caption(
