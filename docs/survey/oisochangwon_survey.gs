@@ -228,10 +228,65 @@ function updateExistingForm() {
   if (!ss) ss = linkResponseSpreadsheet_(form);
   props.setProperty('SPREADSHEET_ID', ss.getId());
   installFormSubmitTrigger_(form);
+  // 문항을 지우고 다시 만들면 응답 탭에 같은 제목의 열이 또 생겨 "중복된 열 이름" 오류가 납니다.
+  // 그래서 응답 탭을 지금 문항 기준으로 새로 만듭니다(설문지에 남아 있는 응답은 새 탭에 다시 들어갑니다).
+  rebuildResponseSheet_(form, ss);
   logLinks_(form, ss);
-  Logger.log('설문지 링크는 그대로이고 문항만 바뀌었습니다. 응답 시트 오른쪽에 새 문항 열이 추가됩니다.');
+  Logger.log('설문지 링크는 그대로이고 문항만 바뀌었습니다. 응답 탭도 새 문항 기준으로 다시 만들었습니다.');
+}
+
+// ===================== 응답 탭 다시 만들기("중복된 열 이름" 오류 해결) =====================
+
+// 응답 탭(Form Responses 1)에 "잘못됨: 중복된 열 이름이 발견됨"이 뜰 때 실행하세요.
+// 설문지에 저장된 응답은 지우지 않고, 응답 탭만 지금 문항 기준으로 새로 만듭니다.
+function fixResponseSheet() {
+  const ctx = openFormAndSheet_();
+  rebuildResponseSheet_(ctx.form, ctx.ss);
+}
+
+// 실사용자에게 링크를 보내기 직전에 한 번 실행하세요(점검용 응답 정리).
+// 설문지에 쌓인 응답을 모두 지우고 빈 응답 탭을 새로 만들어, 실사용자 번호가 U01부터 붙게 합니다.
+function clearTestResponses() {
+  const ctx = openFormAndSheet_();
+  const n = ctx.form.getResponses().length;
+  ctx.form.deleteAllResponses();
+  Logger.log('설문지 응답 ' + n + '건을 지웠습니다.');
+  rebuildResponseSheet_(ctx.form, ctx.ss);
+}
+
+function openFormAndSheet_() {
+  const props = PropertiesService.getScriptProperties();
+  const form = FormApp.openById(props.getProperty('FORM_ID') || EXISTING_FORM_ID);
+  let ss = null;
+  try { ss = SpreadsheetApp.openById(form.getDestinationId()); } catch (e) { ss = findExistingSpreadsheet_(); }
+  if (!ss) throw new Error('응답 스프레드시트를 찾지 못했습니다.');
+  props.setProperty('FORM_ID', form.getId());
+  props.setProperty('SPREADSHEET_ID', ss.getId());
+  return { form: form, ss: ss };
+}
+
+function rebuildResponseSheet_(form, ss) {
+  // 1) 설문지와 연결된 기존 응답 탭(들)을 찾아 둡니다.
+  const oldSheets = ss.getSheets().filter(function (sh) { return !!sh.getFormUrl(); });
+  // 2) 연결을 끊었다가 같은 스프레드시트에 다시 연결하면, 지금 문항만으로 된 새 응답 탭이 생깁니다.
+  form.removeDestination();
+  form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+  SpreadsheetApp.flush();
+  Utilities.sleep(3000);
+  ss = SpreadsheetApp.openById(ss.getId());
+  const oldIds = oldSheets.map(function (sh) { return sh.getSheetId(); });
+  const linked = ss.getSheets().filter(function (sh) {
+    return !!sh.getFormUrl() && oldIds.indexOf(sh.getSheetId()) === -1;
+  });
+  if (!linked.length) throw new Error('새 응답 탭을 찾지 못했습니다. 잠시 뒤 fixResponseSheet()를 다시 실행해 주세요.');
+  const fresh = linked[0];
+  // 3) 열 이름이 겹치던 예전 탭은 지우고, 새 탭 이름을 Form Responses 1로 맞춥니다.
+  oldSheets.forEach(function (sh) {
+    try { ss.deleteSheet(ss.getSheetByName(sh.getName())); } catch (e) { Logger.log('예전 응답 탭 삭제 실패: ' + e.message); }
+  });
+  try { fresh.setName('Form Responses 1'); } catch (e) { Logger.log('탭 이름 변경 생략: ' + e.message); }
+  Logger.log('응답 탭을 새로 만들었습니다: ' + fresh.getName() + ' (응답 ' + Math.max(0, fresh.getLastRow() - 1) + '건)');
   try {
-    Utilities.sleep(2000);
     buildAnalysisDashboard();
   } catch (e) {
     Logger.log('분석 탭은 첫 응답 뒤 buildAnalysisDashboard()를 실행해 만들어 주세요. (사유: ' + e.message + ')');
@@ -369,6 +424,9 @@ function resetSurveySystem() {
 
 // 실제 Google Forms 응답 시트를 찾는 함수(빈 "시트1"을 잘못 잡지 않도록)
 function findResponseSheet_(ss) {
+  // 0순위: 지금 설문지와 연결된 탭(getFormUrl이 있는 탭)
+  const linkedSheets = ss.getSheets().filter(function (s) { return !!s.getFormUrl() && s.getLastColumn() > 0; });
+  if (linkedSheets.length) return linkedSheets[linkedSheets.length - 1];
   const knownNames = ['Form Responses 1', '설문지 응답 시트1', 'Form Responses 2'];
   for (let i = 0; i < knownNames.length; i++) {
     const s = ss.getSheetByName(knownNames[i]);
