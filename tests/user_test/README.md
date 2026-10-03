@@ -7,11 +7,9 @@
 | 구분 | 링크 |
 |---|---|
 | 응답자용 설문지 | https://docs.google.com/forms/d/e/1FAIpQLScBkBtZlu1CbUqULk4vNZqIqq88lBc6Vj3qyIcAF_mUxSS9Qg/viewform |
-| 설문지 편집(관리자) | https://docs.google.com/forms/d/1F_qE5eXmochcjS6DsZfDkm9LWJp1y894X1EhFwGWSic/edit |
-| 응답 스프레드시트 | https://docs.google.com/spreadsheets/d/1I_hGI_DKyBJzWlnROzY_U-uhmPHcWZWPcCa4vRSWOeg/edit (응답 탭: Form Responses 1) |
 | 테스트 앱 | https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/ |
 
-편집 화면과 응답 시트는 설문 담당자 계정에서만 열립니다.
+설문지 편집 화면과 응답 스프레드시트 링크는 공개 저장소에 두지 않고 설문 담당자만 보관합니다.
 
 ## 파일
 

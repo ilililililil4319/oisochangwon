@@ -48,7 +48,8 @@
 
 // ===================== 설정 =====================
 // 이미 배포한 설문지(2026-10-03 새로 생성). updateExistingForm()이 이 설문지의 문항을 새로 바꿉니다.
-const EXISTING_FORM_ID = '1F_qE5eXmochcjS6DsZfDkm9LWJp1y894X1EhFwGWSic';
+// 공개 저장소에는 설문지 ID를 두지 않습니다. 스크립트 속성 FORM_ID가 없을 때만 아래에 설문지 편집 링크의 /d/ 뒤 ID를 넣으세요.
+const EXISTING_FORM_ID = '';
 const APP_URL = 'https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/';
 const FORM_TITLE = '오이소창원 — 실사용자 테스트 설문';
 const SPREADSHEET_TITLE = '오이소창원 — 설문 응답 및 분석';
@@ -213,6 +214,7 @@ function buildForm_() {
 function updateExistingForm() {
   const props = PropertiesService.getScriptProperties();
   const formId = props.getProperty('FORM_ID') || EXISTING_FORM_ID;
+  if (!formId) throw new Error('설문지 ID가 없습니다. 코드 위쪽 EXISTING_FORM_ID에 설문지 편집 링크의 /d/ 뒤 ID를 넣어 주세요.');
   const form = FormApp.openById(formId);
   form.getItems().forEach(function (item) { form.deleteItem(item); });
   form.setTitle(FORM_TITLE);
@@ -256,7 +258,9 @@ function clearTestResponses() {
 
 function openFormAndSheet_() {
   const props = PropertiesService.getScriptProperties();
-  const form = FormApp.openById(props.getProperty('FORM_ID') || EXISTING_FORM_ID);
+  const formId = props.getProperty('FORM_ID') || EXISTING_FORM_ID;
+  if (!formId) throw new Error('설문지 ID가 없습니다. 코드 위쪽 EXISTING_FORM_ID에 설문지 편집 링크의 /d/ 뒤 ID를 넣어 주세요.');
+  const form = FormApp.openById(formId);
   let ss = null;
   try { ss = SpreadsheetApp.openById(form.getDestinationId()); } catch (e) { ss = findExistingSpreadsheet_(); }
   if (!ss) throw new Error('응답 스프레드시트를 찾지 못했습니다.');
