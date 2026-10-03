@@ -87,7 +87,7 @@
 | 시연영상·스크립트 | 3분 이내 · 스크립트 md·pdf·docx | `deliverables/presentation/video/` |
 | 발표자료 | 10장 이내 (10/5 작성) | `deliverables/presentation/ppt/` |
 | 테스트 3종 | 코드·체크리스트·보고서·설문 결과 | `tests/` |
-| 증빙 캡처 | PNG·JPG 105장 | `screenshots/` |
+| 증빙 캡처 | PNG·JPG 112장 | `screenshots/` |
 
 ---
 
@@ -138,7 +138,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (기능 구현 과정)  ai_test 26장 · work_process 31장
-│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 11장(10/4 UI 수정 후) · user_test
+│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 11장 · implementation_complete 7장(구현 완료) · user_test
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -335,11 +335,11 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 ## 11. 화면 구성
 
-10/4 UX/UI 수정 후 화면입니다(로컬 실행 캡처 — 답변은 ‘기본 안내(AI 미연결)’로 표시, 배포 앱에서는 GPT-4.1 mini 답변). 전체 목록: [`screenshots/after_development/ui_update/20261004/`](screenshots/after_development/ui_update/20261004/)
+10/4 UX/UI 수정 후 화면입니다. 첫 화면·③·④·물어보기는 배포 앱 구현 완료 화면(GPT-4.1 mini), 나머지는 로컬 캡처입니다. 목록: [`screenshots/after_development/implementation_complete/20261004/`](screenshots/after_development/implementation_complete/20261004/) · [`screenshots/after_development/ui_update/20261004/`](screenshots/after_development/ui_update/20261004/)
 
-| 첫 화면(처음 방문) | 첫 화면(코디2026 정착 현황) |
+| 첫 화면(처음 방문, 배포 앱) | 첫 화면(코디2026 정착 현황) |
 |:---:|:---:|
-| ![](screenshots/after_development/ui_update/20261004/01_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/after_development/ui_update/20261004/02_%ED%99%88_%EC%BD%94%EB%94%942026_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png) |
+| ![](screenshots/after_development/implementation_complete/20261004/01_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/after_development/ui_update/20261004/02_%ED%99%88_%EC%BD%94%EB%94%942026_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png) |
 
 | 나의 조건 입력(칸 설명 항상 표시) | ① 맞춤 혜택 4단계 판정 |
 |:---:|:---:|
@@ -349,13 +349,13 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 |:---:|:---:|
 | ![](screenshots/after_development/ui_update/20261004/06_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/after_development/ui_update/20261004/07_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4_%ED%95%84%ED%84%B0_%EC%B9%B4%EB%93%9C.png) |
 
-| ③ 불편사항 | ④ 지역말 |
+| ③ 불편사항(GPT-4.1 mini) | ④ 지역말(GPT-4.1 mini) |
 |:---:|:---:|
-| ![](screenshots/after_development/ui_update/20261004/08_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B0%80%EB%A1%9C%EB%93%B1_%EC%95%88%EB%82%B4.png) | ![](screenshots/after_development/ui_update/20261004/09_%EC%A7%80%EC%97%AD%EB%A7%90_%EB%8B%A8%EB%94%94%ED%95%B4%EB%9E%98%EC%9D%B4.png) |
+| ![](screenshots/after_development/implementation_complete/20261004/05_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B0%80%EB%A1%9C%EB%93%B1_GPT%EB%8B%B5%EB%B3%80.png) | ![](screenshots/after_development/implementation_complete/20261004/06_%EC%A7%80%EC%97%AD%EB%A7%90_%EB%8B%A8%EB%94%94%ED%95%B4%EB%9E%98%EC%9D%B4_GPT%EB%8B%B5%EB%B3%80.png) |
 
-| 오이소창원에게 물어보기(로컬) | 오이소창원에게 물어보기(배포 앱, GPT-4.1 mini 검증 통과) |
-|:---:|:---:|
-| ![](screenshots/after_development/ui_update/20261004/10_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_%EC%8B%A4%ED%96%89%EA%B8%B0%EB%A1%9D_%EB%A1%9C%EC%BB%AC.png) | ![](screenshots/after_development/team_self_test/20261003/30_%EB%B0%B0%ED%8F%AC%ED%99%95%EC%9D%B8_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_%EB%A7%81%ED%81%AC%EB%B2%84%ED%8A%BC%EC%82%AD%EC%A0%9C.png) |
+| 오이소창원에게 물어보기(GPT-4.1 mini 검증 통과·실행 기록) |
+|:---:|
+| ![](screenshots/after_development/implementation_complete/20261004/07_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_GPT%EB%8B%B5%EB%B3%80_%EC%8B%A4%ED%96%89%EA%B8%B0%EB%A1%9D.png) |
 
 | 휴대폰 첫 화면 |
 |:---:|

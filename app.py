@@ -1891,7 +1891,6 @@ def render_complaint_page():
                     st.badge(item["단계"], color=COMPLAINT_BADGE_COLORS.get(item["단계"], "gray"))
                     st.markdown(f"**{item['예시']}**")
                     _caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
-    _caption("단계 구분은 서비스 기획 기준이며, 연락처는 창원시 누리집과 2026-09-29 창원시청 통화로 팀이 확인했어요.")
     _next_feature_button(PAGE_DIALECT, f"{BUTTON_4} →")
 
 
