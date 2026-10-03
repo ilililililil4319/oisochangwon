@@ -1110,7 +1110,9 @@ def _journey_tools(today):
             f"캘린더 파일: 정착 일정 {counts['milestone']}개 · 월별 할 일 {counts['missions']}개 · "
             f"혜택 확인일 {counts['policy']}개. 열면 휴대폰·PC 캘린더에 들어가고 하루 전 오전 9시에 알림이 떠요.  \n"
             "정착 리포트: 나의 조건·할 일 진행·다가오는 일정·맞는 혜택을 한 파일로 저장해요. "
-            "브라우저에서 열어 인쇄하면 PDF로도 저장돼요. 파일은 내 기기에만 저장되고 실명·연락처는 들어가지 않아요."
+            "브라우저에서 열어 인쇄하면 PDF로도 저장돼요. 파일은 내 기기에만 저장되고 실명·연락처는 들어가지 않아요.  \n"
+            "휴대폰에서는 버튼을 누른 뒤 화면 위·아래의 다운로드 알림(또는 ‘내 파일 → 다운로드’)에서 파일을 눌러 "
+            "캘린더 앱·브라우저로 열어요."
         )
         _email_alert_box(events, today)
 
@@ -1478,7 +1480,7 @@ def render_explore_page():
             district=(None if selected_district == "창원 전체" else selected_district),
             category=(None if selected_category == "모든 분야" else selected_category),
         )
-        _caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개")
+        _caption(f"둘러볼 수 있는 활동 {len(filtered_activities)}개 · 카드의 ‘자세히 보기’를 누르면 아래에서 운영시간·이동 방법·지도를 볼 수 있어요.")
         if not filtered_activities:
             st.info("조건에 맞는 활동을 찾지 못했어요. 다른 지역이나 분야를 골라보세요.")
 
@@ -1569,8 +1571,13 @@ def render_explore_page():
                     "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
                     "대중교통 길찾기를 선택해 주세요."
                 )
+            # 상세를 본 뒤 카드 목록으로 바로 돌아가기 (10/3 실사용자 테스트: 생활 정보 개선 필요 3명)
+            st.button("↑ 장소 목록으로 돌아가기", key="explore-back-to-list", type="tertiary",
+                      on_click=lambda: st.session_state.update(explore_scroll_top=True))
             if st.session_state.pop("explore_scroll", False):
                 _scroll_into_view("explore-detail")
+        if st.session_state.pop("explore_scroll_top", False):
+            _scroll_into_view("explore-filters")
     except (OSError, ValueError):
         st.info(
             "창원 활동 정보를 불러오지 못했어요. "
