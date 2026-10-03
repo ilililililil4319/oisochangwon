@@ -223,8 +223,9 @@ class ApplicationE2ETests(unittest.TestCase):
                 widgets = list(app.text_input) + list(app.number_input) + list(app.date_input) + list(app.selectbox) + list(app.radio)
                 self.assertFalse([w.label for w in widgets if getattr(w, "help", None)])
 
-    def test_no_contact_email_on_any_page(self):
-        # 10/3 이혜경 요청: 앱 화면(사이드바·화면 아래)에서 문의 이메일 삭제
+    def test_contact_email_once_at_bottom_of_every_page(self):
+        # 10/3 이혜경: 문의 이메일은 중복 없이 화면 맨 아래 한 곳에만 (사이드바·홈 본문에는 없음)
+        contact = "앱 문의: [whwnstn9294@gmail.com](mailto:whwnstn9294@gmail.com)"
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 app = AppTest.from_file(str(APP_FILE)).run()
@@ -234,8 +235,10 @@ class ApplicationE2ETests(unittest.TestCase):
                     with self.subTest(page=page):
                         _visit(app, page)
                         self.assertFalse(app.exception)
-                        texts = [c.value for c in app.sidebar.caption] + [c.value for c in app.main.caption] + [m.value for m in app.markdown]
-                        self.assertFalse(any("whwnstn9294" in x or "앱 문의" in x for x in texts))
+                        main_captions = [c.value for c in app.main.caption]
+                        self.assertEqual(main_captions[-1], contact)
+                        texts = [c.value for c in app.sidebar.caption] + main_captions[:-1] + [m.value for m in app.markdown]
+                        self.assertFalse(any("whwnstn9294" in x for x in texts))
 
     def test_ask_page_answers_with_rule_fallback_links_and_log(self):
         with TemporaryDirectory() as temp_dir:

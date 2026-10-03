@@ -334,6 +334,9 @@ FEATURE_2 = "② 창원 생활 정보 안내 및 일정 편성"
 FEATURE_3 = "③ 불편사항 행정 접수안내"
 FEATURE_4 = "④ 창원 지역말 번역"
 ASK_LABEL = "오이소창원에게 물어보기"
+# 앱 문의: 여러 곳에 중복으로 보이던 것을 정리해 화면 맨 아래 한 곳에만 (10/3 이혜경)
+CONTACT_EMAIL = "whwnstn9294@gmail.com"
+CONTACT_TEXT = f"앱 문의: [{CONTACT_EMAIL}](mailto:{CONTACT_EMAIL})"
 # 버튼에는 순번 없이 이름만(제목에는 기획안 순번 유지)
 BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4 = (name[2:] for name in (FEATURE_1, FEATURE_2, FEATURE_3, FEATURE_4))
 FEATURE_2_TABS = {PAGE_JOURNEY: "정착 할 일 · 1~6개월 일정", PAGE_EXPLORE: "창원 생활 정보 둘러보기"}
@@ -1997,6 +2000,8 @@ with page_root.container(key=f"page-{page}"):
     PAGE_RENDERERS.get(page, render_home_page)()
 
 render_sidebar()
+st.divider()
+st.caption(CONTACT_TEXT)
 
 
 def _scroll_to_top_on_page_change():
