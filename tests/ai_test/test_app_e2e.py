@@ -117,7 +117,9 @@ class ApplicationE2ETests(unittest.TestCase):
                 for step in ("2. AI 이해 · 조건 비교", "4. AI 맞춤 결과 안내", "5. 일정 저장 및 알림(선택)"):
                     self.assertIn(step, flow)
                 self.assertNotIn("팀이 확인한", flow)
-                self.assertEqual(app.button(key="show-ask").label, "🔒 오이소창원에게 물어보기 · 조건 입력 후 열려요")
+                self.assertEqual(app.button(key="show-ask").label, "오이소창원에게 물어보기 →")
+                self.assertTrue(app.button(key="show-ask").disabled)
+                self.assertIn("🔒 조건 입력 후 열려요", [c.value for c in app.main.caption])
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertFalse(app.button(key="show-profile").disabled)
                 self.assertTrue(all(b.disabled for b in app.main.button if b.key and b.key.startswith("show-") and b.key != "show-profile"))

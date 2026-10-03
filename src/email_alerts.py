@@ -214,19 +214,46 @@ def build_reminder_message(config, email, due_alerts, token, app_url=None):
     return message
 
 
-def _send_ssl(config, message, port=465):
+class SendFailure(Exception):
+    """두 방식(587 STARTTLS·465 SSL) 모두 실패. 메시지에 포트·단계·오류 이름만 담는다(비밀번호·주소 없음)."""
+
+
+def _send_ssl(config, message, port=465, stage=None):
+    stage = stage if stage is not None else {}
+    stage["name"] = "연결"
     with smtplib.SMTP_SSL(config["SMTP_HOST"], port, timeout=20) as server:
+        stage["name"] = "로그인"
         server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
+        stage["name"] = "발송"
         server.send_message(message)
 
 
-def _send_starttls(config, message, port=587):
+def _send_starttls(config, message, port=587, stage=None):
+    stage = stage if stage is not None else {}
+    stage["name"] = "연결"
     with smtplib.SMTP(config["SMTP_HOST"], port, timeout=20) as server:
+        stage["name"] = "암호화(STARTTLS)"
         server.ehlo()
         server.starttls()
         server.ehlo()
+        stage["name"] = "로그인"
         server.login(config["SMTP_USER"], config["SMTP_PASSWORD"])
+        stage["name"] = "발송"
         server.send_message(message)
+
+
+def _attempt(sender, config, message, port):
+    """성공하면 None, 실패하면 '포트 단계 오류이름' 문자열. 로그인 실패는 그대로 올린다."""
+    stage = {"name": "연결"}
+    try:
+        sender(config, message, port, stage)
+    except smtplib.SMTPAuthenticationError:
+        raise
+    except (OSError, smtplib.SMTPException) as error:
+        detail = f"{port} {stage['name']} {type(error).__name__}"
+        print(f"[email_alerts] 발송 실패: {detail}: {error}", flush=True)
+        return detail
+    return None
 
 
 def send_message(config, message, smtp_factory=None):
@@ -234,18 +261,18 @@ def send_message(config, message, smtp_factory=None):
         with smtp_factory() as server:
             server.send_message(message)
         return
+    # 한 방식이 막히거나 끊기면 다른 방식(587 STARTTLS ↔ 465 SSL)으로 한 번 더 (10/3 배포 앱 발송 실패 대응)
     if config["SMTP_PORT"] == 465:
-        first, second, fallback_port = _send_ssl, _send_starttls, 587
+        plan = [(_send_ssl, 465), (_send_starttls, 587)]
     else:
-        first, second, fallback_port = _send_starttls, _send_ssl, 465
-    try:
-        first(config, message, config["SMTP_PORT"])
-    except smtplib.SMTPAuthenticationError:
-        raise
-    except (OSError, smtplib.SMTPException) as error:
-        # 서버에서 한 포트(587/465)가 막히거나 끊기면 다른 방식으로 한 번 더 시도 (10/3 배포 앱 발송 실패 대응)
-        print(f"[email_alerts] 첫 발송 실패({type(error).__name__}: {error}) → 다른 포트로 재시도", flush=True)
-        second(config, message, fallback_port)
+        plan = [(_send_starttls, config["SMTP_PORT"]), (_send_ssl, 465)]
+    failures = []
+    for sender, port in plan:
+        failure = _attempt(sender, config, message, port)
+        if failure is None:
+            return
+        failures.append(failure)
+    raise SendFailure(" / ".join(failures))
 
 
 def send_due_alerts(config, db_path=None, today=None, app_url=None, smtp_factory=None):

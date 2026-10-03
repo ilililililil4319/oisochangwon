@@ -278,6 +278,8 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-home-hero-band [data-testid="stColumn"] {padding-top: .6rem; padding-bottom: .6rem;}
 [data-testid="stSidebar"] {border-right: 3px solid #FE6A01;}
 [data-testid="stExpander"] details {border-color: #D5DDE7;}
+.st-key-home-ask-row {background: #F7F9FC; border: 1px solid #D5DDE7; border-radius: 12px; padding: .8rem 1rem; gap: .35rem; margin-top: .4rem;}
+.st-key-home-ask-row [data-testid="stCaptionContainer"] p {font-size: .82rem;}
 /* 10/3 UX/UI 다듬기(기능 변경 없음): 글자 대비·섹션 제목·간격 통일 */
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {color: #4D5B6A;}
 .stApp [data-testid="stCaptionContainer"] p {line-height: 1.6;}
@@ -665,10 +667,12 @@ def render_home_page():
         with st.container(key="agent-flow"):
             st.markdown(f'<div class="flow-row">{flow_html}</div>', unsafe_allow_html=True)
         _caption(SAVE_HELP)
-        with st.container(key="home-ask-row", horizontal=True, vertical_alignment="center"):
-            _caption("궁금한 건 네 기능을 넘나들며 한 문장으로 물어보세요.")
-            st.button(f"{ASK_LABEL} →" if user_key else f"🔒 {ASK_LABEL} · 조건 입력 후 열려요", key="show-ask",
-                      disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
+        # 설명과 버튼을 한 묶음으로, 잠금 안내는 버튼 아래 작은 글씨로 (10/3 실사용자 피드백)
+        with st.container(key="home-ask-row"):
+            st.markdown("**궁금한 게 있나요?** 네 기능을 넘나들며 한 문장으로 물어보세요.")
+            st.button(f"{ASK_LABEL} →", key="show-ask", disabled=not user_key, on_click=_go, args=(PAGE_ASK,))
+            if not user_key:
+                _caption("🔒 조건 입력 후 열려요")
 
         st.divider()
         _caption(
@@ -1163,6 +1167,7 @@ def _email_alert_box(events, today):
                     reason = (
                         " (보내는 메일 계정 로그인 실패 — 관리자: Secrets의 앱 비밀번호 확인)"
                         if type(error).__name__ == "SMTPAuthenticationError"
+                        else f" (오류: {error})" if isinstance(error, email_alerts.SendFailure)
                         else f" (오류 종류: {type(error).__name__})"
                     )
                     st.session_state["alert_message"] = (

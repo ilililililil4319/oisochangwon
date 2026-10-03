@@ -115,25 +115,39 @@ class SendFallbackTests(unittest.TestCase):
         from unittest.mock import patch
         calls = []
 
-        def broken(config, message, port):
+        def broken(config, message, port, stage):
             calls.append(("starttls", port))
+            stage["name"] = "암호화(STARTTLS)"
             raise TimeoutError("timed out")
 
         with patch.object(email_alerts, "_send_starttls", broken), \
-                patch.object(email_alerts, "_send_ssl", lambda c, m, port: calls.append(("ssl", port))):
+                patch.object(email_alerts, "_send_ssl", lambda c, m, port, stage: calls.append(("ssl", port))):
             email_alerts.send_message(self.CONFIG, object())
         self.assertEqual(calls, [("starttls", 587), ("ssl", 465)])
+
+    def test_both_failures_report_port_and_stage(self):
+        import smtplib
+        from unittest.mock import patch
+
+        def drop(config, message, port, stage):
+            stage["name"] = "연결"
+            raise smtplib.SMTPServerDisconnected("Connection unexpectedly closed")
+
+        with patch.object(email_alerts, "_send_starttls", drop), patch.object(email_alerts, "_send_ssl", drop):
+            with self.assertRaises(email_alerts.SendFailure) as caught:
+                email_alerts.send_message(self.CONFIG, object())
+        self.assertEqual(str(caught.exception), "587 연결 SMTPServerDisconnected / 465 연결 SMTPServerDisconnected")
 
     def test_login_failure_is_not_retried(self):
         import smtplib
         from unittest.mock import patch
         calls = []
 
-        def denied(config, message, port):
+        def denied(config, message, port, stage):
             raise smtplib.SMTPAuthenticationError(535, b"bad")
 
         with patch.object(email_alerts, "_send_starttls", denied), \
-                patch.object(email_alerts, "_send_ssl", lambda c, m, port: calls.append(port)):
+                patch.object(email_alerts, "_send_ssl", lambda c, m, port, stage: calls.append(port)):
             with self.assertRaises(smtplib.SMTPAuthenticationError):
                 email_alerts.send_message(self.CONFIG, object())
         self.assertEqual(calls, [])
