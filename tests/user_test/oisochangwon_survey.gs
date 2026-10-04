@@ -836,6 +836,8 @@ function buildReport() {
   p('3. 과제 수행 결과(완료 / 부분완료 / 미완료)').setHeading(H1);
   const taskRows = [['단계', '모바일', 'PC·노트북']];
   const weakTasks = [];
+  const rates = [];   // 단계별 완료율(두 기기 합산) — 완료가 가장 적은 단계를 고르기 위함
+  const notDone = []; // 미완료가 있었던 단계
   TASKS.forEach(function (t, i) {
     const weakDev = [];
     const cells = [GRID_TITLE_MOBILE, GRID_TITLE_PC].map(function (g) {
@@ -845,6 +847,9 @@ function buildReport() {
       const answered = cnt['완료'] + cnt['부분완료'] + cnt['미완료'];
       if (answered === 0) return '-';
       if ((cnt['부분완료'] || 0) + (cnt['미완료'] || 0) > 0) weakDev.push(g === GRID_TITLE_MOBILE ? '모바일' : 'PC');
+      if (cnt['미완료'] > 0) notDone.push((i + 1) + '단계 ' + (g === GRID_TITLE_MOBILE ? '모바일' : 'PC') + ' ' + cnt['미완료'] + '건');
+      rates[i] = rates[i] || { done: 0, total: 0 };
+      rates[i].done += cnt['완료']; rates[i].total += answered;
       return cnt['완료'] + ' / ' + cnt['부분완료'] + ' / ' + cnt['미완료'] + ' (' + answered + '명)';
     });
     if (weakDev.length) weakTasks.push((i + 1) + '단계(' + weakDev.join('·') + ')');
@@ -852,9 +857,18 @@ function buildReport() {
   });
   table(taskRows);
   p('괄호 안은 그 기기로 수행한 응답자 수입니다. "-"는 그 기기로 수행한 응답자가 없음을 뜻합니다.');
-  p(weakTasks.length
-    ? '부분완료·미완료가 있었던 단계: ' + weakTasks.join(', ') + ' → 개선 우선 검토'
-    : '모든 단계를 응답자 전원이 완료했습니다.');
+  if (!weakTasks.length) {
+    p('모든 단계를 응답자 전원이 완료했습니다.');
+  } else {
+    // 모든 단계에 부분완료가 섞이면 목록이 길기만 해서, 완료율이 가장 낮은 단계와 미완료만 짚습니다.
+    const valid = rates.map(function (r, i) { return r && r.total ? { i: i, v: r.done / r.total, r: r } : null; })
+      .filter(function (x) { return x; });
+    const minV = Math.min.apply(null, valid.map(function (x) { return x.v; }));
+    const lowest = valid.filter(function (x) { return x.v === minV; })
+      .map(function (x) { return (x.i + 1) + '단계(완료 ' + x.r.done + '/' + x.r.total + ')'; });
+    p('완료가 가장 적은 단계: ' + lowest.join(', ') + ' → 개선 우선 검토');
+    p(notDone.length ? '미완료: ' + notDone.join(', ') + ' → 막힌 지점 확인' : '미완료는 없었습니다.');
+  }
 
   // 4. 항목별 평가
   p('4. 항목별 평가(5점 만점)').setHeading(H1);
@@ -871,8 +885,10 @@ function buildReport() {
   appendChartImage_(body, 0);
   const ranked = scores.filter(function (s) { return s.a !== null; }).sort(function (a, b) { return b.a - a.a; });
   if (ranked.length) {
-    bullet('가장 높은 항목: ' + ranked[0].q + ' (' + ranked[0].a + '점)');
-    bullet('가장 낮은 항목: ' + ranked[ranked.length - 1].q + ' (' + ranked[ranked.length - 1].a + '점)');
+    const top = ranked[0].a, bottom = ranked[ranked.length - 1].a;
+    const names = function (v) { return ranked.filter(function (s) { return s.a === v; }).map(function (s) { return s.q; }).join(' · '); };
+    bullet('가장 높은 항목: ' + names(top) + ' (' + top.toFixed(2) + '점)');
+    bullet('가장 낮은 항목: ' + names(bottom) + ' (' + bottom.toFixed(2) + '점)');
     bullet('전체 문항 평균: ' + avg_(ranked.map(function (s) { return s.a; })).toFixed(2) + '점');
   }
 

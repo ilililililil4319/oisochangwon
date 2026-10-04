@@ -75,7 +75,9 @@ HOME_DISTRICTS = ["의창구", "성산구", "마산합포구", "마산회원구"
 ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 LOGO_WIDE_PATH = ASSETS_DIR / "logo_wide.png"
 LOGO_ICON_PATH = ASSETS_DIR / "logo_icon.png"
-LOGO_WIDTH = 476  # PC에서는 560px, 모바일에서는 화면 폭에 맞춰 자동으로 줄어듦
+# 첫 화면 위쪽 왼쪽 끝 작은 로고(남색 배경용 흰 글자 버전, 원본 로고 색만 바꿈) (10/4 이혜경: 로고 줄여서 한쪽 끝으로)
+LOGO_LIGHT_PATH = ASSETS_DIR / "logo_wide_light.png"
+LOGO_WIDTH = 168
 SLOGAN = "창원에서 너의 내일을 응원해!"
 POLICY_COUNT = len(load_policies())
 def _safe_count(loader):
@@ -121,6 +123,7 @@ def _caption(body, *args, **kwargs):
 # Native heading and caption roles share one small typography layer.
 READABILITY_CSS = """
 <style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 /* 한글 줄바꿈: 낱말 중간에서 끊지 않고 띄어쓰기에서 바꿈, 긴 URL만 필요할 때 끊음 */
 .stApp p, .stApp li, .stApp label, .stApp span, .stApp td, .stApp th, .stApp button, .stApp h1, .stApp h2, .stApp h3,
 .stApp [data-testid="stCaptionContainer"], .stApp .flow-box {word-break: keep-all; overflow-wrap: break-word;}
@@ -338,6 +341,63 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 .st-key-page-policy [data-testid="stExpander"] summary p, .st-key-page-explore [data-testid="stExpander"] summary p,
 .st-key-page-dialect [data-testid="stExpander"] summary p, .st-key-page-complaint [data-testid="stExpander"] summary p
     {font-size: 1.05rem; font-weight: 600;}
+
+/* ===== 10/4 첫 화면 새 디자인(이혜경: 젊고 감각적으로, 로고는 작게 한쪽 끝) — 기능·문구는 그대로 ===== */
+.stApp, .stApp button, .stApp input, .stApp textarea {font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system, sans-serif !important;}
+.st-key-home-hero-band {position: relative; overflow: hidden; border-radius: 0 0 28px 28px;
+    background: radial-gradient(circle at 88% 12%, rgba(254,106,1,.38) 0, rgba(254,106,1,0) 32%),
+                radial-gradient(circle at 8% 100%, rgba(46,158,107,.28) 0, rgba(46,158,107,0) 30%),
+                linear-gradient(135deg, #041F3D 0%, #063465 52%, #0B4C8C 100%) !important;
+    margin-top: -2.3rem !important; padding-top: 2.4rem !important; padding-bottom: 2.4rem !important;}
+.st-key-home-topbar {padding: .2rem 0 1.4rem; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 1.6rem;}
+.st-key-home-topbar [data-testid="stImage"] img {width: 168px !important; height: auto;}
+.top-pill {display: inline-block; padding: .35rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 600;
+    color: #FFFFFF; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); letter-spacing: -.01em;}
+.hero-eyebrow {display: inline-block; padding: .3rem .75rem; border-radius: 999px; font-size: .8rem; font-weight: 700;
+    color: #FFB98A; background: rgba(254,106,1,.14); border: 1px solid rgba(254,106,1,.45); letter-spacing: .02em;}
+.st-key-home-hero-band .st-key-slogan h3 {font-size: clamp(1.9rem, 3.6vw, 2.9rem) !important; font-weight: 800 !important;
+    line-height: 1.22 !important; letter-spacing: -.03em; padding: .5rem 0 .4rem !important;
+    background: linear-gradient(92deg, #FFFFFF 0%, #FFFFFF 55%, #FFB98A 100%); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: #FFFFFF;}
+.st-key-hero-intro p, .st-key-hero-intro p b {color: rgba(255,255,255,.86) !important;}
+.st-key-hero-intro p b {color: #FFFFFF !important;}
+.st-key-hero-cta [data-testid="stBaseButton-primary"] {border-radius: 999px !important; min-height: 3.2rem; padding: 0 1.8rem;
+    box-shadow: 0 10px 28px rgba(254,106,1,.40); transition: transform .15s ease, box-shadow .15s ease;}
+.st-key-hero-cta [data-testid="stBaseButton-primary"]:hover {transform: translateY(-2px); box-shadow: 0 14px 32px rgba(254,106,1,.5);}
+.st-key-hero-cta [data-testid="stBaseButton-tertiary"] {border: 1px solid rgba(255,255,255,.35) !important; border-radius: 999px !important;
+    padding: .55rem 1.2rem !important; min-height: 3.2rem;}
+.st-key-hero-cta [data-testid="stBaseButton-tertiary"] p {color: #FFFFFF !important; font-weight: 600;}
+.st-key-hero-cta [data-testid="stBaseButton-tertiary"]:hover {background: rgba(255,255,255,.10) !important;}
+.st-key-hero-cta-help p.cta-help {background: rgba(255,255,255,.08) !important; border-left: 3px solid #FE6A01 !important;
+    color: rgba(255,255,255,.92) !important; border-radius: 0 12px 12px 0; backdrop-filter: blur(6px);}
+.st-key-hero-trust [data-testid="stCaptionContainer"] p {color: rgba(255,255,255,.66) !important;}
+.st-key-hero-example, .st-key-hero-progress {background: rgba(255,255,255,.97) !important; border: none !important;
+    border-radius: 22px !important; box-shadow: 0 24px 60px rgba(2,16,34,.38); padding: 1.6rem 1.5rem 1.4rem !important; position: relative; overflow: hidden;}
+.st-key-hero-example::before, .st-key-hero-progress::before {content: ""; position: absolute; left: 0; right: 0; top: 0;
+    height: 5px; background: linear-gradient(90deg, #FE6A01, #2E9E6B);}
+.st-key-hero-example p.hero-lines {line-height: 2.05;}
+/* 아래 영역: 카드형·둥근 모서리·부드러운 그림자 */
+.stApp p.sec-title {font-weight: 800 !important; letter-spacing: -.02em; display: flex; align-items: center; gap: .55rem;}
+.stApp p.sec-title::before {content: ""; width: 6px; height: 1.2em; border-radius: 3px; background: linear-gradient(180deg, #FE6A01, #063465);}
+.flow-box {border-radius: 18px !important; background: #FFFFFF !important; border: 1px solid #E3E9F1 !important;
+    box-shadow: 0 6px 18px rgba(6,52,101,.06);}
+.flow-box.flow-ai {background: linear-gradient(160deg, #F1F5FF 0%, #FFFFFF 70%) !important; border-color: #C9D7F0 !important;}
+.flow-box b {color: #063465;}
+.flow-arrow {color: #FE6A01;}
+[class*="st-key-home-card-"] {border: 1px solid #E3E9F1 !important; border-top: 1px solid #E3E9F1 !important; border-radius: 18px !important;
+    box-shadow: 0 6px 18px rgba(6,52,101,.06); position: relative; overflow: hidden; transition: transform .15s ease, box-shadow .15s ease;}
+[class*="st-key-home-card-"]::before {content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, #063465, #FE6A01);}
+[class*="st-key-home-card-"]:hover {transform: translateY(-3px); box-shadow: 0 14px 30px rgba(6,52,101,.12);}
+.st-key-home-ask-row {border-radius: 18px !important; background: linear-gradient(120deg, #FFF4EB 0%, #F4F7FC 100%) !important; border: 1px solid #F3D9C6 !important;}
+@media (max-width: 640px) {
+    .st-key-home-hero-band {margin-top: -4rem !important; padding-top: 3.6rem !important; border-radius: 0 0 22px 22px;}
+    .st-key-home-topbar {padding-bottom: 1rem; margin-bottom: 1.1rem; flex-wrap: nowrap !important; gap: .5rem !important;}
+    .st-key-home-topbar > div {width: auto !important; flex: 0 1 auto !important;}
+    .st-key-home-topbar [data-testid="stImage"] img {width: 132px !important;}
+    .top-pill {font-size: .72rem; padding: .28rem .65rem;}
+    .st-key-hero-cta [data-testid="stBaseButton-tertiary"] {width: 100%;}
+}
+@media (max-width: 380px) {.top-pill {display: none;}}
 </style>
 """
 
@@ -673,9 +733,14 @@ def render_home_page():
     # HERO: 화면 전체 폭 배경, 내용은 가운데 1200px
     with st.container(key="home-hero-band"):
         with st.container(key="home-hero-inner"):
+            # 맨 위 한 줄: 작은 로고(왼쪽 끝) + 서비스 한 줄 소개(오른쪽)
+            with st.container(key="home-topbar", horizontal=True, vertical_alignment="center",
+                              horizontal_alignment="distribute"):
+                st.image(str(LOGO_LIGHT_PATH), width=LOGO_WIDTH)
+                st.markdown('<span class="top-pill">창원 전입 청년 · 첫 180일 정착 코디</span>', unsafe_allow_html=True)
             text_col, preview_col = st.columns([3, 2], gap="large", vertical_alignment="center")
             with text_col:
-                st.image(str(LOGO_WIDE_PATH), width=LOGO_WIDTH)
+                st.markdown('<span class="hero-eyebrow">AI 정착 코디네이터 Agent</span>', unsafe_allow_html=True)
                 with st.container(key="slogan"):
                     st.subheader(SLOGAN, anchor=False)
                 with st.container(key="hero-intro"):
