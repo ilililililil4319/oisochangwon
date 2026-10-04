@@ -6,7 +6,7 @@
 |---|---|
 | `during_development/` (기⁠능 구⁠현 과⁠정 테⁠스⁠트) | |
 | `during_development/ai_test/20261002/` | AI 자⁠동 실⁠행 캡⁠처 26장 — 대⁠표 Test Case 6건⁠을 Chrome(Playwright)으⁠로 PC 1600×950·모⁠바⁠일 390×844에⁠서 자⁠동 실⁠행⁠한 화⁠면 (`tests/team_self_test/자체테스트_TestCase.md`의 ‘자⁠동 실⁠행 결⁠과’) |
-| `during_development/work_process/20261002/` | 개⁠발 작⁠업 과⁠정 캡⁠처 31장 — 수⁠정 전·후, 에⁠러⁠와 조⁠치, 배⁠포·공⁠유 (`docs/work_process/` 설⁠명 문⁠서) |
+| `during_development/work_process/20261002/` | 개⁠발 작⁠업 과⁠정 캡⁠처 27장 — 수⁠정 전·후, 에⁠러⁠와 조⁠치, 배⁠포 (`docs/work_process/` 설⁠명 문⁠서) |
 | `after_development/` (기⁠능 구⁠현 이⁠후 테⁠스⁠트) | |
 | `after_development/team_self_test/20261003/` | 팀 자⁠체 테⁠스⁠트 캡⁠처 37장 — 배⁠포 앱 전⁠체 기⁠능 테⁠스⁠트(01–24), 진⁠해 링⁠크 중⁠복 수⁠정 전·후(25–29), 배⁠포 앱 수⁠정 확⁠인(30–33), 이⁠미⁠영 휴⁠대⁠폰 점⁠검(34–37) |
 | `after_development/user_test/` | 실⁠사⁠용⁠자 테⁠스⁠트 캡⁠처 (설⁠문 응⁠답 화⁠면 등, 이⁠름·연⁠락⁠처⁠는 가⁠리⁠고 저⁠장) |
