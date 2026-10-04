@@ -12,6 +12,7 @@
 - **💻 GitHub:** https://github.com/jojunsu98/oiso_changwon
 - **📄 개⁠발⁠완⁠료⁠보⁠고⁠서:** [보⁠고⁠서 보⁠기](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
 - **📋 기⁠획⁠안(최⁠종⁠본):** [기⁠획⁠안 보⁠기](docs/planning/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B8%B0%ED%9A%8D%EC%95%88_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261004.md)
+- **📑 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응):** [결⁠과⁠보⁠고⁠서 보⁠기](docs/result/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B2%B0%EA%B3%BC%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
 - **🛠 Streamlit 관⁠리(개⁠발⁠자, 로⁠그⁠인 필⁠요):** https://share.streamlit.io → oisochangwon
 - **✉️ 앱 문⁠의:** whwnstn9294@gmail.com
 
@@ -84,6 +85,7 @@
 | --- | :---: | --- |
 | 웹 앱 | Streamlit, Streamlit Community Cloud 배⁠포 | `app.py`, `src/`, `data/` |
 | 기⁠획⁠안 | 초⁠안 PDF · 최⁠종⁠본 md·pdf·docx | `docs/planning/` |
+| 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응) | md·pdf·docx — 기⁠획⁠안 Ⅰ~Ⅸ장⁠별 계⁠획 → 실⁠제 결⁠과 | `docs/result/` |
 | 개⁠발⁠완⁠료⁠보⁠고⁠서 | md·pdf·docx (A4 5쪽) | `deliverables/final_report/` |
 | AI Agent 기⁠술⁠설⁠명⁠서 | 1쪽 (별⁠지 1, 제⁠출2·3) | `deliverables/technical_description/` |
 | 참⁠가 신⁠청⁠서(최⁠종 수⁠정⁠본) | md·pdf·docx (9/28 대⁠비 변⁠경 사⁠항 포⁠함) | `deliverables/submission/` |
@@ -125,11 +127,12 @@ oiso_changwon/
 │
 ├── tests/ (테스트 3종)
 │   ├── ai_test/ (AI 자동 테스트)        unittest 127개
-│   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서(이혜경·이미영) · 결과 반영표
+│   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서 · 팀자체테스트 현황표
 │   └── user_test/ (실사용자 테스트)      오이소창원_사용자테스트_서류양식(설문 Apps Script·평가지) · results_20261004(4명 결과·그래프)
 │
 ├── docs/ (문서)
 │   ├── planning/ (기획)          기획안 초안(10/1) · 최종본(10/4) · 그림
+│   ├── result/ (결과)            기획안 대응 결과보고서(10/4)
 │   ├── images/ (그림)            Workflow 다이어그램
 │   ├── work_process/ (작업 과정)  캡처 설명
 │   └── ux_ui/ (UX/UI)            개선 작업 프롬프트
@@ -463,7 +466,7 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 | 구⁠분 | 방⁠법 | 결⁠과 |
 | :---: | --- | --- |
 | AI 자⁠동 테⁠스⁠트 | unittest 127개 · 대⁠표 Test Case 6건 PC·모⁠바⁠일 자⁠동 실⁠행 | 127개 통⁠과 · 12회 통⁠과(캡⁠처 26장) |
-| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 6번·전⁠체 검⁠수 | 지⁠적 83건 중 83건 반⁠영(B 68건, C 9건, A 6건 모⁠두), 현⁠황⁠표 `tests/team_self_test/README.md` |
+| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 6번·전⁠체 검⁠수 | 지⁠적 83건 중 83건 반⁠영(B 68건, C 9건, A 6건 모⁠두), 현⁠황⁠표 `tests/team_self_test/오이소창원_팀자체테스트_현황표.md` |
 | 실⁠사⁠용⁠자 테⁠스⁠트 | 4명(U01–U04), 8개 과⁠제 + 온⁠라⁠인 설⁠문 | 문⁠항 평⁠균 4.56/5 · 만⁠족⁠도 4.75/5 · 추⁠천 4명 중 4명 |
 
 **실⁠사⁠용⁠자 테⁠스⁠트 그⁠래⁠프** (상⁠세: `tests/user_test/results_20261004/`)
