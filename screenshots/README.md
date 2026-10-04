@@ -9,6 +9,5 @@
 | `during_development/work_process/20261002/` | 개⁠발 작⁠업 과⁠정 캡⁠처 27장 — 수⁠정 전·후, 에⁠러⁠와 조⁠치, 배⁠포 (`docs/work_process/` 설⁠명 문⁠서) |
 | `after_development/` (기⁠능 구⁠현 이⁠후 테⁠스⁠트) | |
 | `after_development/team_self_test/20261003/` | 팀 자⁠체 테⁠스⁠트 캡⁠처 37장 — 배⁠포 앱 전⁠체 기⁠능 테⁠스⁠트(01–24), 진⁠해 링⁠크 중⁠복 수⁠정 전·후(25–29), 배⁠포 앱 수⁠정 확⁠인(30–33), 이⁠미⁠영 휴⁠대⁠폰 점⁠검(34–37) |
-| `after_development/user_test/` | 실⁠사⁠용⁠자 테⁠스⁠트 캡⁠처 (설⁠문 응⁠답 화⁠면 등, 이⁠름·연⁠락⁠처⁠는 가⁠리⁠고 저⁠장) |
 | `after_development/ui_update/20261004/` | UX/UI 수⁠정 후 최⁠신 화⁠면 11장(PC 10·휴⁠대⁠폰 1, 로⁠컬 캡⁠처) |
 | `after_development/implementation_complete/20261004/` | 구⁠현 완⁠료 화⁠면 15장(배⁠포 앱 PC 7·휴⁠대⁠폰 8, GPT-4.1 mini 답⁠변) |

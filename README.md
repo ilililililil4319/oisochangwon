@@ -84,10 +84,10 @@
 | 웹 앱 | Streamlit, Streamlit Community Cloud 배⁠포 | `app.py`, `src/`, `data/` |
 | 기⁠획⁠안 | 초⁠안 PDF · 최⁠종⁠본 md·pdf·docx | `docs/planning/` |
 | 개⁠발⁠완⁠료⁠보⁠고⁠서 | md·pdf·docx (A4 5쪽) | `deliverables/final_report/` |
-| AI Agent 기⁠술⁠설⁠명⁠서 | 1쪽 (10/5 작⁠성) | `deliverables/technical_description/` |
+| AI Agent 기⁠술⁠설⁠명⁠서 | 1쪽 (10/5 작⁠성) | 작⁠성 후 `deliverables/`에 추⁠가 |
 | 출⁠처·AI 활⁠용 신⁠고⁠서 | md·pdf·docx | `deliverables/submission/` |
 | 시⁠연⁠영⁠상·스⁠크⁠립⁠트 | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
-| 발⁠표⁠자⁠료 | 10장 이⁠내 (10/5 작⁠성) | `deliverables/presentation/ppt/` |
+| 발⁠표⁠자⁠료 | 10장 이⁠내 (10/5 작⁠성) | 작⁠성 후 `deliverables/presentation/`에 추⁠가 |
 | 테⁠스⁠트 3종 | 코⁠드·체⁠크⁠리⁠스⁠트·보⁠고⁠서·설⁠문 결⁠과 | `tests/` |
 | 증⁠빙 캡⁠처 | PNG·JPG 120장 | `screenshots/` |
 
@@ -134,13 +134,12 @@ oiso_changwon/
 │
 ├── deliverables/ (최종 제출물)
 │   ├── final_report/ (개발완료보고서)
-│   ├── technical_description/ (AI Agent 기술설명서)
 │   ├── submission/ (출처·AI 활용 신고서)
-│   └── presentation/ (발표) ── ppt/ · video/
+│   └── presentation/ (발표) ── video/ (시연영상 스크립트)
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (기능 구현 과정)  ai_test 26장 · work_process 27장
-│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 16장 · implementation_complete 15장 · 최종구현사진 18장(10/4 최종) · user_test
+│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 16장 · implementation_complete 15장 · 최종구현사진 18장(10/4 최종)
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -231,7 +230,7 @@ oiso_changwon/
 | 9 | 📅 캘⁠린⁠더 · 📄 정⁠착 리⁠포⁠트 · ✉️ 동⁠의 기⁠반 이⁠메⁠일 알⁠림 | 10/3 | after_development 08-11 |
 | 10 | ③ 불⁠편⁠사⁠항 · ④ 지⁠역⁠말 화⁠면 개⁠선 | 10/3 | after_development 31-32 |
 | 11 | 팀 자⁠체 테⁠스⁠트 — B 이⁠혜⁠경 25번(지⁠적 68건 중 66건 반⁠영), C 이⁠미⁠영 2번(9건 중 9건 반⁠영) | 10/2–10/4 | after_development 01-33 |
-| 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 4번(인⁠증 오⁠류·UX·UI 요⁠청) 3건 반⁠영·전⁠체 검⁠수 | 10/3 | after_development 34-37 |
+| 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 4번(UX·UI 요⁠청·인⁠증 오⁠류·기⁠능 확⁠인) 4건 반⁠영·전⁠체 검⁠수 | 10/2–10/3 | after_development 34-37 |
 | 13 | 실⁠사⁠용⁠자 4명 테⁠스⁠트·설⁠문 → 의⁠견 반⁠영 | 10/3–10/4 | `tests/user_test/results_20261004` |
 | 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) | 10/3~10/4 | ui_update 16장 |
 | 15 | 기⁠획⁠안·개⁠발⁠완⁠료⁠보⁠고⁠서·신⁠고⁠서·영⁠상 스⁠크⁠립⁠트·README 작⁠성 | 10/4 | `docs/` · `deliverables/` |
@@ -457,7 +456,7 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 | 구⁠분 | 방⁠법 | 결⁠과 |
 | :---: | --- | --- |
 | AI 자⁠동 테⁠스⁠트 | unittest 127개 · 대⁠표 Test Case 6건 PC·모⁠바⁠일 자⁠동 실⁠행 | 127개 통⁠과 · 12회 통⁠과(캡⁠처 26장) |
-| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 4번·전⁠체 검⁠수 | 지⁠적 80건 중 78건 반⁠영(B 68건 중 66건, C 9건 중 9건, A 3건 중 3건, 이⁠메⁠일 2건 계⁠정 대⁠기), 현⁠황⁠표 `tests/team_self_test/README.md` |
+| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 4번·전⁠체 검⁠수 | 지⁠적 81건 중 79건 반⁠영(B 68건 중 66건, C 9건 중 9건, A 4건 중 4건, 이⁠메⁠일 2건 계⁠정 대⁠기), 현⁠황⁠표 `tests/team_self_test/README.md` |
 | 실⁠사⁠용⁠자 테⁠스⁠트 | 4명(U01–U04), 8개 과⁠제 + 온⁠라⁠인 설⁠문 | 문⁠항 평⁠균 4.56/5 · 만⁠족⁠도 4.75/5 · 추⁠천 4명 중 4명 |
 
 **실⁠사⁠용⁠자 테⁠스⁠트 그⁠래⁠프** (상⁠세: `tests/user_test/results_20261004/`)
