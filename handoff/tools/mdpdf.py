@@ -27,6 +27,13 @@ if qr:
     css += ("body{position:relative}.qr{position:absolute;top:0;right:0;width:26mm}.qr img{width:26mm;margin:0}"
             "h1:first-of-type{padding-right:30mm}h1:first-of-type+p{padding-right:30mm;min-height:20mm}")
     body = f'<div class="qr"><img src="data:image/png;base64,{data}" alt="앱 QR"></div>' + body
+# LOGO=그림 경로 → 첫 쪽 왼쪽 위에 오이소창원 로고 (10/4)
+logo = os.environ.get('LOGO')
+if logo:
+    import base64
+    ldata = base64.b64encode(open(logo, 'rb').read()).decode()
+    css += ".logo{height:10mm;margin:0 0 3mm;display:block}"
+    body = f'<img class="logo" src="data:image/png;base64,{ldata}" alt="오이소창원">' + body
 tmp = os.path.join(os.path.dirname(os.path.abspath(md)), '_tmp_render.html')
 open(tmp, 'w', encoding='utf-8').write(f"<!doctype html><html lang=ko><meta charset=utf-8><style>{css}</style><body>{body}{script}</body></html>")
 MARGIN = {'top': '14mm', 'bottom': '15mm', 'left': '13mm', 'right': '13mm'}
@@ -43,7 +50,8 @@ async def main():
         count = lambda: len(PdfReader(pdf).pages)
         await render(pg, True); n = count(); best = 1.0
         # 마지막 쪽에 몇 줄만 남아 빈 공간이 커지면 글자를 조금(최대 11%) 줄여 한 쪽을 줄여 봄
-        for s in (0.96, 0.92, 0.89):
+        scales = (0.96, 0.92, 0.89) + ((0.86, 0.83, 0.80, 0.77) if '기술설명서' in md else ())  # 기술설명서는 1쪽 목표
+        for s in scales:
             await render(pg, True, s)
             if count() < n: best = s; break
         await render(pg, True, best)

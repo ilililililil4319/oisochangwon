@@ -12,6 +12,5 @@
 | `during_development/ui_update/20261004/` | UX/UI 다⁠듬⁠기 화⁠면 11장(10/4 새⁠벽, 로⁠컬) |
 | `during_development/deploy_check/20261004/` | 배⁠포 앱 확⁠인 15장(10/4 새⁠벽, 이⁠혜⁠경 PC 7·휴⁠대⁠폰 8) |
 | `after_development/` (구⁠현 완⁠료) | |
-| `after_development/최종구현사진/` | 최⁠종 구⁠현 사⁠진 18장(10/4 저⁠녁, 이⁠혜⁠경 PC 7·휴⁠대⁠폰 11, 배⁠포 앱) |
+| `after_development/최종구현사진/` | 최⁠종 구⁠현 사⁠진 21장(10/4 저⁠녁, 이⁠혜⁠경 PC 7·휴⁠대⁠폰 11·이⁠메⁠일 알⁠림 3, 배⁠포 앱) |
 | `after_development/ui_update/20261004/` | 새 디⁠자⁠인 화⁠면 5장(10/4 저⁠녁, 로⁠컬) |
-| `after_development/이메일알림/` | 이⁠메⁠일 알⁠림(선⁠택 기⁠능) 화⁠면 — 10/5 추⁠가 예⁠정 |

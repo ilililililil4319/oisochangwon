@@ -18,6 +18,9 @@ function runs(text,opts={}){
 }
 function clean(t){return t.replace(/`/g,'');}
 const children=[];
+// LOGO=그림 경로 → 문서 맨 위 왼쪽에 오이소창원 로고 (10/4)
+if(process.env.LOGO){ const lb=fs.readFileSync(process.env.LOGO); const lw=lb.readUInt32BE(16), lh=lb.readUInt32BE(20);
+  children.push(new Paragraph({spacing:{after:80},children:[new ImageRun({type:'png',data:lb,transformation:{width:150,height:Math.round(lh*150/lw)}})]})); }
 let i=0;
 // 짧은 칸(항목·숫자·영문, 14자 이하)은 글자 수만큼 폭을 주고 한 줄·가운데, 나머지 폭은 긴 칸이 나눠 씀
 function shortCols(n,rows){const mx=Array(n).fill(0);rows.slice(1).forEach(r=>r.forEach((c,i)=>{mx[i]=Math.max(mx[i],clean(c).replace(/\*\*/g,'').length)}));return mx.map(m=>m<=14&&n>1);}
