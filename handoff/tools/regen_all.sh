@@ -28,5 +28,6 @@ deliverables/presentation/ppt/오이소창원_발표자료_GPT프롬프트_이�
 tests/team_self_test/오이소창원_체크리스트_서류양식.md|오이소창원 체크리스트 서류 양식|y|qr
 tests/team_self_test/자체평가_테스트보고서/오이소창원_자체평가_테스트보고서(1차).md|오이소창원 1차 자체평가·테스트 보고서|n|qr
 handoff/team_share/오이소창원_팀공유_20261003.md|오이소창원 팀 공유 20261003|n
+handoff/오이소창원_영상PPT_인계서_20261005.md|오이소창원 시연영상·발표자료 인계서|y
 handoff/오이소창원_작업지시인계서_20261004.md|오이소창원 작업지시·인계서 20261004|n
 LIST
