@@ -84,7 +84,7 @@
 | 웹 앱 | Streamlit, Streamlit Community Cloud 배⁠포 | `app.py`, `src/`, `data/` |
 | 기⁠획⁠안 | 초⁠안 PDF · 최⁠종⁠본 md·pdf·docx | `docs/planning/` |
 | 개⁠발⁠완⁠료⁠보⁠고⁠서 | md·pdf·docx (A4 5쪽) | `deliverables/final_report/` |
-| AI Agent 기⁠술⁠설⁠명⁠서 | 1쪽 (10/5 작⁠성) | 작⁠성 후 `deliverables/`에 추⁠가 |
+| AI Agent 기⁠술⁠설⁠명⁠서 | 1쪽 (별⁠지 1, 제⁠출2·3) | `deliverables/technical_description/` |
 | 출⁠처·AI 활⁠용 신⁠고⁠서 | md·pdf·docx | `deliverables/submission/` |
 | 시⁠연⁠영⁠상·스⁠크⁠립⁠트 | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
 | 발⁠표⁠자⁠료 | 10장 이⁠내 (10/5 작⁠성) | 작⁠성 후 `deliverables/presentation/`에 추⁠가 |
@@ -134,6 +134,7 @@ oiso_changwon/
 │
 ├── deliverables/ (최종 제출물)
 │   ├── final_report/ (개발완료보고서)
+│   ├── technical_description/ (AI Agent 기술설명서, 별지 1)
 │   ├── submission/ (출처·AI 활용 신고서)
 │   └── presentation/ (발표) ── video/ (시연영상 스크립트)
 │
