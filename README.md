@@ -122,7 +122,7 @@ oiso_changwon/
 ├── tests/ (테스트 3종)
 │   ├── ai_test/ (AI 자동 테스트)        unittest 126개
 │   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서(이혜경·이미영) · 결과 반영표
-│   └── user_test/ (실사용자 테스트)      설문 Apps Script · 평가지 · results_20261004(4명 결과·그래프)
+│   └── user_test/ (실사용자 테스트)      오이소창원_사용자테스트_서류양식(설문 Apps Script·평가지) · results_20261004(4명 결과·그래프)
 │
 ├── docs/ (문서)
 │   ├── planning/ (기획)          기획안 초안(10/1) · 최종본(10/4) · 그림
