@@ -65,7 +65,8 @@ while(i<md.length){
   else if(line.trim()) children.push(new Paragraph({spacing:{after:60},children:runs(clean(line),{size:19})}));
   i++;
 }
-const doc=new Document({styles:{default:{document:{run:{font:FONT,size:19}}}},
+// wordWrap: 한글을 글자 단위가 아니라 어절(띄어쓰기) 단위로 줄바꿈 — 낱말 중간 끊김 방지 (10/4)
+const doc=new Document({styles:{default:{document:{run:{font:FONT,size:19},paragraph:{wordWrap:true}}}},
   numbering:{config:[{reference:'b',levels:[{level:0,format:'bullet',text:'•',alignment:AlignmentType.LEFT,style:{paragraph:{indent:{left:360,hanging:240}}}}]}]},
   sections:[{properties:{page:{margin:{top:851,bottom:851,left:851,right:851}}},
     footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,children:[...(process.env.NOPAGE?[]:[new TextRun({text:(process.argv[4]||'')+' · ',size:16,color:'5B6775',font:FONT}),new TextRun({children:[PageNumber.CURRENT,' / ',PageNumber.TOTAL_PAGES],size:16,color:'5B6775'})])]})]})},
