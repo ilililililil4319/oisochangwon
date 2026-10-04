@@ -19,6 +19,14 @@ document.querySelectorAll('table').forEach(t=>{const rows=[...t.rows];if(!rows.l
   const head=(rows[0].cells[c]||{innerText:''}).innerText.trim().length;
   rows.slice(1).forEach(r=>{const x=r.cells[c];if(!x)return;x.classList.add((mx<=14&&n>1)?'short':'long')});}});
 </script>"""
+# QR=그림 경로 → 첫 쪽 오른쪽 위에 앱 QR(심사 중 바로 접속) (10/4)
+qr = os.environ.get('QR')
+if qr:
+    import base64
+    data = base64.b64encode(open(qr, 'rb').read()).decode()
+    css += ("body{position:relative}.qr{position:absolute;top:0;right:0;width:26mm}.qr img{width:26mm;margin:0}"
+            "h1:first-of-type{padding-right:30mm}h1:first-of-type+p{padding-right:30mm;min-height:20mm}")
+    body = f'<div class="qr"><img src="data:image/png;base64,{data}" alt="앱 QR"></div>' + body
 tmp = os.path.join(os.path.dirname(os.path.abspath(md)), '_tmp_render.html')
 open(tmp, 'w', encoding='utf-8').write(f"<!doctype html><html lang=ko><meta charset=utf-8><style>{css}</style><body>{body}{script}</body></html>")
 MARGIN = {'top': '14mm', 'bottom': '15mm', 'left': '13mm', 'right': '13mm'}

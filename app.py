@@ -1610,6 +1610,8 @@ def render_journey_page():
 
 # --- ② 창원 생활 둘러보기 -------------------------------------------------------
 EXPLORE_CARDS_SHOWN = 6
+# 생활 정보 첫 화면에 먼저 보여 줄 장소(목록 맨 앞·‘자세히 볼 곳’ 첫 선택) — 2026 창원 K-POP 월드페스티벌 · 성산구 (10/4 이혜경)
+FEATURED_ACTIVITY_ID = "A143"
 
 
 def _select_activity(activity_id):
@@ -1700,6 +1702,7 @@ def render_explore_page():
         app_name = st.context.url or "http://localhost:8501"
         car_only = [a for a in filtered_activities if a.get("이동 권장") == "차량 권장"] if no_car else []
         main_list = [a for a in filtered_activities if a not in car_only]
+        main_list.sort(key=lambda a: a["ID"] != FEATURED_ACTIVITY_ID)  # 대표 장소를 맨 앞으로(나머지 순서 유지)
         _activity_grid(main_list[:EXPLORE_CARDS_SHOWN], app_name)
         if len(main_list) > EXPLORE_CARDS_SHOWN:
             with st.expander(f"더 보기 · {len(main_list) - EXPLORE_CARDS_SHOWN}곳"):

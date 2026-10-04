@@ -4,7 +4,9 @@
 > 나의 조건으로 판정하고 일정으로 만들어 함께 챙겨 주는 코디네이터 Agent
 > — 슬로건: **창원에서 너의 내일을 응원해!**
 
-**🔗 배포 앱:** https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/
+<img src="docs/images/oisochangwon_app_qr.png" width="120" align="right" alt="앱 QR">
+
+**🔗 배포 앱:** https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/ (오른쪽 QR로 휴대폰에서 바로 접속)
 **💻 GitHub:** https://github.com/jojunsu98/oiso_changwon
 **📄 개발완료보고서:** [`deliverables/final_report/오이소창원_개발완료보고서_20261004.md`](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
 **📋 기획안(최종본):** [`docs/planning/오이소창원_기획안_최종본_20261004.md`](docs/planning/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B8%B0%ED%9A%8D%EC%95%88_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261004.md)
@@ -13,7 +15,7 @@
 
 제4회 경남 AI·SW 경진대회 일반부 · 지정주제 01(사회문제 해결형 AI Agent) · 팀 오이소창원(조준수 팀장 · 이혜경 · 이미영)
 
-![첫 화면 — 배포 앱 구현 완료(10/4)](screenshots/after_development/implementation_complete/20261004/01_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png)
+![첫 화면 — 최종 구현(10/4)](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png)
 
 ---
 
@@ -120,7 +122,7 @@ oiso_changwon/
 ├── data/ (팀 검증 데이터, JSON)  정책 24 · 할 일 26 · 할 일 링크 18 · 생활 정보 60 · 지역말 30+2,223 · 접수 창구 6
 │
 ├── tests/ (테스트 3종)
-│   ├── ai_test/ (AI 자동 테스트)        unittest 126개
+│   ├── ai_test/ (AI 자동 테스트)        unittest 127개
 │   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서(이혜경·이미영) · 결과 반영표
 │   └── user_test/ (실사용자 테스트)      오이소창원_사용자테스트_서류양식(설문 Apps Script·평가지) · results_20261004(4명 결과·그래프)
 │
@@ -138,7 +140,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (기능 구현 과정)  ai_test 26장 · work_process 31장
-│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 16장 · implementation_complete 15장(구현 완료) · user_test
+│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 16장 · implementation_complete 15장 · 최종구현사진 18장(10/4 최종) · user_test
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -335,30 +337,37 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 ## 11. 화면 구성
 
-10/4 UX/UI 수정 후 화면입니다. 첫 화면·③·④·물어보기는 배포 앱 구현 완료 화면(GPT-4.1 mini), 나머지는 로컬 캡처입니다. 목록: [`screenshots/after_development/implementation_complete/20261004/`](screenshots/after_development/implementation_complete/20261004/) · [`screenshots/after_development/ui_update/20261004/`](screenshots/after_development/ui_update/20261004/)
+10/4 최종 구현 화면입니다(배포 앱, GPT-4.1 mini 연결). 전체 18장: [`screenshots/after_development/최종구현사진/`](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/)
 
-| 첫 화면(처음 방문, 배포 앱) | 첫 화면(코디2026 정착 현황) |
-|:---:|:---:|
-| ![](screenshots/after_development/implementation_complete/20261004/01_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/after_development/ui_update/20261004/02_%ED%99%88_%EC%BD%94%EB%94%942026_%EC%A0%95%EC%B0%A9%ED%98%84%ED%99%A9.png) |
+**PC**
 
-| 나의 조건 입력(칸 설명 항상 표시) | ① 맞춤 혜택 4단계 판정 |
+| 첫 화면(처음 방문) | ① 맞춤 혜택 4단계 판정 |
 |:---:|:---:|
-| ![](screenshots/after_development/ui_update/20261004/03_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4%EC%9E%85%EB%A0%A5_%EC%B9%B8%EC%84%A4%EB%AA%85.png) | ![](screenshots/after_development/ui_update/20261004/04_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D_4%EB%8B%A8%EA%B3%84%ED%8C%90%EC%A0%95.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/02_PC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.png) |
 
 | ② 정착 일정 | ② 생활 정보 |
 |:---:|:---:|
-| ![](screenshots/after_development/ui_update/20261004/06_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/after_development/ui_update/20261004/07_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4_%ED%95%84%ED%84%B0_%EC%B9%B4%EB%93%9C.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/03_PC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/04_PC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.png) |
 
 | ③ 불편사항(GPT-4.1 mini) | ④ 지역말(GPT-4.1 mini) |
 |:---:|:---:|
-| ![](screenshots/after_development/implementation_complete/20261004/05_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B0%80%EB%A1%9C%EB%93%B1_GPT%EB%8B%B5%EB%B3%80.png) | ![](screenshots/after_development/implementation_complete/20261004/06_%EC%A7%80%EC%97%AD%EB%A7%90_%EB%8B%A8%EB%94%94%ED%95%B4%EB%9E%98%EC%9D%B4_GPT%EB%8B%B5%EB%B3%80.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/05_PC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/06_PC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.png) |
 
-| 오이소창원에게 물어보기(GPT-4.1 mini 검증 통과·실행 기록) |
+| 오이소창원에게 물어보기(검증 통과·실행 기록) |
 |:---:|
-| ![](screenshots/after_development/implementation_complete/20261004/07_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD_GPT%EB%8B%B5%EB%B3%80_%EC%8B%A4%ED%96%89%EA%B8%B0%EB%A1%9D.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/07_PC_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD.png) |
 
-| 휴대폰 첫 화면 |
-|:---:|
+**휴대폰**
+
+| 첫 화면 | 나의 조건 입력 | ① 맞춤 혜택 | ② 정착 일정 |
+|:---:|:---:|:---:|:---:|
+| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/08_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/09_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/10_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.jpg" width="200"> |
+
+| ② 생활 정보 | ③ 불편사항 결과 | ④ 지역말 | ④ 지역말 결과 |
+|:---:|:---:|:---:|:---:|
+| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/13_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/16_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/17_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/18_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.jpg" width="200"> |
+
+---:|
 | <img src="screenshots/after_development/ui_update/20261004/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png" width="300"> |
 
 ---
@@ -438,7 +447,7 @@ Secrets를 고칠 때 `OPENAI_API_KEY` 줄을 지우지 않도록 주의합니�
 
 | 사람 | 도구 | 사용 작업 | 검증 방법 |
 | :---: | :---: | --- | --- |
-| B 이혜경 | Claude(코딩 에이전트) | 코드 작성·수정·디버깅, 자동 테스트, 화면 캡처, 문서 초안 | 자동 테스트 126개 실행, 배포 앱 직접 조작, 팀 자체 테스트 |
+| B 이혜경 | Claude(코딩 에이전트) | 코드 작성·수정·디버깅, 자동 테스트, 화면 캡처, 문서 초안 | 자동 테스트 127개 실행, 배포 앱 직접 조작, 팀 자체 테스트 |
 | B 이혜경 | GPT | UX/UI 개선 작업 프롬프트 등 | 팀 검토 후 반영 |
 | A 조준수 · C 이미영 | GPT | [팀 확인 — 10/5 기재] | — |
 | 앱 | GPT-4.1 mini(API) | 질문 분석·도구 선택·답 문장 작성 | 답변 검증 단계(연락처·링크 대조), 실패 시 규칙 기반 |
@@ -453,7 +462,7 @@ Secrets를 고칠 때 `OPENAI_API_KEY` 줄을 지우지 않도록 주의합니�
 
 | 구분 | 방법 | 결과 |
 | :---: | --- | --- |
-| AI 자동 테스트 | unittest 126개 · 대표 Test Case 6건 PC·모바일 자동 실행 | 126개 통과 · 12회 통과(캡처 26장) |
+| AI 자동 테스트 | unittest 127개 · 대표 Test Case 6건 PC·모바일 자동 실행 | 127개 통과 · 12회 통과(캡처 26장) |
 | 팀 자체 테스트 | B 이혜경 30회 이상(웹·모바일) · C 이미영 2회(PC·갤럭시 Z Flip3) · A 조준수 전체 검수 | 기록된 지적 모두 반영(이메일 계정 건 대기), 현황표 `tests/team_self_test/README.md` |
 | 실사용자 테스트 | 4명(U01–U04), 8개 과제 + 온라인 설문 | 문항 평균 4.56/5 · 만족도 4.75/5 · 추천 4명 중 4명 |
 

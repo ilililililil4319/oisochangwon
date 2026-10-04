@@ -754,6 +754,18 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(app.selectbox(key="activity_district").value, "성산구")
                 self.assertEqual(app.selectbox(key="activity_category").value, "문화생활")
 
+    def test_explore_first_place_is_kpop_festival(self):
+        # 10/4 이혜경: 생활 정보 첫 화면의 첫 장소·‘자세히 볼 곳’은 2026 창원 K-POP 월드페스티벌 · 성산구
+        with TemporaryDirectory() as temp_dir:
+            with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
+                app = _demo_app()
+                _visit(app, "explore")
+                self.assertFalse(app.exception)
+                selector = app.selectbox(key="activity_selection")
+                self.assertEqual(selector.value, "A143")
+                self.assertEqual(selector.options[0], "2026 창원 K-POP 월드페스티벌 · 성산구")
+                self.assertIn("2026 창원 K-POP 월드페스티벌", [h.value.replace("\\", "") for h in app.header])
+
     def test_detail_selection_matches_detail_after_filter_change(self):
         # 10/3 팀 자체 테스트 G-2: 전체에서 북 페스타를 본 뒤 성산구·야경 산책으로 바꾸면 선택창과 상세가 같은 장소
         with TemporaryDirectory() as temp_dir:

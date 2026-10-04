@@ -1,6 +1,9 @@
 const fs=require('fs');
 const path=require('path');
-const {ImageRun,Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,ShadingType,HeadingLevel,AlignmentType,BorderStyle,ExternalHyperlink,Footer,PageNumber}=require('docx');
+const {ImageRun,Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,ShadingType,HeadingLevel,AlignmentType,BorderStyle,ExternalHyperlink,Footer,PageNumber,HorizontalPositionRelativeFrom,HorizontalPositionAlign,VerticalPositionRelativeFrom,VerticalPositionAlign,TextWrappingType,TextWrappingSide}=require('docx');
+// QR=그림 경로 → 제목 줄 오른쪽 위에 앱 QR을 띄워 넣음 (10/4)
+const QR=process.env.QR?fs.readFileSync(process.env.QR):null;
+let qrDone=false;
 const md=fs.readFileSync(process.argv[2],'utf8').split('\n');
 const FONT='Malgun Gothic', NAVY='063465', ORANGE='FE6A01';
 const PAGEW=11906-2*851; // A4 width minus 15mm margins
@@ -49,7 +52,13 @@ while(i<md.length){
     const w=buf.readUInt32BE(16), h=buf.readUInt32BE(20); const W=640, H=Math.round(h*W/w);
     children.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new ImageRun({type:'png',data:buf,transformation:{width:W,height:H}})]})); i++; continue; }
   if(line.startsWith('### ')) children.push(new Paragraph({heading:HeadingLevel.HEADING_2,spacing:{before:160,after:60},keepNext:true,children:[new TextRun({text:line.slice(4),bold:true,size:21,color:'2E9E6B',font:FONT})]}));
-  else if(line.startsWith('# ')) children.push(new Paragraph({heading:HeadingLevel.TITLE,spacing:{after:120},border:{bottom:{style:BorderStyle.SINGLE,size:12,color:ORANGE,space:4}},children:[new TextRun({text:line.slice(2),bold:true,size:34,color:NAVY,font:FONT})]}));
+  else if(line.startsWith('# ')){ const kids=[new TextRun({text:line.slice(2),bold:true,size:34,color:NAVY,font:FONT})];
+    if(QR&&!qrDone){ qrDone=true; const qw=QR.readUInt32BE(16), qh=QR.readUInt32BE(20); const QW=96;
+      kids.push(new ImageRun({type:'png',data:QR,transformation:{width:QW,height:Math.round(qh*QW/qw)},floating:{
+        horizontalPosition:{relative:HorizontalPositionRelativeFrom.MARGIN,align:HorizontalPositionAlign.RIGHT},
+        verticalPosition:{relative:VerticalPositionRelativeFrom.MARGIN,align:VerticalPositionAlign.TOP},
+        wrap:{type:TextWrappingType.SQUARE,side:TextWrappingSide.LEFT},margins:{left:114300}}}));}
+    children.push(new Paragraph({heading:HeadingLevel.TITLE,spacing:{after:120},border:{bottom:{style:BorderStyle.SINGLE,size:12,color:ORANGE,space:4}},children:kids})); }
   else if(line.startsWith('## ')) children.push(new Paragraph({heading:HeadingLevel.HEADING_1,spacing:{before:220,after:80},keepNext:true,children:[new TextRun({text:line.slice(3),bold:true,size:24,color:NAVY,font:FONT})]}));
   else if(line.startsWith('- ')) children.push(new Paragraph({numbering:{reference:'b',level:0},spacing:{after:40},children:runs(clean(line.slice(2)),{size:19})}));
   else if(line.trim()==='---') children.push(new Paragraph({border:{bottom:{style:BorderStyle.SINGLE,size:6,color:'D5DDE7',space:1}},spacing:{after:100},children:[]}));
