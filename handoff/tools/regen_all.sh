@@ -24,6 +24,7 @@ deliverables/submission/오이소창원_참가신청서_한글양식_붙여넣�
 deliverables/submission/오이소창원_출처_AI활용_신고서_20261004.md|오이소창원 출처·AI 활용 신고서|y|qr
 deliverables/presentation/video/오이소창원_시연영상_스크립트_20261004.md|오이소창원 시연영상 스크립트|y|qr
 deliverables/presentation/ppt/오이소창원_발표자료_스크립트_20261004.md|오이소창원 발표자료 스크립트|y
+deliverables/presentation/ppt/오이소창원_발표자료_GPT프롬프트_이미영인계_20261004.md|오이소창원 발표자료 GPT 프롬프트|y
 tests/team_self_test/오이소창원_체크리스트_서류양식.md|오이소창원 체크리스트 서류 양식|y|qr
 tests/team_self_test/자체평가_테스트보고서/오이소창원_자체평가_테스트보고서(1차).md|오이소창원 1차 자체평가·테스트 보고서|n|qr
 handoff/team_share/오이소창원_팀공유_20261003.md|오이소창원 팀 공유 20261003|n
