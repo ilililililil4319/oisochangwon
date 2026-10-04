@@ -1,6 +1,4 @@
-# 오이소창원 — AI 기반 창원 정착 지원 Agent 🏙️
-
-<p align="center"><img src="assets/logo_wide.png" width="360" alt="오이소창원 로고"></p>
+# 오이소창원 — AI 기반 창원 정착 지원 Agent <img src="assets/logo_wide.png" height="40" alt="오이소창원 로고">
 
 > 창⁠원⁠에 새⁠로 전⁠입⁠한 청⁠년⁠이 첫 180일 동⁠안 놓⁠치⁠기 쉬⁠운 혜⁠택⁠과 할 일⁠을,
 > 나⁠의 조⁠건⁠으⁠로 판⁠정⁠하⁠고 일⁠정⁠으⁠로 만⁠들⁠어 함⁠께 챙⁠겨 주⁠는 코⁠디⁠네⁠이⁠터 Agent
