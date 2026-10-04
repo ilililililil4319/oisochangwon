@@ -30,9 +30,9 @@
  *      → "고급" → "(프로젝트 이름)(으)로 이동" → 권한 허용
  *      직접 만든 스크립트이므로 안전합니다.
  *   6. 실행 로그에 설문지 링크·편집 링크·스프레드시트 링크가 출력됩니다. 복사해 두세요.
- *   7. 설문지 링크를 실사용자 3명(U01~U03)에게 전달합니다.
+ *   7. 설문지 링크를 실사용자에게 전달합니다(응답 순서대로 U01, U02 … 자동 번호).
  *   8. 응답이 들어오면 스프레드시트의 "분석" 탭에서 결과를 확인합니다.
- *   9. 3명 응답이 모두 들어오면 buildReport() 를 실행해 리포트 초안을 만듭니다.
+ *   9. 응답이 모두 들어오면 buildReport() 를 실행해 리포트 초안(그래프 포함)을 만듭니다.
  *
  * 개인정보 원칙(오이소창원 기획안과 같음)
  *   - 이름·연락처·이메일은 받지 않습니다. 응답이 들어온 순서대로 U01, U02, U03 번호를 자동으로 붙여 구분합니다.
@@ -43,7 +43,15 @@
  *   - 이 스크립트는 실행하는 "본인의" 구글 계정에 설문지·시트·문서를 만듭니다.
  *   - 작성 환경(Claude)에서는 구글 API에 접속할 수 없어 실제로 실행해 검증하지는
  *     못했습니다(문법 검사만 함). 실행 후 테스트 응답을 1건 보내 정상 동작을 꼭 확인하세요.
- *   - 표본이 3명이라 평균·비율은 참고용입니다. 리포트에도 이 한계를 적어 둡니다.
+ *   - 표본이 작아 평균·비율은 참고용입니다. 리포트에도 이 한계를 적어 둡니다.
+ *
+ * 2026-10-04 수정(리포트 빈칸 문제)
+ *   - 원인: 예전 버전(과제 6개·'취업 상태'·기능 5개) 스크립트를 붙여 넣으면 지금 설문지 문항 제목과 달라
+ *     열을 못 찾고 0 / 0 / 0, '-', (응답 없음)으로 채워집니다. 이 파일(과제 8개·'하는 일'·기능 6개)을 쓰세요.
+ *   - 열을 못 찾으면 0 대신 "열 없음(스크립트 버전 확인)"으로 표시하고, 실행 로그에 못 찾은 문항을 적습니다.
+ *   - 리포트에 분석 탭 그래프 2개(항목별 평균 막대, 다시 사용·추천 파이)를 이미지로 넣습니다.
+ *   - 8장 개선 반영 계획을 빈 표 대신 IMPROVEMENT_PLAN 값으로 채웁니다(내용은 사람이 검수·수정).
+ *   - 응답 수는 고정값(3명)이 아니라 실제 응답 수로 표시합니다.
  */
 
 // ===================== 설정 =====================
@@ -121,6 +129,18 @@ const OPEN_QUESTIONS = [
   '가장 불편했거나 헷갈렸던 점은 무엇인가요?',
   '기타 의견이나 제안이 있다면 자유롭게 적어 주세요.',
 ];
+
+// 8장 개선 반영 계획 — 사람이 작성·검수한 내용(근거 / 개선 내용 / 담당 / 반영 여부). 바뀌면 여기만 고치고 buildReport() 다시 실행
+const IMPROVEMENT_PLAN = [
+  ['타지역 거주기간을 왜 묻는지 모름(U01 기타 의견)', '조건 칸 설명을 칸 아래에 항상 표시, 기업노동자 전입지원금(타 시·군·구 1년 이상 주민등록) 조건 확인용이라고 이유 표시', 'B', '반영(10/3)'],
+  ['화면 보기 편함이 가장 낮음, UI 디자인 더 다듬기(U01)', '첫 화면 정리(안내 문구·흐름 5단계·메뉴는 시작 후 표시), 한글 줄바꿈·여백·글자 대비, 카드 높이 통일 → 10/4 첫 화면 디자인 새로 정리', 'B', '반영(10/3~10/4)'],
+  ['가장 개선 필요 기능: ② 생활 정보 둘러보기', '‘자세히 보기’ 안내, 상세 아래 ‘장소 목록으로 돌아가기’, 필터 변경 시 선택값·상세 일치, 차량 권장 장소가 없을 때 이유 안내', 'B·C', '반영(10/3)'],
+  ['캘린더·리포트 저장 완료가 가장 적음(4단계)', '휴대폰에서 내려받은 파일 여는 방법 안내, 저장 버튼 아래 안내 정리', 'B', '반영(10/3)'],
+  ['질문(입력) 문항이 많음(U04)', '앱 조건 입력 7칸마다 필요한 이유 표시. 설문 문항인지 앱 입력 칸인지 응답자 확인 후 줄일 칸 검토', 'B', '확인 필요'],
+  ['모바일 미완료(1·2·6단계)', '조건 입력 버튼을 첫 화면 가운데 배치·입력 전 잠금 안내, 불편사항은 결과 위치로 자동 이동 — 막힌 지점 응답자 확인', 'B·C', '확인 필요'],
+  ['화면을 닫으면 처음부터 다시 시작(U03)', '회원가입 없이 실명·연락처를 받지 않는 설계라 조건은 저장하지 않음. 같은 닉네임이면 체크한 할 일은 이어지고, 캘린더·정착 리포트로 기기에 저장하도록 안내', '—', '설계상 한계(안내 유지)'],
+];
+const MISSING = '열 없음(스크립트 버전 확인)';
 
 // 응답자 정보 — 팀 엑셀 「사용자테스트_참여자」 시트 열과 같음
 const AGE_TITLE = '연령대';
@@ -551,7 +571,7 @@ function buildAnalysisDashboard() {
   row += 1;
   sheet.getRange(row, 1).setValue('총 응답 수');
   sheet.getRange(row, 2).setFormula("=COUNTIF('" + respName + "'!A2:A,\"<>\")");
-  sheet.getRange(row, 3).setValue('※ 표본 3명(U01~U03) 기준 — 평균·비율은 참고용');
+  sheet.getRange(row, 3).setValue('※ 표본이 작아 평균·비율은 참고용(응답 순서 번호 U01~)');
   row += 2;
 
   // ---- 표 1: 항목별 평가 평균 ----
@@ -763,6 +783,8 @@ function buildReport() {
   const col = function (t) { return findCol_(H, t) - 1; };
   const val = function (r, c) { return c >= 0 ? r[c] : ''; };
   const ids = R.map(function (r, i) { return autoId_(i + 1); });
+  const missing = checkColumns_(H);
+  if (missing.length) Logger.log('응답 시트에서 찾지 못한 문항(스크립트와 설문지 버전이 다를 수 있음):\n- ' + missing.join('\n- '));
 
   // 리포트 문서: 한 번 만든 문서를 재사용(내용만 새로 씀)
   const props = PropertiesService.getScriptProperties();
@@ -806,7 +828,7 @@ function buildReport() {
   const prof = [['항목', '분포']];
   PROFILE_ITEMS.forEach(function (it) {
     const c = col(it[0]);
-    prof.push([it[0], fmtCounts_(countBy_(R.map(function (r) { return val(r, c); }), it[1]))]);
+    prof.push([it[0], c < 0 ? MISSING : fmtCounts_(countBy_(R.map(function (r) { return val(r, c); }), it[1]))]);
   });
   table(prof);
 
@@ -818,14 +840,18 @@ function buildReport() {
     const weakDev = [];
     const cells = [GRID_TITLE_MOBILE, GRID_TITLE_PC].map(function (g) {
       const c = findGridCol_(H, g, t) - 1;
+      if (c < 0) return MISSING;
       const cnt = countBy_(R.map(function (r) { return val(r, c); }), TASK_STATUS);
+      const answered = cnt['완료'] + cnt['부분완료'] + cnt['미완료'];
+      if (answered === 0) return '-';
       if ((cnt['부분완료'] || 0) + (cnt['미완료'] || 0) > 0) weakDev.push(g === GRID_TITLE_MOBILE ? '모바일' : 'PC');
-      return cnt['완료'] + ' / ' + cnt['부분완료'] + ' / ' + cnt['미완료'];
+      return cnt['완료'] + ' / ' + cnt['부분완료'] + ' / ' + cnt['미완료'] + ' (' + answered + '명)';
     });
     if (weakDev.length) weakTasks.push((i + 1) + '단계(' + weakDev.join('·') + ')');
     taskRows.push([(i + 1) + '. ' + t, cells[0], cells[1]]);
   });
   table(taskRows);
+  p('괄호 안은 그 기기로 수행한 응답자 수입니다. "-"는 그 기기로 수행한 응답자가 없음을 뜻합니다.');
   p(weakTasks.length
     ? '부분완료·미완료가 있었던 단계: ' + weakTasks.join(', ') + ' → 개선 우선 검토'
     : '모든 단계를 응답자 전원이 완료했습니다.');
@@ -837,13 +863,17 @@ function buildReport() {
     return { q: q, a: avg_(R.map(function (r) { return num_(val(r, c)); })) };
   });
   const sc = [['문항', '평균']];
-  scores.forEach(function (s) { sc.push([s.q, s.a === null ? '-' : String(s.a)]); });
+  scores.forEach(function (s) {
+    const found = findGridCol_(H, GRID_TITLE_LIKERT, s.q) !== -1;
+    sc.push([s.q, !found ? MISSING : (s.a === null ? '-' : s.a.toFixed(2))]);
+  });
   table(sc);
+  appendChartImage_(body, 0);
   const ranked = scores.filter(function (s) { return s.a !== null; }).sort(function (a, b) { return b.a - a.a; });
   if (ranked.length) {
     bullet('가장 높은 항목: ' + ranked[0].q + ' (' + ranked[0].a + '점)');
     bullet('가장 낮은 항목: ' + ranked[ranked.length - 1].q + ' (' + ranked[ranked.length - 1].a + '점)');
-    bullet('전체 문항 평균: ' + avg_(ranked.map(function (s) { return s.a; })) + '점');
+    bullet('전체 문항 평균: ' + avg_(ranked.map(function (s) { return s.a; })).toFixed(2) + '점');
   }
 
   // 5. 기능 선호
@@ -852,17 +882,24 @@ function buildReport() {
   const best = countBy_(R.map(function (r) { return val(r, bc); }), FEATURE_CHOICES);
   const worst = countBy_(R.map(function (r) { return val(r, wc); }), FEATURE_CHOICES);
   const fr = [['기능', '가장 유용', '가장 개선 필요']];
-  FEATURE_CHOICES.forEach(function (f) { fr.push([f, String(best[f] || 0), String(worst[f] || 0)]); });
+  FEATURE_CHOICES.forEach(function (f) {
+    fr.push([f, bc < 0 ? MISSING : String(best[f] || 0), wc < 0 ? MISSING : String(worst[f] || 0)]);
+  });
   table(fr);
   const alertCounts = countBy_(R.map(function (r) { return val(r, col(ALERT_TITLE)); }), ALERT_CHOICES);
   bullet('알림 방식 선호: ' + fmtCounts_(alertCounts) + ' (이메일 알림 기능 유지·보완 판단 근거)');
 
   // 6. 종합
   p('6. 종합 만족도').setHeading(H1);
-  const sat = avg_(R.map(function (r) { return num_(val(r, col(SCALE_TITLE))); }));
+  const satVals = R.map(function (r) { return num_(val(r, col(SCALE_TITLE))); });
+  const sat = avg_(satVals);
+  const satDist = countBy_(satVals.filter(function (x) { return x !== null; }).map(String), ['5', '4', '3', '2', '1']);
   const reuse = countBy_(R.map(function (r) { return val(r, col(REUSE_TITLE)); }), REUSE_CHOICES);
-  bullet('전체 만족도 평균: ' + (sat === null ? '-' : sat + '점 / 5점'));
+  bullet('전체 만족도 평균: ' + (sat === null ? '-' : sat.toFixed(2) + '점 / 5점') +
+    ' (' + ['5', '4', '3', '2', '1'].filter(function (k) { return satDist[k]; })
+      .map(function (k) { return k + '점 ' + satDist[k] + '명'; }).join(', ') + ')');
   bullet(REUSE_TITLE + ': ' + fmtCounts_(reuse));
+  appendChartImage_(body, 1);
 
   // 7. 자유 의견
   p('7. 자유 의견').setHeading(H1);
@@ -879,10 +916,7 @@ function buildReport() {
 
   // 8. 개선 반영 계획(팀 작성)
   p('8. 개선 반영 계획 [직접 작성]').setHeading(H1);
-  table([
-    ['발견한 문제(근거: 응답 번호·문항)', '개선 내용', '담당', '반영 여부'],
-    ['', '', '', ''], ['', '', '', ''], ['', '', '', ''],
-  ]);
+  table([['발견한 문제(근거: 응답 번호·문항)', '개선 내용', '담당', '반영 여부']].concat(IMPROVEMENT_PLAN));
 
   // 9. 한계
   p('9. 해석 시 유의점').setHeading(H1);
@@ -894,6 +928,37 @@ function buildReport() {
   buildTeamExcelSheet_(data);
   Logger.log('리포트 초안: ' + doc.getUrl());
   Logger.log('팀 엑셀에 옮길 값: 응답 스프레드시트의 "팀엑셀_옮기기" 탭');
+}
+
+// 스크립트가 찾는 문항 제목이 응답 시트에 있는지 확인(없으면 목록으로 돌려줌)
+function checkColumns_(H) {
+  const miss = [];
+  PROFILE_ITEMS.forEach(function (it) { if (findCol_(H, it[0]) === -1) miss.push(it[0]); });
+  TASKS.forEach(function (t) {
+    if (findGridCol_(H, GRID_TITLE_MOBILE, t) === -1) miss.push('[모바일] ' + t);
+    if (findGridCol_(H, GRID_TITLE_PC, t) === -1) miss.push('[PC] ' + t);
+  });
+  LIKERT_ITEMS.forEach(function (q) { if (findGridCol_(H, GRID_TITLE_LIKERT, q) === -1) miss.push(q); });
+  [BEST_FEATURE_TITLE, WORST_FEATURE_TITLE, ALERT_TITLE, SCALE_TITLE, REUSE_TITLE].concat(OPEN_QUESTIONS)
+    .forEach(function (t) { if (findCol_(H, t) === -1) miss.push(t); });
+  return miss;
+}
+
+// 분석 탭의 차트(0: 항목별 평균 막대, 1: 다시 사용·추천 파이)를 리포트에 그림으로 넣기. 실패해도 리포트는 계속 만듦
+function appendChartImage_(body, index) {
+  try {
+    const ss = findExistingSpreadsheet_();
+    if (!ss.getSheetByName('분석')) buildAnalysisDashboard();
+    const sheet = ss.getSheetByName('분석');
+    if (!sheet) return;
+    const charts = sheet.getCharts();
+    if (!charts[index]) return;
+    const img = body.appendImage(charts[index].getAs('image/png'));
+    const w = 440;
+    img.setHeight(Math.round(img.getHeight() * w / img.getWidth())).setWidth(w);
+  } catch (e) {
+    Logger.log('리포트 그래프 넣기 실패(' + index + '): ' + e.message);
+  }
 }
 
 function firstLastDate_(dates) {
@@ -913,7 +978,7 @@ function buildTeamExcelSheet_(data) {
   const likertCols = LIKERT_ITEMS.map(function (q) { return findGridCol_(H, GRID_TITLE_LIKERT, q) - 1; });
   const trustIdx = LIKERT_ITEMS.indexOf('출처·확인일이 있어 안내를 믿을 수 있었다');
 
-  const A = [['[사용자테스트_참여자] 참여자 코드', '연령대', '창원 거주/생활 경험', '타지역 이주 경험', '취업 상태', 'AI 서비스 사용 경험', '테스트 날짜']];
+  const A = [['[사용자테스트_참여자] 참여자 코드', '연령대', '창원 거주/생활 경험', '타지역 이주 경험', '하는 일', 'AI 서비스 사용 경험', '테스트 날짜']];
   R.forEach(function (r, i) {
     A.push([autoId_(i + 1), val(r, col(AGE_TITLE)), val(r, col(LIVE_TITLE)), val(r, col(MOVE_TITLE)),
       val(r, col(JOB_TITLE)), val(r, col(AI_TITLE)), data.dates[i]]);
@@ -969,7 +1034,7 @@ function onSurveySubmit_(e) {
       '응답 번호: ' + id + '\n' +
       '전체 만족도: ' + sat + '\n' +
       '다시 사용·추천 의향: ' + reuse + '\n\n' +
-      '분석 탭이 자동으로 갱신되었습니다. 3명 응답이 모두 오면 buildReport()를 실행해 리포트를 만드세요.';
+      '분석 탭이 자동으로 갱신되었습니다. 응답이 모두 오면 buildReport()를 실행해 리포트를 만드세요.';
     MailApp.sendEmail(NOTIFY_EMAIL, subject, body);
   } catch (err) {
     Logger.log('응답 처리 중 오류: ' + err.message);
