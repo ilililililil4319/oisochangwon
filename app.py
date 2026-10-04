@@ -438,6 +438,14 @@ p.page-hero-desc b {color: #FFFFFF;}
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stTextInput"] input, [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stNumberInput"] input,
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stDateInput"] input {background: #FFFFFF !important;}
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stForm"] {background: #FFFFFF; border: 1px solid #E3E9F1; border-radius: 18px;}
+/* 10/4 팀장 검수: 1~6개월 정착 여정 제목이 너무 크고 굵음 → 크기·굵기 줄이고 글자·띄어쓰기 간격 정리 */
+.st-key-page-journey [data-testid="stExpander"] summary p {font-size: 1.05rem !important; font-weight: 600 !important;
+    line-height: 1.45 !important; letter-spacing: -0.01em; word-spacing: 0.02em;}
+.st-key-page-journey [data-testid="stExpander"] summary {padding-top: .65rem; padding-bottom: .65rem;}
+@media (max-width: 640px) {
+    .st-key-page-journey [data-testid="stExpander"] summary p {font-size: .93rem !important;}
+    .st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] p {font-size: 1rem !important; line-height: 1.5;}
+}
 @media (max-width: 640px) {
     [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {padding: .9rem 1.1rem 1.3rem !important; border-radius: 20px;}
     span.page-hero-logo {width: 104px; height: 26px;}
