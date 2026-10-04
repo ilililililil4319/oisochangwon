@@ -10,7 +10,7 @@
 
 대상 앱 https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/
 
-기준 문서 오이소창원_최종자체테스트_체크리스트_20261003_이미영.docx
+기준 문서 오이소창원_체크리스트_서류양식_이미영.docx
 
 체크리스트의 항목 번호를 기준으로 화면을 조작하고 결과를 대조했습니다.
 기준 문서에 적힌 GitHub 커밋 99e8c2c와 실제 배포본의 일치 여부는
