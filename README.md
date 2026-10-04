@@ -138,7 +138,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (기능 구현 과정)  ai_test 26장 · work_process 31장
-│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 13장 · implementation_complete 15장(구현 완료) · user_test
+│   └── after_development/ (기능 구현 이후)   team_self_test 37장 · ui_update 16장 · implementation_complete 15장(구현 완료) · user_test
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -231,7 +231,7 @@ oiso_changwon/
 | 11 | 팀 자체 테스트 — B 이혜경(웹·모바일, 30회 이상) → 기록된 지적 반영 | 10/2–10/4 | after_development 01-33 |
 | 12 | 팀 자체 테스트 — C 이미영(PC·휴대폰 2회) 9건 반영, A 조준수 전체 검수 | 10/3 | after_development 34-37 |
 | 13 | 실사용자 4명 테스트·설문 → 의견 반영 | 10/3–10/4 | `tests/user_test/results_20261004` |
-| 14 | 첫 화면·전체 UI 다듬기 → 첫 화면 새 디자인(남색 배경·작은 로고) | 10/3~10/4 | ui_update 13장 |
+| 14 | 첫 화면·전체 UI 다듬기 → 첫 화면·세부 화면 새 디자인(남색 배경·작은 로고·흰 카드) | 10/3~10/4 | ui_update 16장 |
 | 15 | 기획안·개발완료보고서·신고서·영상 스크립트·README 작성 | 10/4 | `docs/` · `deliverables/` |
 | 16 | 기술설명서·시연영상·발표자료, 최종 제출 | 10/5 | — |
 

@@ -398,6 +398,50 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
     .st-key-hero-cta [data-testid="stBaseButton-tertiary"] {width: 100%;}
 }
 @media (max-width: 380px) {.top-pill {display: none;}}
+
+/* ===== 10/4 세부 화면 새 디자인(첫 화면과 같은 컨셉): 남색 머리 띠 · 연한 배경 위 흰 카드 · 둥근 버튼 ===== */
+[class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {position: relative; overflow: hidden; border-radius: 26px;
+    padding: 1.1rem 1.8rem 1.7rem !important; margin: .2rem 0 1.4rem; gap: .45rem !important;
+    background: radial-gradient(circle at 92% 0%, rgba(254,106,1,.36) 0, rgba(254,106,1,0) 34%),
+                radial-gradient(circle at 0% 100%, rgba(46,158,107,.26) 0, rgba(46,158,107,0) 32%),
+                linear-gradient(135deg, #041F3D 0%, #063465 55%, #0B4C8C 100%);
+    box-shadow: 0 18px 44px rgba(4,31,61,.22);}
+[class*="st-key-page-hero-top-"] {padding-bottom: .7rem; margin-bottom: .5rem; border-bottom: 1px solid rgba(255,255,255,.12);}
+span.page-hero-logo {display: block; width: 132px; height: 33px; background-size: contain; background-repeat: no-repeat; background-position: right center;}
+[class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {color: #FFFFFF !important; font-size: clamp(1.5rem, 2.6vw, 2.1rem) !important;
+    font-weight: 800 !important; letter-spacing: -.03em; line-height: 1.25; padding: .35rem 0 .1rem !important;}
+p.page-hero-desc {color: rgba(255,255,255,.82) !important; font-size: 1.02rem; line-height: 1.7; margin: .35rem 0 0;}
+p.page-hero-desc b {color: #FFFFFF;}
+[class*="st-key-page-hero-top-"] [data-testid="stBaseButton-secondary"] {background: rgba(255,255,255,.08) !important;
+    border: 1px solid rgba(255,255,255,.3) !important; border-radius: 999px !important; min-height: 2.3rem; padding: .2rem 1rem;}
+[class*="st-key-page-hero-top-"] [data-testid="stBaseButton-secondary"] p {color: #FFFFFF !important; font-weight: 600;}
+[class*="st-key-page-hero-top-"] [data-testid="stBaseButton-secondary"]:hover {background: rgba(255,255,255,.18) !important;}
+.st-key-feature2-tabs {margin-top: .6rem;}
+.st-key-feature2-tabs button {border-radius: 999px !important; min-height: 2.5rem; padding: .3rem 1.1rem !important;}
+.st-key-feature2-tabs [data-testid="stBaseButton-secondary"] {background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.3) !important;}
+.st-key-feature2-tabs [data-testid="stBaseButton-secondary"] p {color: #FFFFFF !important;}
+.st-key-feature2-tabs [data-testid="stBaseButton-primary"] {background: #FE6A01 !important; border-color: #FE6A01 !important; box-shadow: 0 8px 20px rgba(254,106,1,.35);}
+/* 본문: 연한 배경 위에 흰 카드 */
+[class*="st-key-page-"]:not(.st-key-page-home):not([class*="st-key-page-hero"]) [data-testid="stHeading"] h3 {color: #063465; font-weight: 800; letter-spacing: -.02em;}
+[class*="st-key-policy-card-"], [class*="st-key-activity-card-"], [class*="st-key-channel-"], [class*="st-key-level-count-"],
+.st-key-journey-summary, [class*="st-key-milestone-"], .st-key-complaint-input, .st-key-profile-next
+    {background: #FFFFFF !important; border: 1px solid #E3E9F1 !important; border-radius: 18px !important;
+     box-shadow: 0 6px 18px rgba(6,52,101,.06);}
+[class*="st-key-policy-card-"]:hover, [class*="st-key-activity-card-"]:hover {box-shadow: 0 14px 30px rgba(6,52,101,.12); transform: translateY(-2px);
+    transition: transform .15s ease, box-shadow .15s ease;}
+.st-key-level-count-level-ok {border-top: 4px solid #2E9E6B !important;}
+.st-key-level-count-level-cond {border-top: 4px solid #063465 !important;}
+.st-key-level-count-level-check {border-top: 4px solid #FE6A01 !important;}
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stExpander"] details {background: #FFFFFF; border-radius: 16px !important; border-color: #E3E9F1 !important;}
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stBaseButton-primary"] {border-radius: 999px !important; box-shadow: 0 8px 18px rgba(6,52,101,.18);}
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stBaseButton-secondary"] {border-radius: 999px !important;}
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stTextInput"] input, [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stNumberInput"] input,
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stDateInput"] input {background: #FFFFFF !important;}
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stForm"] {background: #FFFFFF; border: 1px solid #E3E9F1; border-radius: 18px;}
+@media (max-width: 640px) {
+    [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {padding: .9rem 1.1rem 1.3rem !important; border-radius: 20px;}
+    span.page-hero-logo {width: 104px; height: 26px;}
+}
 </style>
 """
 
@@ -527,6 +571,35 @@ def _back_home_button(position):
         on_click=_go,
         args=(PAGE_HOME,),
     )
+
+
+@st.cache_data(show_spinner=False)
+def _logo_light_data_uri():
+    # 세부 화면 머리 띠의 작은 로고(그림 요소 대신 HTML로 — 화면당 그림 1개 규칙 유지)
+    from PIL import Image
+    import io, base64
+    image = Image.open(LOGO_LIGHT_PATH)
+    image = image.resize((320, round(image.height * 320 / image.width)))
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG", optimize=True)
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode()
+
+
+def _page_hero(position, title, desc=None, eyebrow=None):
+    """세부 화면 머리 띠(10/4 이혜경: 첫 화면과 같은 컨셉) — 처음으로 버튼 · 작은 로고 · 제목 · 한 줄 설명.
+    with 문으로 쓰면 띠 안에 버튼(탭 등)을 더 넣을 수 있다."""
+    hero = st.container(key=f"page-hero-{position}")
+    with hero:
+        with st.container(key=f"page-hero-top-{position}", horizontal=True, vertical_alignment="center",
+                          horizontal_alignment="distribute"):
+            _back_home_button(position)
+            st.markdown('<span class="page-hero-logo" role="img" aria-label="오이소창원"></span>', unsafe_allow_html=True)
+        if eyebrow:
+            st.markdown(f'<span class="hero-eyebrow">{html.escape(eyebrow)}</span>', unsafe_allow_html=True)
+        st.subheader(title, anchor=False)
+        if desc:
+            st.markdown(f'<p class="page-hero-desc">{desc}</p>', unsafe_allow_html=True)
+    return hero
 
 
 def _next_feature_button(target_page, label):
@@ -864,14 +937,11 @@ def _field_help(field):
 
 
 def render_profile_page():
-    _back_home_button("profile")
+    _page_hero("profile", "먼저, 오이소창원이 알아야 할 조건을 알려주세요.",
+               "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. <b>실명과 연락처는 받지 않아요.</b>",
+               eyebrow=CONDITION_LABEL)
     with st.container(key="profile-head", horizontal=True, wrap=True, vertical_alignment="bottom"):
         with st.container():
-            _caption(CONDITION_LABEL)
-            st.subheader("먼저, 오이소창원이 알아야 할 조건을 알려주세요.", anchor=False)
-            st.markdown(
-                "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. **실명과 연락처는 받지 않아요.**"
-            )
             _caption(
                 "입력한 조건은 저장하지 않아요(정착 할 일 체크만 닉네임 기준으로 저장). 칸마다 아래에 쉬운 설명이 있어요."
             )
@@ -1103,16 +1173,14 @@ def _policy_grid(matches, per_row=2):
 
 
 def render_policy_page():
-    _back_home_button("policy")
     profile = _current_profile()
     matches = match_policies(profile)
     candidates = [m for m in matches if m["level"] != "해당 없음"]
     excluded = [m for m in matches if m["level"] == "해당 없음"]
     counts = {level: sum(1 for m in matches if m["level"] == level) for level in LEVELS}
 
-    st.subheader(FEATURE_1)
+    _page_hero("policy", FEATURE_1, "받을 수 있는 혜택 한눈에 보기 · 실제 판정 결과 기준", eyebrow="맞춤 혜택")
     st.markdown(f"### {nickname}님이 먼저 확인하면 좋은 혜택")
-    _caption("받을 수 있는 혜택 한눈에 보기 · 실제 판정 결과 기준")
     with st.container(key="level-counts"):
         count_columns = st.columns(len(LEVELS), gap="small")
     for column, level in zip(count_columns, LEVELS):
@@ -1160,16 +1228,16 @@ def render_policy_page():
 
 # --- ③ 정착 할 일 ------------------------------------------------------------
 def _feature_2_header(current):
-    st.subheader(FEATURE_2)
-    with st.container(horizontal=True, wrap=True):
-        for target_page, label in FEATURE_2_TABS.items():
-            st.button(
-                label,
-                key=f"tab-{target_page}",
-                type="primary" if current == target_page else "secondary",
-                on_click=_go,
-                args=(target_page,),
-            )
+    with _page_hero(current, FEATURE_2, "전입일 기준 1~6개월 할 일과 창원 생활 정보를 한곳에서", eyebrow="정착 일정 · 생활 정보"):
+        with st.container(key="feature2-tabs", horizontal=True, wrap=True):
+            for target_page, label in FEATURE_2_TABS.items():
+                st.button(
+                    label,
+                    key=f"tab-{target_page}",
+                    type="primary" if current == target_page else "secondary",
+                    on_click=_go,
+                    args=(target_page,),
+                )
 
 
 APP_URL = "https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/"
@@ -1355,7 +1423,6 @@ def _email_alert_box(events, today):
 
 
 def render_journey_page():
-    _back_home_button("journey")
     _feature_2_header(PAGE_JOURNEY)
     if move_in_date is None:
         st.subheader("창원 정착 일정")
@@ -1580,7 +1647,6 @@ def _activity_grid(activities, app_name, car_only=False, per_row=3):
 
 
 def render_explore_page():
-    _back_home_button("explore")
     _feature_2_header(PAGE_EXPLORE)
     st.subheader("이번 주말엔 창원을 조금 알아볼까요?")
     _caption("창원에서 해볼 것 — 동네와 관심 분야를 고르면 갈 만한 곳과 참여할 일을 보여 드려요.")
@@ -1857,8 +1923,7 @@ def _ai_status_caption():
 
 
 def render_ask_page():
-    _back_home_button("ask")
-    st.subheader(ASK_LABEL)
+    _page_hero("ask", ASK_LABEL, "혜택·정착 할 일·가볼 곳·지역말·불편 접수 창구를 한 문장으로 물어보세요.", eyebrow="코디네이터 Agent")
     provider, api_key, model = llm_settings()
     if provider:
         _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 검증된 자료(정책·장소·지역말·접수 창구)로만 답해요.")
@@ -1914,9 +1979,8 @@ def _complaint_level(result):
 
 
 def render_complaint_page():
-    _back_home_button("complaint")
-    st.subheader(FEATURE_3)
-    _caption("불편한 상황을 한 문장으로 적으면 긴급도를 판단해 알맞은 접수 창구를 알려 드려요. 민원을 대신 접수하거나 개인정보를 받지 않아요.")
+    _page_hero("complaint", FEATURE_3, "불편한 상황을 한 문장으로 적으면 긴급도를 판단해 알맞은 접수 창구를 알려 드려요.<br>"
+               "민원을 대신 접수하거나 개인정보를 받지 않아요.", eyebrow="불편사항")
     input_column, result_column = st.columns([1, 1.25], gap="large")
     with input_column:
         with st.container(key="complaint-input"):
@@ -1968,12 +2032,11 @@ DIALECT_EXT_COUNT = len(json.loads((Path(__file__).parent / "data" / "dialects_e
 
 
 def render_dialect_page():
-    _back_home_button("dialect")
-    st.subheader(FEATURE_4)
+    _page_hero("dialect", FEATURE_4, "직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요.", eyebrow="지역말")
     dialects = load_dialects()
     demo = [d for d in dialects if d.get("시연 사용")][:6]
     _caption(
-        f"직장·식당·병원에서 들은 창원(경남) 말을 적으면 뜻과 쓰임을 알려 드려요. 핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) "
+        f"핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) "
         f"확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드리고, 사전에 없는 말은 짐작하지 않아요."
     )
     input_column, result_column = st.columns([1, 1.25], gap="large")
@@ -2166,6 +2229,11 @@ if st.session_state.get("unsubscribe_notice"):
     st.success(st.session_state.pop("unsubscribe_notice"))
 _run_due_alerts()
 
+if page != PAGE_HOME:
+    # 세부 화면은 연한 배경 위에 흰 카드가 떠 보이게 (10/4 이혜경: 너무 하얗고 지루함)
+    st.html("<style>.stApp, [data-testid='stMain'] {background: linear-gradient(180deg, #EEF3FA 0%, #F6F8FC 40%, #F8FAFD 100%) !important;}</style>")
+    # 작은 로고는 스타일(배경 그림)로 넣어 화면 글자에 섞이지 않게
+    st.html(f"<style>span.page-hero-logo {{background-image: url('{_logo_light_data_uri()}');}}</style>")
 page_root = st.empty()
 with page_root.container(key=f"page-{page}"):
     PAGE_RENDERERS.get(page, render_home_page)()
