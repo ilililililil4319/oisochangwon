@@ -7,7 +7,6 @@
 
 import json
 import re
-from urllib.parse import quote
 from dataclasses import dataclass, field
 from datetime import date
 from functools import lru_cache
@@ -40,7 +39,7 @@ SYSTEM_PROMPT = """너는 '오이소창원'의 정착 코디네이터 Agent야. 
 1. 답은 반드시 도구(tool) 결과에 있는 내용으로만 한다. 정책명·금액·기간·조건·연락처·링크는 도구 결과의 값을 그대로 쓰고 추측하지 않는다.
 2. 도구 결과에 없으면 "확인된 정보에는 없어요"라고 말하고 창원시 콜센터 1899-1111 또는 창원청년정보플랫폼(https://www.changwon.go.kr/youth/05085/05105/05105.web)을 안내한다. 단, 지역말(사투리) 질문에는 콜센터·플랫폼을 안내하지 않는다(4번 규칙).
 3. 지원 대상 여부는 단정하지 않는다. '해당 가능 / 조건부 해당 가능 / 직접 확인 필요' 같은 표현을 쓴다.
-4. 지역말은 lookup_dialect 결과로만 답한다. 사전에 있으면 '문헌 기준 뜻'이라고 밝히고 출처를 말한다. 사전에 없으면(found=false) 뜻을 짐작하지 말고 "확인된 지역말 사전에 없는 말이에요. 별도 확인이 필요해요."라고 말한 뒤, 아래 링크 버튼(국립국어원 우리말샘)에서 찾아보거나 말한 분께 한 번 더 여쭤보라고 안내한다. 지역말에는 콜센터·청년정보플랫폼을 안내하지 않고, 답 본문에 주소(URL)를 쓰지 않는다.
+4. 지역말은 lookup_dialect 결과로만 답한다. 사전에 있으면 '문헌 기준 뜻'이라고 밝히고 출처를 말한다. 사전에 없으면(found=false) 뜻을 짐작하지 말고 "확인된 지역말 사전에 없는 말이에요. 별도 확인이 필요해요."라고 말한 뒤, 말한 분께 한 번 더 여쭤보라고 안내한다(출처가 없는 말이라 링크를 붙이지 않는다). 지역말에는 콜센터·청년정보플랫폼을 안내하지 않고, 답 본문에 주소(URL)를 쓰지 않는다.
 5. 불편·민원은 find_complaint_channel로 단계(긴급·높음·보통·제안·마음 건강)를 골라 창구를 안내한다. 민원 대리 제출·제안서 작성은 하지 않는다.
 6. 외로움·우울 같은 마음 건강 이야기는 진단하지 않고 공감 한 문장 후 상담 창구를 안내한다.
 7. 의학·법률 판단, 창원 정착과 무관한 질문(주식·숙제 등)은 정중히 거절하고 할 수 있는 일(지원·할 일·장소·지역말·불편 접수)을 알려 준다.
@@ -222,14 +221,7 @@ def _normalize(text):
     return re.sub(r"[\s'\"‘’“”?？!.,~]", "", text or "")
 
 
-DIALECT_SEARCH_LABEL = "국립국어원 우리말샘에서 찾아보기"
-# 국립국어원 우리말샘 검색 결과 주소(방언 표제어 포함). 사전에 없는 말일 때만 안내한다.
-DIALECT_SEARCH_URL = "https://opendict.korean.go.kr/search/searchResult?focus_name_top=query&query="
 PARTICLES = ("이라는", "라는", "이가", "이는", "이란", "란", "이", "가", "은", "는", "을", "를", "도")
-
-
-def dialect_search_link(word):
-    return DIALECT_SEARCH_URL + quote((word or "").strip())
 
 
 def _dialect_candidates(expression):
@@ -281,8 +273,7 @@ def lookup_dialect(expression):
     return {
         "found": False,
         "message": "확인된 지역말 사전(핵심 30개·공식 출처 확장 사전)에 없는 표현입니다. 별도 확인 필요.",
-        "확인 링크": dialect_search_link(word),
-        "링크 이름": DIALECT_SEARCH_LABEL,
+        "표현": word,
     }
 
 
@@ -439,7 +430,7 @@ def _format_rule_answer(tool_name, output, question):
             return f"‘{output['표현']}’은(는) “{output['표준어 뜻']}”라는 뜻이에요({output['표시']}). 주로 {output.get('사용 상황') or '일상'}에서 써요."
         return (
             f"‘{_quoted(question)}’은(는) 확인된 지역말 사전에 없는 말이에요. 별도 확인이 필요해요.\n"
-            f"아래 ‘{DIALECT_SEARCH_LABEL}’에서 찾아보거나, 말한 분께 한 번 더 여쭤보세요."
+            "뜻을 짐작하지 않고, 말한 분께 한 번 더 여쭤보시길 권해요."
         )
     if tool_name == "find_complaint_channel":
         return f"[{output['단계']}] {output['안내']}\n연락처: " + ", ".join(output["연락처"])

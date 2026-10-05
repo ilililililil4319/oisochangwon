@@ -181,12 +181,13 @@ class LLMLoopTests(unittest.TestCase):
         missing = agent.lookup_dialect("오찬물")
         self.assertFalse(missing["found"])
         self.assertIn("별도 확인 필요", missing["message"])
-        self.assertTrue(missing["확인 링크"].startswith("https://opendict.korean.go.kr/search/searchResult"))
+        # 출처가 없는 말이므로 검색 링크도 붙이지 않는다(10/5 결정)
+        self.assertNotIn("확인 링크", missing)
         self.assertFalse(agent.lookup_dialect("가")["found"])  # 한 글자는 엉뚱하게 걸리지 않음
         result = agent.run_agent("창원 지역말 ‘오찬물’이(가) 무슨 뜻이에요?", PROFILE)
         self.assertIn("별도 확인", result.answer)
         self.assertNotIn("1899-1111", result.answer)
-        self.assertIn("국립국어원 우리말샘에서 찾아보기", [label for label, _ in result.links])
+        self.assertFalse(any("opendict" in url for _, url in result.links))
         # 지역말만 물어도 사전에서 찾는다
         self.assertIn("부추", agent.run_agent("정구지가 뭐야", PROFILE).answer)
 
