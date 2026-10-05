@@ -96,13 +96,12 @@ DIALECT_COUNT = _safe_count(
 )
 # 회원가입 없이 저장되는 방식 안내(홈·정착 일정 화면)
 POLICY_SAVE_HELP = (
-    "회원가입이 없어 다시 접속하면 내용이 사라질 수 있어요. "
-    "📅 캘린더(해당 가능·조건부 혜택 확인일 포함)나 📄 정착 리포트로 내 기기에 저장해 두세요. "
+    "혜택 확인일·정착 일정은 📅 캘린더(해당 가능·조건부 혜택 확인일 포함)나 📄 정착 리포트로 내 기기에 보관하세요. "
     "✉️ 이메일 알림은 선택이고, 신청할 때만 개인정보 수집·이용과 수신 동의를 받아요."
 )
 SAVE_HELP = (
-    "회원가입을 하지 않기 때문에 다시 접속하면 이전 내용이 사라질 수 있어요. "
-    "오래 보관하려면 ‘📅 캘린더에 저장’이나 ‘📄 정착 리포트 저장’으로 내 기기에 저장해 두는 게 가장 확실해요. "
+    "체크·내 기록은 ‘이 단계 저장하기’를 누르면 같은 닉네임으로 다시 확인할 수 있어요. "
+    "별도 보관은 ‘📅 캘린더에 저장’이나 ‘📄 정착 리포트 저장’을 이용하세요. "
     "이메일 일정 알림은 선택 사항이고, 원할 때만 개인정보 수집·이용 동의와 이메일 수신 동의를 받은 뒤 보내 드려요."
 )
 DEFAULT_NICKNAME = "코디2026"
@@ -145,12 +144,12 @@ READABILITY_CSS = """
 [class*="st-key-home-card-"] [data-testid="stBaseButton-secondary"]:disabled p {color: #3F5672 !important;}
 [class*="st-key-level-count-"] {border-radius: 12px; padding: .6rem .9rem; border: 1px solid #D5DDE7; background: #FFFFFF; border-top-width: 4px; gap: .1rem;}
 [class*="st-key-level-count-"] .lvl-name {font-weight: 700; font-size: .95rem;}
-[class*="st-key-level-count-"] .lvl-num {font-size: 2rem; font-weight: 800; color: #063465; line-height: 1.3;}
+[class*="st-key-level-count-"] .lvl-num {font-size: 1.5rem; font-weight: 800; color: #063465; line-height: 1.3;}
 [class*="st-key-level-count-"] .lvl-hint {font-size: .8rem; color: #5A6E88; padding-bottom: .5rem;}
 @media (max-width: 640px) {
     .st-key-level-counts [data-testid="stHorizontalBlock"] {flex-flow: row wrap !important; gap: .5rem !important;}
     .st-key-level-counts [data-testid="stColumn"] {width: calc(50% - .25rem) !important; flex: 1 1 calc(50% - .25rem) !important; min-width: calc(50% - .25rem) !important;}
-    [class*="st-key-level-count-"] .lvl-num {font-size: 1.6rem;}
+    [class*="st-key-level-count-"] .lvl-num {font-size: 1.25rem;}
 }
 [class*="st-key-policy-card-"] .pc-label {font-weight: 700; margin-top: .3rem;}
 [class*="st-key-policy-card-"] .pc-body {margin-bottom: .5rem;}
@@ -159,7 +158,7 @@ READABILITY_CSS = """
 .st-key-level-count-level-check {border-top-color: #FE6A01;}
 .st-key-level-count-level-no {border-top-color: #9FB0C6;}
 [class*="st-key-policy-card-"] {border-radius: 14px !important;}
-[class*="st-key-policy-card-"] [data-testid="stHeadingWithActionElements"] h2 {font-size: 1.35rem !important; padding: .2rem 0 0 0 !important;}
+[class*="st-key-policy-card-"] [data-testid="stHeadingWithActionElements"] h2 {font-size: 1.5rem !important; font-weight: 700 !important; line-height: 1.35; padding: .2rem 0 0 0 !important;}
 .st-key-journey-summary {background: #EEF4FB; border: 1px solid #C9D8EA; border-left: 5px solid #2E9E6B; border-radius: 14px; padding: .9rem 1.3rem;}
 .st-key-journey-summary h3 {font-size: 1.35rem !important; color: #063465; padding: 0 !important;}
 .st-key-journey-tools {border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.3rem; background: #FFFFFF;}
@@ -224,7 +223,7 @@ h3 {font-size: 1.25rem !important; font-weight: 600 !important;}
 [data-testid="stExpander"] [data-testid="stTextInput"] label p {font-size: .85rem; font-weight: 400;}
 [data-testid="stExpander"] [data-testid="stCheckbox"] {margin-top: 1.25rem;}
 [data-testid="stLinkButton"], [data-testid="stButton"] {margin-block: .35rem;}
-[class*="st-key-policy-card-"] h2 {font-size: 1.3rem !important;}
+[class*="st-key-policy-card-"] h2 {font-size: 1.5rem !important; font-weight: 700 !important; line-height: 1.35;}
 [data-testid="stChatMessage"] [data-testid="stExpander"] summary p {font-size: 1rem; font-weight: 600;}
 /* 로고 톤앤매너: 남색 #063465(기본) · 주황 #FE6A01(강조) */
 h1, h2, h3 {color: #063465 !important;}
@@ -317,8 +316,8 @@ h1, h2, h3 {color: #063465 !important;}
 .st-key-home-hero-band {padding-top: 1.6rem !important; padding-bottom: 1.1rem !important;}
 .st-key-home-hero-band [data-testid="stColumn"] {padding-top: .3rem; padding-bottom: .3rem;}
 .st-key-home-hero-band .st-key-slogan h3 {font-size: 1.4rem !important; padding-bottom: .2rem;}
-.st-key-hero-intro {gap: .15rem; margin-bottom: 1.1rem;}
-.st-key-hero-intro p {font-size: 1.05rem !important; line-height: 1.8;}
+.st-key-hero-intro {gap: .15rem; margin-bottom: 1.1rem; max-width: 42rem; width: 100%;}
+.st-key-hero-intro p {font-size: 1.05rem !important; line-height: 1.65;}
 p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 .st-key-hero-cta-help p.cta-help {margin-top: .2rem;}
 /* 예시·현황 카드: 글자 겹침 없게 원래 간격으로 (10/4) */
@@ -406,7 +405,7 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
                 radial-gradient(circle at 0% 100%, rgba(46,158,107,.26) 0, rgba(46,158,107,0) 32%),
                 linear-gradient(135deg, #041F3D 0%, #063465 55%, #0B4C8C 100%);
     box-shadow: 0 18px 44px rgba(4,31,61,.22);}
-[class*="st-key-page-hero-top-"] {padding-bottom: .7rem; margin-bottom: .5rem; border-bottom: 1px solid rgba(255,255,255,.12);}
+
 span.page-hero-logo {display: block; width: 132px; height: 33px; background-size: contain; background-repeat: no-repeat; background-position: right center;}
 [class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {color: #FFFFFF !important; font-size: clamp(1.5rem, 2.6vw, 2.1rem) !important;
     font-weight: 800 !important; letter-spacing: -.03em; line-height: 1.25; padding: .35rem 0 .1rem !important;}
@@ -427,7 +426,7 @@ p.page-hero-desc b {color: #FFFFFF;}
 .st-key-journey-summary, [class*="st-key-milestone-"], .st-key-complaint-input, .st-key-profile-next
     {background: #FFFFFF !important; border: 1px solid #E3E9F1 !important; border-radius: 18px !important;
      box-shadow: 0 6px 18px rgba(6,52,101,.06);}
-[class*="st-key-policy-card-"]:hover, [class*="st-key-activity-card-"]:hover {box-shadow: 0 14px 30px rgba(6,52,101,.12); transform: translateY(-2px);
+[class*="st-key-policy-card-"]:hover, [class*="st-key-activity-card-"]:hover {box-shadow: 0 6px 18px rgba(6,52,101,.08); transform: none;
     transition: transform .15s ease, box-shadow .15s ease;}
 .st-key-level-count-level-ok {border-top: 4px solid #2E9E6B !important;}
 .st-key-level-count-level-cond {border-top: 4px solid #063465 !important;}
@@ -440,15 +439,136 @@ p.page-hero-desc b {color: #FFFFFF;}
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stForm"] {background: #FFFFFF; border: 1px solid #E3E9F1; border-radius: 18px;}
 /* 10/4 팀장 검수: 1~6개월 정착 여정 제목이 너무 크고 굵음 → 크기·굵기 줄이고 글자·띄어쓰기 간격 정리 */
 .st-key-page-journey [data-testid="stExpander"] summary p {font-size: 1.05rem !important; font-weight: 600 !important;
-    line-height: 1.45 !important; letter-spacing: -0.01em; word-spacing: 0.02em;}
-.st-key-page-journey [data-testid="stExpander"] summary {padding-top: .65rem; padding-bottom: .65rem;}
+    line-height: 1.5 !important; letter-spacing: -0.01em; word-spacing: 0.02em;}
+.st-key-page-journey [data-testid="stExpander"] summary {padding-top: .75rem; padding-bottom: .75rem;}
 @media (max-width: 640px) {
-    .st-key-page-journey [data-testid="stExpander"] summary p {font-size: .93rem !important;}
+    .st-key-page-journey [data-testid="stExpander"] summary p {font-size: 1rem !important;}
     .st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] p {font-size: 1rem !important; line-height: 1.5;}
 }
 @media (max-width: 640px) {
     [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {padding: .9rem 1.1rem 1.3rem !important; border-radius: 20px;}
     span.page-hero-logo {width: 104px; height: 26px;}
+}
+/* Low-risk polish: scoped mobile policy titles and existing action containers. */
+@media (max-width: 640px) {
+    [class*="st-key-policy-card-"] h2,
+    [class*="st-key-policy-card-"] [data-testid="stHeadingWithActionElements"] h2 {font-size: 1.35rem !important;}
+    .st-key-profile-next-main [data-testid="stBaseButton-primary"],
+    [class*="st-key-save-stage:"] button,
+    [class*="st-key-save-row-"] [data-testid="stDownloadButton"] button,
+    .st-key-page-explore [data-testid="stBaseLinkButton-primary"],
+    .st-key-complaint-input [data-testid="stBaseButton-primaryFormSubmit"],
+    .st-key-dialect-input [data-testid="stBaseButton-primaryFormSubmit"] {min-height: 2.75rem;}
+}
+/* Visual rhythm polish: existing screen roles only; no navigation or state changes. */
+[class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {
+    padding: 2rem 2.25rem 2.5rem !important; gap: 0 !important; margin-bottom: 2.5rem;
+}
+[class*="st-key-page-hero-top-"] {padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.12);}
+[class*="st-key-page-hero-"] .hero-eyebrow {margin: 0;}
+[class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {padding: 0 !important; letter-spacing: -.02em !important;}
+p.page-hero-desc {margin: 0; line-height: 1.6;}
+.st-key-feature2-tabs {margin-top: 1.5rem;}
+.st-key-home-hero-band .st-key-slogan h3 {line-height: 1.25 !important; letter-spacing: -.02em !important; padding: .75rem 0 1rem !important;}
+.st-key-hero-intro {margin-bottom: 1.5rem;}
+.st-key-hero-intro p {line-height: 1.65;}
+.st-key-hero-intro p.hero-lines {line-height: 1.65; margin-bottom: 0;}
+.st-key-hero-cta-help p.cta-help {margin-top: 1.5rem; padding: .75rem 1rem; line-height: 1.6;}
+.st-key-hero-trust {margin-top: 1rem;}
+.st-key-hero-trust [data-testid="stCaptionContainer"] p {color: rgba(255,255,255,.82) !important; font-size: .875rem;}
+.st-key-home-body p.sec-title {font-size: 1.6rem !important; line-height: 1.3; margin: 2.5rem 0 1rem;}
+.st-key-page-policy > [data-testid="stHeading"] h3,
+.st-key-page-journey > [data-testid="stHeading"] h3,
+.st-key-page-explore > [data-testid="stHeading"] h3 {font-size: 1.6rem !important; line-height: 1.3;}
+[class*="st-key-policy-card-"] .pc-label {margin-top: .75rem; margin-bottom: .5rem;}
+[class*="st-key-policy-card-"] .pc-body {margin-bottom: 1rem; line-height: 1.6;}
+[class*="st-key-policy-card-"] .pc-body + .pc-label {margin-top: 1.25rem;}
+[class*="st-key-policy-card-"] [data-testid="stLinkButton"] {margin-top: 1rem;}
+[class*="st-key-activity-card-"] {gap: .75rem;}
+[class*="st-key-activity-card-"] [data-testid="stMarkdownContainer"] p {line-height: 1.6;}
+[class*="st-key-activity-card-"] [data-testid="stMarkdownContainer"] p > strong:only-child {font-size: 1.25rem; line-height: 1.35;}
+[class*="st-key-activity-card-"] [data-testid="stButton"],
+[class*="st-key-activity-card-"] [data-testid="stLinkButton"] {margin-top: .75rem;}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] {margin-top: 1.5rem;}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stTextInput"] {margin-top: .75rem; margin-bottom: 1rem;}
+.st-key-complaint-input, .st-key-dialect-input {padding: 1.25rem; gap: .75rem;}
+.st-key-complaint-result, .st-key-dialect-result {padding: 1rem; gap: .75rem;}
+.st-key-profile-group-basic [data-testid="stCaptionContainer"] p,
+.st-key-profile-group-life [data-testid="stCaptionContainer"] p,
+.st-key-explore-detail [data-testid="stCaptionContainer"] p,
+.st-key-journey-summary [data-testid="stCaptionContainer"] p {font-size: .875rem; line-height: 1.6; color: #435469;}
+[data-testid="stSidebar"] {border-right-width: 2px;}
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {font-size: .875rem; line-height: 1.6; color: #435469;}
+[data-testid="stSidebar"] [data-testid="stProgress"] {margin-top: 1.25rem; margin-bottom: .5rem;}
+[data-testid="stSidebar"] [class*="st-key-nav-"] {margin-block: .375rem;}
+[data-testid="stSidebar"] .st-key-nav-home {margin-top: 1.5rem; margin-bottom: 1.25rem;}
+[data-testid="stSidebar"] .st-key-nav-complaint {margin-top: .75rem;}
+[data-testid="stSidebar"] .st-key-nav-ask {margin-top: 1.5rem; margin-bottom: 1rem;}
+@media (max-width: 640px) {
+    [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {padding: 1.5rem 1rem 2rem !important; margin-bottom: 1.5rem;}
+    .st-key-home-hero-band .st-key-slogan h3 {padding-bottom: .5rem !important;}
+    .st-key-hero-intro {margin-bottom: 1.25rem;}
+    .st-key-home-body p.sec-title {font-size: 1.5rem !important; margin-top: 2rem;}
+    .st-key-complaint-input, .st-key-dialect-input {padding: 1rem;}
+}
+/* Group boundaries use existing native element containers, without new markup. */
+[data-testid="stSidebar"] .st-key-nav-explore {margin-bottom: 1.25rem;}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {line-height: 1.6; margin-block: .25rem;}
+.st-key-page-journey [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]) + [data-testid="stElementContainer"] {margin-top: .75rem;}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stButton"],
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stLinkButton"] {margin-top: .75rem;}
+.st-key-complaint-input [data-testid="stForm"], .st-key-dialect-input [data-testid="stForm"] {margin-block: 1rem;}
+.st-key-complaint-result [data-testid="stChatMessage"], .st-key-dialect-result [data-testid="stChatMessage"] {margin-bottom: 1rem;}
+@media (max-width: 640px) {
+    .st-key-hero-cta-help p.cta-help {margin-top: 1.25rem;}
+    .st-key-feature2-tabs {margin-top: 1rem;}
+    [class*="st-key-page-hero-top-"] {margin-bottom: .5rem;}
+}
+/* Header element wrappers: shared by profile and every feature page. */
+[class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) [data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .hero-eyebrow) {gap: 0 !important;}
+[class*="st-key-page-hero-"] [data-testid="stElementContainer"]:has(.hero-eyebrow) {margin-bottom: 1rem;}
+[class*="st-key-page-hero-"] [data-testid="stElementContainer"]:has([data-testid="stHeading"]) {margin-bottom: .75rem;}
+[class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {margin: 0 !important;}
+.st-key-home-hero-inner [data-testid="stElementContainer"]:has(.hero-eyebrow) {margin-bottom: 1rem;}
+.st-key-slogan {margin-bottom: 1rem;}
+.st-key-home-topbar {padding-bottom: 1rem; margin-bottom: 1.5rem;}
+/* Mission checkbox: native label and square share the same first-line metrics. */
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] label {display: flex; align-items: flex-start; gap: .75rem;}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] label > div:first-of-type {margin-top: calc(.75em + 2px); transform: translateY(-50%);}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] {font-size: 1.35rem;}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] [data-testid="stWidgetLabel"] {min-width: 0; flex: 1; line-height: 1.5;}
+.st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] label p {margin: 0; line-height: 1.5; overflow-wrap: anywhere;}
+@media (max-width: 640px) {
+    [class*="st-key-page-hero-top-"] {margin-bottom: 1rem;}
+    [class*="st-key-page-hero-"] [data-testid="stElementContainer"]:has(.hero-eyebrow) {margin-bottom: .75rem;}
+    .st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] {font-size: 1rem;}
+}
+/* Final refinement: quiet secondary actions; native interaction remains intact. */
+[data-testid="stSidebar"] [class*="st-key-nav-"] [data-testid="stBaseButton-secondary"] {
+    border-color: transparent !important; background: transparent !important; box-shadow: none !important;
+    border-radius: .5rem !important; justify-content: flex-start; text-align: left;
+}
+[data-testid="stSidebar"] [class*="st-key-nav-"] [data-testid="stBaseButton-secondary"]:disabled {
+    border: 1px solid transparent !important; background: transparent !important;
+}
+[data-testid="stSidebar"] [class*="st-key-nav-"] [data-testid="stBaseButton-secondary"]:hover:not(:disabled) {background: #E8EEF5 !important;}
+[class*="st-key-ask-example-"], [class*="st-key-complaint-example-"], [class*="st-key-dialect-example-"] {margin-block: .25rem;}
+[class*="st-key-ask-example-"] button, [class*="st-key-complaint-example-"] button, [class*="st-key-dialect-example-"] button {
+    background: transparent !important; border-color: transparent !important; border-radius: .5rem !important;
+    box-shadow: none !important; padding: .5rem .75rem; min-height: 2.75rem; color: #435469 !important;
+}
+[class*="st-key-ask-example-"] button:hover, [class*="st-key-complaint-example-"] button:hover, [class*="st-key-dialect-example-"] button:hover {background: #EEF3F8 !important; color: #063465 !important;}
+[data-testid="stExpandSidebarButton"] button, [data-testid="stCollapseSidebarButton"] button,
+button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSidebarButton"] {
+    min-width: 44px; min-height: 44px; color: #063465; background: #EEF3F8;
+}
+[data-testid="stExpandSidebarButton"] svg, [data-testid="stCollapseSidebarButton"] svg {width: 24px; height: 24px;}
+[data-testid="stSidebar"] [class*="st-key-nav-"] button:focus-visible,
+[class*="st-key-ask-example-"] button:focus-visible,
+[class*="st-key-complaint-example-"] button:focus-visible,
+[class*="st-key-dialect-example-"] button:focus-visible,
+[data-testid="stExpandSidebarButton"]:focus-visible, [data-testid="stCollapseSidebarButton"]:focus-visible {
+    outline: 3px solid #FE6A01; outline-offset: 2px;
 }
 </style>
 """
@@ -685,7 +805,7 @@ FEATURE_SUMMARIES = {
     PAGE_DIALECT: "직장·식당에서 들은 창원 말의 뜻과 쓰임을 알려 줘요.",
 }
 USAGE_NOTES = (
-    "실명·연락처 등 개인정보는 받지 않아요. 닉네임과 나이·전입일 같은 조건만 써요.",
+    "기본 이용에는 실명·연락처가 필요 없어요. 닉네임과 나이·전입일 같은 조건을 쓰고, 이메일 알림을 신청할 때만 이메일 주소를 받아요.",
     "이메일 일정 알림은 선택 기능이에요. 직접 신청하지 않으면 이메일을 받지 않고, 신청하면 개인정보 수집·이용 동의와 "
     "이메일 수신 동의를 받은 뒤에 일정 알림을 보내요. 해지하면 이메일은 바로 삭제돼요.",
     "안내는 공식 자료로 확인한 정보(확인일 표시) 기준이에요. 지원 대상 여부의 최종 판단은 담당 기관에서 해요.",
@@ -825,11 +945,9 @@ def render_home_page():
                 with st.container(key="slogan"):
                     st.subheader(SLOGAN, anchor=False)
                 with st.container(key="hero-intro"):
-                    # 세 줄을 한 덩어리로(줄 간격만) — 아래 시작 버튼과는 간격으로 구분
+                    # 한 문장 가치제안 — 아래 시작 버튼과는 간격으로 구분
                     st.markdown(
-                        "<p class='hero-lines'><b>오이소창원</b>은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.<br>"
-                        "창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 <b>오이소창원</b>이 함께 챙겨드려요.<br>"
-                        "오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?</p>",
+                        "<p class='hero-lines'>창원에 새로 전입한 청년이 첫 180일 동안 챙길 혜택과 할 일을 안내해요.</p>",
                         unsafe_allow_html=True,
                     )
                 with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
@@ -847,7 +965,7 @@ def render_home_page():
                     st.markdown(CTA_HELP_HTML, unsafe_allow_html=True)
                     # 신뢰 안내는 시작 안내 바로 아래 한 줄로 (10/4 이혜경: 하단에 홀로 있던 문구)
                     with st.container(key="hero-trust"):
-                        _caption("🔒 실명·연락처는 받지 않아요 · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관")
+                        _caption("🔒 기본 이용에는 실명·연락처가 필요 없어요. 이메일 알림을 신청할 때만 이메일 주소를 받아요. · 안내는 확인일 기준 공식 자료 · 최종 판단은 담당 기관")
             with preview_col:
                 if user_key:
                     _hero_progress_card()
@@ -932,10 +1050,9 @@ PROFILE_FIELD_HELP = {
     "age": "만 나이예요. 청년 정책의 나이 조건(보통 만 19~39세)을 확인할 때 써요.",
     "move_in_date": "새 주소로 전입신고를 한 날이에요. 1~6개월 정착 일정과 혜택 신청 시기를 계산해요.",
     "home_district": "사는 구를 고르면 가까운 생활 정보를 먼저 보여 드려요.",
-    "previous_residence_years": "왜 필요할까요? ‘창원시 기업노동자 전입지원금’은 창원으로 오기 전 다른 시·군·구에 "
-    "1년 이상 주민등록을 두고 살았어야 받을 수 있어요. 이 조건을 확인하는 데만 써요.",
-    "employment_status": "직장인 = 창원 회사·가게 근무, 자영업 = 창원에서 직접 사업,  \n"
-    "학생 = 대학·대학원 재학, 기타 = 구직 중·쉬는 중 등  \n하는 일에 따라 받을 수 있는 혜택이 달라져요.",
+    "previous_residence_years": "기업노동자 전입지원금의 이전 거주 조건을 확인해요. 창원 전입 전 다른 시·군·구에 1년 이상 주민등록을 두고 살았어야 해요.",
+    "employment_status": "일에 따라 혜택이 달라져요. 직장인은 창원 회사·가게 근무, 자영업은 창원에서 직접 사업을 뜻해요.  \n"
+    "학생은 대학·대학원 재학, 기타는 구직 중·쉬는 중 등이에요.",
     "vehicle": "차가 없으면 대중교통 혜택(K-패스)을 먼저 보여 주고, 장소 안내도 대중교통 기준으로 알려 드려요.",
 }
 
@@ -946,7 +1063,7 @@ def _field_help(field):
 
 def render_profile_page():
     _page_hero("profile", "먼저, 오이소창원이 알아야 할 조건을 알려주세요.",
-               "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. <b>실명과 연락처는 받지 않아요.</b>",
+               "정책과 정착 일정을 찾는 데 필요한 최소한의 조건만 사용해요. <b>이 조건 입력에서는 실명·연락처를 받지 않아요.</b>",
                eyebrow=CONDITION_LABEL)
     with st.container(key="profile-head", horizontal=True, wrap=True, vertical_alignment="bottom"):
         with st.container():
@@ -1486,8 +1603,9 @@ def render_journey_page():
 
     for mission_group in mission_groups:
         group_title = (
-            f"창원 생활 {MONTH_LABELS[mission_group['month']]} · "
-            f"{mission_group['theme']} · {len(mission_group['missions'])}개"
+            f"{MONTH_LABELS[mission_group['month']]} · "
+            f"{ {1: '생활 적응', 2: '동네 알아가기', 3: '지역사회 참여', 4: '일·생활 연결', 5: '지역과 연결', 6: '다음 단계'}[mission_group['month']]} · "
+            f"{len(mission_group['missions'])}개"
         )
         if mission_group["month"] == current_month:
             group_title += " · 지금"
@@ -1791,9 +1909,7 @@ def render_explore_page():
                         args=(PAGE_POLICY,),
                     )
                 st.text(
-                    "검색 결과에서 장소와 지역을 확인해 주세요. "
-                    "장소를 확인한 뒤 출발지를 현재 위치로 정하고 "
-                    "대중교통 길찾기를 선택해 주세요."
+                    "검색 결과에서 장소·지역을 확인한 뒤 길찾기를 선택하세요."
                 )
             # 상세를 본 뒤 카드 목록으로 바로 돌아가기 (10/3 실사용자 테스트: 생활 정보 개선 필요 3명)
             st.button("↑ 장소 목록으로 돌아가기", key="explore-back-to-list", type="tertiary",
@@ -1880,7 +1996,7 @@ def _render_agent_item(item, key_prefix):
         badge = MODE_LABELS[item["mode"]]
         if item["mode"] == "llm":
             badge += f" · {item['model']}"
-        badge += " · 검증 통과" if item["verified"] else " · 검증 필요"
+        badge += " · 자료·응답 검증 통과" if item["verified"] else " · 자료·응답 검증 필요"
         _caption(badge)
         error_step = next((step for step in item["steps"] if step["단계"] == "AI 연결 오류"), None)
         if error_step:

@@ -106,8 +106,12 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertFalse(app.exception)
                 self.assertEqual(app.session_state["page"], "home")
                 home_text = _visible_text(app)
-                for section in ("이 서비스가 하는 일", "오이소창원은 이렇게 일해요", "나의 조건 입력하고 시작하기", "예시 화면이에요", "이용 참고사항", "문의", "개인정보는 받지 않아요"):
+                for section in ("이 서비스가 하는 일", "오이소창원은 이렇게 일해요", "나의 조건 입력하고 시작하기", "예시 화면이에요", "이용 참고사항", "문의"):
                     self.assertIn(section, home_text)
+                # 기본 이용과 선택 이메일 수집 범위를 홈 신뢰 안내에서 확인한다.
+                trust = next(c.value for c in app.caption if "🔒 기본 이용에는" in c.value)
+                self.assertIn("기본 이용에는 실명·연락처가 필요 없어요", trust)
+                self.assertIn("이메일 알림을 신청할 때만 이메일 주소를 받아요", trust)
                 feature_keys = [b.key for b in app.main.button if b.key in ("show-policy", "show-journey", "show-complaint", "show-dialect")]
                 self.assertEqual(len(feature_keys), 4)
                 self.assertNotIn("내 정보", home_text)
@@ -138,14 +142,11 @@ class ApplicationE2ETests(unittest.TestCase):
                 self.assertEqual(len(app.get("image")), 1)
                 self.assertIn("창원에서 너의 내일을 응원해!", [h.value for h in app.subheader])
                 self.assertFalse(any("🌱" in t.value for t in app.title))
-                # 소개 3줄은 한 덩어리(줄바꿈)로, 순서 유지
-                hero = "\n".join(m.value for m in app.markdown)
-                lines = ("<b>오이소창원</b>은 창원에 새로 전입한 청년의 초기 정착을 돕는 코디네이터 Agent입니다.",
-                         "창원에서의 첫 180일, 놓치기 쉬운 혜택과 할 일을 <b>오이소창원</b>이 함께 챙겨드려요.",
-                         "오이소창원과 180일간의 정착 여정을 함께 떠나볼까요?")
-                self.assertTrue(all(line in hero for line in lines))
-                self.assertLess(hero.index(lines[0]), hero.index(lines[1]))
-                self.assertLess(hero.index(lines[1]), hero.index(lines[2]))
+                # 승인된 한 문장 가치제안을 유지하고 반복 초대 문구는 제거한다.
+                hero = next(m.value for m in app.markdown if "첫 180일 동안 챙길" in m.value)
+                self.assertIn("창원에 새로 전입한 청년이 첫 180일 동안 챙길 혜택과 할 일을 안내해요.", hero)
+                self.assertNotIn("함께 떠나볼까요?", hero)
+                self.assertNotIn("<br>", hero)
                 home = _visible_text(app)
                 self.assertNotIn("문의 whwnstn9294", home)
                 self.assertNotIn("앱 이용 문의", home)  # 화면 아래 ‘앱 문의’ 한 곳에만
@@ -337,12 +338,12 @@ class ApplicationE2ETests(unittest.TestCase):
                 app = _demo_app()
                 _visit(app, "journey")
                 worker_text = _visible_text(app)
-                self.assertIn("일·생활과 연결하기", worker_text)
+                self.assertIn("4개월 차 · 일·생활 연결", worker_text)
                 self.assertIn("(재직자) 우리 회사가 근로자 휴가지원사업에 참여하는지 확인하기", [c.label for c in app.checkbox])
                 for job, theme, mission in (
-                    ("학생", "학업·생활과 연결하기", "전입 대학(원)생 생활안정지원(월 6만원) 신청 조건 확인하기"),
-                    ("기타", "취업 준비·생활과 연결하기", "청년 면접수당·자격증 시험 응시료 지원 신청하기"),
-                    ("자영업", "일·생활과 연결하기", "청년 스포츠 패스 다음 모집 공고에서 자영업 참여 가능 여부 확인하기"),
+                    ("학생", "4개월 차 · 일·생활 연결", "전입 대학(원)생 생활안정지원(월 6만원) 신청 조건 확인하기"),
+                    ("기타", "4개월 차 · 일·생활 연결", "청년 면접수당·자격증 시험 응시료 지원 신청하기"),
+                    ("자영업", "4개월 차 · 일·생활 연결", "청년 스포츠 패스 다음 모집 공고에서 자영업 참여 가능 여부 확인하기"),
                 ):
                     with self.subTest(job=job):
                         _visit(app, "profile")
@@ -1012,7 +1013,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 current_stage = next(
                     item
                     for item in app.expander
-                    if "창원 생활 2개월 차" in item.label
+                    if "2개월 차" in item.label
                 )
                 self.assertTrue(current_stage.proto.expanded)
 
@@ -1028,7 +1029,7 @@ class ApplicationE2ETests(unittest.TestCase):
                         stages = list(app.expander)
                         self.assertEqual(len(stages), 6)
                         for month, stage in enumerate(stages, start=1):
-                            self.assertIn(f"창원 생활 {month}개월 차", stage.label)
+                            self.assertTrue(stage.label.startswith(f"{month}개월 차 · "))
                             self.assertEqual(stage.proto.expanded, month == current_month)
                             self.assertEqual(" · 지금" in stage.label, month == current_month)
                         self.assertEqual(len([c for c in app.checkbox if c.key and c.key.startswith("mission-progress:")]), 26)
