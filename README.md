@@ -97,7 +97,7 @@
 | 시⁠연⁠동⁠영⁠상(제⁠출4) | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
 | 발⁠표⁠자⁠료(제⁠출5) | 10장 이⁠내, 본⁠선 선⁠정 시 발⁠표 (10/5 제⁠작 — 이⁠미⁠영, GPT로 초⁠안·팀 검⁠수) | `deliverables/presentation/ppt/` |
 | 테⁠스⁠트 3종 | 코⁠드·체⁠크⁠리⁠스⁠트·보⁠고⁠서·설⁠문 결⁠과 | `tests/` |
-| 증⁠빙 캡⁠처 | PNG·JPG 152장 | `screenshots/` |
+| 증⁠빙 캡⁠처 | PNG·JPG 163장 | `screenshots/` |
 
 ---
 
@@ -148,7 +148,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (구현 과정)  ai_test 26장 · work_process 27장 · team_self_test 37장 · ui_update 11장 · deploy_check 15장 · 작업과정_20261004_새디자인 5장 · 작업과정_20261004_최종구현사진 21장
-│   └── after_development/ (구현 완료)   최종완료사진_1005 — PC 10장(휴대폰 추가 예정)
+│   └── after_development/ (구현 완료)   최종완료사진_1005 — PC 10장 · 휴대폰 11장
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -241,7 +241,7 @@ oiso_changwon/
 | 11 | 팀 자⁠체 테⁠스⁠트 — B 이⁠혜⁠경 25번(지⁠적 68건 중 68건 반⁠영), C 이⁠미⁠영 2번(9건 중 9건 반⁠영) | 10/2–10/4 | team_self_test 01-33 |
 | 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 11번(UX·UI 요⁠청·인⁠증 오⁠류·기⁠능 확⁠인·휴⁠대⁠폰 검⁠수·이⁠메⁠일 점⁠검·10/5 UX/UI 개⁠선 5번) 11건 반⁠영·전⁠체 검⁠수 | 10/2–10/5 | team_self_test 34-37 |
 | 13 | 실⁠사⁠용⁠자 4명 테⁠스⁠트·설⁠문 → 의⁠견 반⁠영 | 10/3–10/4 | `tests/user_test/results_20261004` |
-| 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) → 10/5 팀⁠장 노⁠트⁠북·휴⁠대⁠폰 검⁠수 후 UX/UI 개⁠선 5번(여⁠백·정⁠렬·카⁠드 높⁠이·입⁠력 폼·질⁠문/답⁠변 배⁠치, 정⁠착 일⁠정 단⁠계 기⁠본 접⁠힘, 기⁠능 변⁠경 없⁠음) | 10/3~10/5 | 구⁠현 과⁠정 ui_update 11장 · 작⁠업⁠과⁠정_20261004_새⁠디⁠자⁠인 5장 · 작⁠업⁠과⁠정_20261004_최⁠종⁠구⁠현⁠사⁠진 21장 → 구⁠현 완⁠료 최⁠종⁠완⁠료⁠사⁠진_1005(PC 10장) |
+| 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) → 10/5 팀⁠장 노⁠트⁠북·휴⁠대⁠폰 검⁠수 후 UX/UI 개⁠선 5번(여⁠백·정⁠렬·카⁠드 높⁠이·입⁠력 폼·질⁠문/답⁠변 배⁠치, 정⁠착 일⁠정 단⁠계 기⁠본 접⁠힘, 기⁠능 변⁠경 없⁠음) | 10/3~10/5 | 구⁠현 과⁠정 ui_update 11장 · 작⁠업⁠과⁠정_20261004_새⁠디⁠자⁠인 5장 · 작⁠업⁠과⁠정_20261004_최⁠종⁠구⁠현⁠사⁠진 21장 → 구⁠현 완⁠료 최⁠종⁠완⁠료⁠사⁠진_1005(PC 10장·휴⁠대⁠폰 11장) |
 | 15 | 기⁠획⁠안·결⁠과⁠보⁠고⁠서·완⁠료⁠보⁠고⁠서·기⁠술⁠명⁠세⁠서·신⁠청⁠서·신⁠고⁠서·영⁠상 스⁠크⁠립⁠트·README 작⁠성 | 10/4 | `docs/` · `deliverables/` |
 | 16 | 시⁠연⁠영⁠상(웹·모⁠바⁠일)·발⁠표⁠자⁠료 제⁠작, 최⁠종 제⁠출 | 10/5–10/6 | `deliverables/presentation/` |
 
@@ -345,7 +345,7 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 ## 11. 화면 구성
 
-10/5 최⁠종 완⁠료 화⁠면⁠입⁠니⁠다(배⁠포 앱, GPT-4.1 mini 연⁠결, 팀⁠장 UX/UI 개⁠선 반⁠영). PC 10장: [`screenshots/after_development/최종완료사진_1005/`](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/) · 휴⁠대⁠폰⁠은 10/5 최⁠종 사⁠진⁠으⁠로 교⁠체 예⁠정⁠이⁠며 아⁠래⁠는 10/4 화⁠면⁠입⁠니⁠다.
+10/5 최⁠종 완⁠료 화⁠면⁠입⁠니⁠다(배⁠포 앱, GPT-4.1 mini 연⁠결, 팀⁠장 UX/UI 개⁠선 반⁠영). PC 10장(01–10): [`screenshots/after_development/최종완료사진_1005/`](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/) · 휴⁠대⁠폰 11장(11–21).
 
 **PC (10/5 최⁠종)**
 
@@ -369,10 +369,21 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 |:---:|:---:|
 | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/10_PC_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/04_PC_%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%95%8C%EB%A6%BC_%EC%8B%A0%EC%B2%AD.png) |
 
-**휴⁠대⁠폰**
+**휴⁠대⁠폰 (10/5 최⁠종)**
 
-| 첫 화⁠면 | 나⁠의 조⁠건 입⁠력 | ① 맞⁠춤 혜⁠택 | ② 정⁠착 일⁠정 |
+| 첫 화⁠면 | 이⁠렇⁠게 일⁠해⁠요 | 나⁠의 조⁠건 입⁠력 | ① 맞⁠춤 혜⁠택 |
 |:---:|:---:|:---:|:---:|
+| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/12_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88_%EC%9D%B4%EB%A0%87%EA%B2%8C%EC%9D%BC%ED%95%B4%EC%9A%94.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/13_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/14_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.jpg" width="200"> |
+
+| ② 정⁠착 일⁠정 | ② 1~6개⁠월(기⁠본 접⁠힘) | ② 생⁠활 정⁠보 이⁠동 안⁠내 | ③ 불⁠편⁠사⁠항 |
+|:---:|:---:|:---:|:---:|
+| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/15_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/16_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95_1-6%EA%B0%9C%EC%9B%94.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/17_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4_%EC%9D%B4%EB%8F%99%EC%95%88%EB%82%B4.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/18_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD.jpg" width="200"> |
+
+| ③ 불⁠편⁠사⁠항 결⁠과 | ③ Agent 실⁠행 기⁠록 | ④ 지⁠역⁠말 |
+|:---:|:---:|:---:|
+| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/19_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/20_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EC%8B%A4%ED%96%89%EA%B8%B0%EB%A1%9D.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/21_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90.jpg" width="200"> |
+
+---:|:---:|:---:|:---:|
 | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/08_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/09_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/10_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.jpg" width="200"> |
 
 | ② 생⁠활 정⁠보 | ③ 불⁠편⁠사⁠항 결⁠과 | ④ 지⁠역⁠말 | ④ 지⁠역⁠말 결⁠과 |
