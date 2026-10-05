@@ -5,8 +5,10 @@ export NODE_PATH=$(npm root -g)
 T=handoff/tools
 QRPNG="$PWD/docs/images/oisochangwon_app_qr.png"
 export LOGO="$PWD/assets/logo_wide.png"   # 모든 문서 첫 쪽 왼쪽 위 로고
+ONLY="${ONLY:-}"
 while IFS='|' read -r md title docx qr; do
   [ -z "$md" ] && continue
+  if [ -n "$ONLY" ] && [[ "$md" != *"$ONLY"* ]]; then continue; fi
   export QR="$QRPNG"   # 모든 문서 첫 쪽 오른쪽 위 앱 QR(10/4 이혜경: 모든 문서에 로고·QR)
   pdf="${md%.md}.pdf"
   (cd "$(dirname "$md")" && python3 "$OLDPWD/$T/mdpdf.py" "$(basename "$md")" "$(basename "$pdf")" "$title") >/dev/null 2>&1
@@ -29,6 +31,6 @@ tests/team_self_test/오이소창원_체크리스트_서류양식.md|오이소�
 tests/team_self_test/자체평가_테스트보고서/오이소창원_자체평가_테스트보고서(1차).md|오이소창원 1차 자체평가·테스트 보고서|n|qr
 handoff/team_share/오이소창원_팀공유_20261003.md|오이소창원 팀 공유 20261003|n
 handoff/오이소창원_영상PPT_인계서_20261005.md|오이소창원 시연영상·발표자료 인계서|y
-docs/result/오이소창원_결과보고서_20261004.md|오이소창원 결과보고서|y|qr
+docs/result/오이소창원_결과보고서_최종본_20261005.md|오이소창원 결과보고서(최종본)|y|qr
 handoff/오이소창원_작업지시인계서_20261004.md|오이소창원 작업지시·인계서 20261004|n
 LIST

@@ -10,15 +10,15 @@
 
 - **🔗 배⁠포 앱:** https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/ (QR로 휴⁠대⁠폰 접⁠속)
 - **💻 GitHub:** https://github.com/jojunsu98/oiso_changwon
-- **📄 개⁠발⁠완⁠료⁠보⁠고⁠서:** [보⁠고⁠서 보⁠기](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
+- **📄 완⁠료⁠보⁠고⁠서(제⁠출1):** [보⁠고⁠서 보⁠기](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
 - **📋 기⁠획⁠안(최⁠종⁠본):** [기⁠획⁠안 보⁠기](docs/planning/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B8%B0%ED%9A%8D%EC%95%88_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261004.md)
-- **📑 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응):** [결⁠과⁠보⁠고⁠서 보⁠기](docs/result/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B2%B0%EA%B3%BC%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
+- **📑 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응):** [결⁠과⁠보⁠고⁠서 보⁠기](docs/result/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B2%B0%EA%B3%BC%EB%B3%B4%EA%B3%A0%EC%84%9C_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261005.md)
 - **🛠 Streamlit 관⁠리(개⁠발⁠자, 로⁠그⁠인 필⁠요):** https://share.streamlit.io → oisochangwon
 - **✉️ 앱 문⁠의:** whwnstn9294@gmail.com
 
 제4회 경⁠남 AI·SW 경⁠진⁠대⁠회 일⁠반⁠부 · 지⁠정⁠주⁠제 01(사⁠회⁠문⁠제 해⁠결⁠형 AI Agent) · 팀 오⁠이⁠소⁠창⁠원(조⁠준⁠수 팀⁠장 · 이⁠혜⁠경 · 이⁠미⁠영)
 
-![첫 화⁠면 — 최⁠종 구⁠현(10/4)](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png)
+![첫 화⁠면 — 최⁠종 구⁠현(10/4)](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png)
 
 ---
 
@@ -75,23 +75,25 @@
 | 과⁠제⁠명 | 오⁠이⁠소⁠창⁠원 — AI 기⁠반 창⁠원 정⁠착 지⁠원 Agent |
 | 지⁠정⁠주⁠제 | 01 사⁠회⁠문⁠제 해⁠결⁠형 AI Agent (일⁠반⁠부) |
 | 개⁠발 유⁠형 | B형(App + LLM API) + 답⁠변 검⁠증 단⁠계 |
-| 팀 역⁠할 | A 조⁠준⁠수(팀⁠장) 전⁠체 자⁠료 최⁠종 점⁠검·수⁠정 · B 이⁠혜⁠경 일⁠정 알⁠림 기⁠능 개⁠발·기⁠획·문⁠서 · C 이⁠미⁠영 기⁠능⁠별 화⁠면 점⁠검·개⁠선 리⁠포⁠트 |
-| AI | 앱: OpenAI GPT-4.1 mini(도⁠구 호⁠출) / 개⁠발: 주⁠로 GPT와 Claude |
-| 기⁠간 | 2026-09-29 ~ 10-04(개⁠발·검⁠증), 제⁠출 10/5(팀 목⁠표) · 10/6 12:00(운⁠영⁠규⁠정 기⁠본 마⁠감) |
+| 팀 역⁠할 | A 조⁠준⁠수(팀⁠장) 전⁠체 검⁠수·UX/UI 개⁠선(10/5)·시⁠연⁠동⁠영⁠상 편⁠집 · B 이⁠혜⁠경 기⁠획·데⁠이⁠터·일⁠정 알⁠림 기⁠능 개⁠발·문⁠서 · C 이⁠미⁠영 기⁠능⁠별 화⁠면 점⁠검·개⁠선 리⁠포⁠트·실⁠사⁠용⁠자 섭⁠외·발⁠표⁠자⁠료 |
+| AI | 앱: OpenAI GPT-4.1 mini(도⁠구 호⁠출) / 개⁠발 보⁠조: Claude Opus 5.5(추⁠론 수⁠준 중⁠간) · ChatGPT(GPT-5.6 Sol) · OpenAI Codex · GPT |
+| 기⁠간 | 2026-09-29 ~ 10-05(개⁠발·검⁠증, 10/5 UX/UI 개⁠선) |
+| 제⁠출 | 2026-10-06(화) 낮 12시⁠까⁠지 구⁠글⁠폼(https://forms.gle/FUVSCAtjd8w8ksRg8) — 기⁠본⁠정⁠보 입⁠력 + 산⁠출⁠물 zip 1개 `일반부_10_조준수.zip` |
+| 본⁠선 | 발⁠표 및 시⁠연 6분 + 질⁠의⁠응⁠답 2분(시⁠연⁠은 제⁠출⁠한 시⁠연⁠동⁠영⁠상) |
 
 **산⁠출⁠물 구⁠성**
 
 | 산⁠출⁠물 | 형⁠식 | 위⁠치 |
 | --- | :---: | --- |
 | 웹 앱 | Streamlit, Streamlit Community Cloud 배⁠포 | `app.py`, `src/`, `data/` |
-| 기⁠획⁠안 | 초⁠안 PDF · 최⁠종⁠본 md·pdf·docx | `docs/planning/` |
+| 기⁠획⁠안(최⁠종⁠본) | md·pdf·docx | `docs/planning/` |
 | 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응) | md·pdf·docx — 기⁠획⁠안 Ⅰ~Ⅸ장⁠별 계⁠획 → 실⁠제 결⁠과 | `docs/result/` |
-| 개⁠발⁠완⁠료⁠보⁠고⁠서 | md·pdf·docx (A4 5쪽) | `deliverables/final_report/` |
-| AI Agent 기⁠술⁠설⁠명⁠서 | 1쪽 (별⁠지 1, 제⁠출2·3) | `deliverables/technical_description/` |
-| 참⁠가 신⁠청⁠서(최⁠종 수⁠정⁠본) | md·pdf·docx (9/28 대⁠비 변⁠경 사⁠항 포⁠함) | `deliverables/submission/` |
+| 완⁠료⁠보⁠고⁠서(제⁠출1) | md·pdf·docx (별⁠지 4, A4 5쪽 이⁠내) | `deliverables/final_report/` |
+| 기⁠술⁠명⁠세⁠서(제⁠출2) + 소⁠스 및 경⁠로(제⁠출3) | AI Agent 기⁠술⁠설⁠명⁠서 1쪽(별⁠지 1) — 정⁠보⁠출⁠처·기⁠존⁠자⁠산/8일 개⁠발⁠분 포⁠함 | `deliverables/technical_description/` |
+| 신⁠청⁠서(최⁠종 수⁠정⁠본) | md·pdf·docx (9/28 대⁠비 변⁠경 사⁠항 포⁠함) | `deliverables/submission/` |
 | 출⁠처·AI 활⁠용 신⁠고⁠서 | md·pdf·docx | `deliverables/submission/` |
-| 시⁠연⁠영⁠상·스⁠크⁠립⁠트 | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
-| 발⁠표⁠자⁠료 | 10장 이⁠내 (10/5 제⁠작 — 이⁠미⁠영, GPT로 초⁠안·팀 검⁠수) | `deliverables/presentation/ppt/` |
+| 시⁠연⁠동⁠영⁠상(제⁠출4) | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
+| 발⁠표⁠자⁠료(제⁠출5) | 10장 이⁠내, 본⁠선 선⁠정 시 발⁠표 (10/5 제⁠작 — 이⁠미⁠영, GPT로 초⁠안·팀 검⁠수) | `deliverables/presentation/ppt/` |
 | 테⁠스⁠트 3종 | 코⁠드·체⁠크⁠리⁠스⁠트·보⁠고⁠서·설⁠문 결⁠과 | `tests/` |
 | 증⁠빙 캡⁠처 | PNG·JPG 142장 | `screenshots/` |
 
@@ -126,26 +128,25 @@ oiso_changwon/
 ├── data/ (팀 검증 데이터, JSON)  정책 24 · 할 일 26 · 할 일 링크 18 · 생활 정보 60 · 지역말 30+2,223 · 접수 창구 6
 │
 ├── tests/ (테스트 3종)
+│   ├── README.md                       테스트 3종 결과(AI 자동 12회 · 팀 자체 37회 · 실사용자 4회)
 │   ├── ai_test/ (AI 자동 테스트)        unittest 127개
-│   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서 · 팀자체테스트 현황표
+│   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서
 │   └── user_test/ (실사용자 테스트)      오이소창원_사용자테스트_서류양식(설문 Apps Script·평가지) · results_20261004(4명 결과·그래프)
 │
 ├── docs/ (문서)
-│   ├── planning/ (기획)          기획안 초안(10/1) · 최종본(10/4) · 그림
-│   ├── result/ (결과)            기획안 대응 결과보고서(10/4)
-│   ├── images/ (그림)            Workflow 다이어그램
-│   ├── work_process/ (작업 과정)  캡처 설명
-│   └── ux_ui/ (UX/UI)            개선 작업 프롬프트
+│   ├── planning/ (기획)          기획안 최종본 · 그림
+│   ├── result/ (결과)            기획안 대응 결과보고서
+│   └── images/ (그림)            Workflow·QR·실사용자 그래프(문서·README에서 사용)
 │
 ├── deliverables/ (최종 제출물)
-│   ├── final_report/ (개발완료보고서)
-│   ├── technical_description/ (AI Agent 기술설명서, 별지 1)
-│   ├── submission/ (출처·AI 활용 신고서)
-│   └── presentation/ (발표) ── video/ (시연영상 스크립트)
+│   ├── final_report/ (완료보고서, 제출1)
+│   ├── technical_description/ (기술명세서 제출2 + 소스 및 경로 제출3, 별지 1)
+│   ├── submission/ (신청서 최종 수정본 · 출처·AI 활용 신고서)
+│   └── presentation/ (발표) ── video/ (시연동영상 제출4) · ppt/ (발표자료 제출5)
 │
 ├── screenshots/ (화면 캡처)
-│   ├── during_development/ (구현 과정, 10/4 새 디자인 이전)  ai_test 26장 · work_process 27장 · team_self_test 37장 · ui_update 11장 · deploy_check 15장
-│   └── after_development/ (구현 완료, 10/4 새 디자인 이후)   최종구현사진 21장 · ui_update 5장
+│   ├── during_development/ (구현 과정)  ai_test 26장 · work_process 27장 · team_self_test 37장 · ui_update 11장 · deploy_check 15장 · 작업과정_20261004_새디자인 5장 · 작업과정_20261004_최종구현사진 21장
+│   └── after_development/ (구현 완료)   최종완료사진_1005 [10/5 최종 화면 — 받은 뒤 추가]
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -236,10 +237,10 @@ oiso_changwon/
 | 9 | 📅 캘⁠린⁠더 · 📄 정⁠착 리⁠포⁠트 · ✉️ 동⁠의 기⁠반 이⁠메⁠일 알⁠림 | 10/3 | team_self_test 08-11 |
 | 10 | ③ 불⁠편⁠사⁠항 · ④ 지⁠역⁠말 화⁠면 개⁠선 | 10/3 | team_self_test 31-32 |
 | 11 | 팀 자⁠체 테⁠스⁠트 — B 이⁠혜⁠경 25번(지⁠적 68건 중 68건 반⁠영), C 이⁠미⁠영 2번(9건 중 9건 반⁠영) | 10/2–10/4 | team_self_test 01-33 |
-| 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 6번(UX·UI 요⁠청·인⁠증 오⁠류·기⁠능 확⁠인·휴⁠대⁠폰 검⁠수·이⁠메⁠일 점⁠검) 6건 반⁠영·전⁠체 검⁠수 | 10/2–10/3 | team_self_test 34-37 |
+| 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 10번(UX·UI 요⁠청·인⁠증 오⁠류·기⁠능 확⁠인·휴⁠대⁠폰 검⁠수·이⁠메⁠일 점⁠검·10/5 UX/UI 개⁠선 4번) 10건 반⁠영·전⁠체 검⁠수 | 10/2–10/5 | team_self_test 34-37 |
 | 13 | 실⁠사⁠용⁠자 4명 테⁠스⁠트·설⁠문 → 의⁠견 반⁠영 | 10/3–10/4 | `tests/user_test/results_20261004` |
-| 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) | 10/3~10/4 | 구⁠현 과⁠정 ui_update 11장 → 구⁠현 완⁠료 최⁠종⁠구⁠현⁠사⁠진 21장 |
-| 15 | 기⁠획⁠안·개⁠발⁠완⁠료⁠보⁠고⁠서·신⁠고⁠서·영⁠상 스⁠크⁠립⁠트·README 작⁠성 | 10/4 | `docs/` · `deliverables/` |
+| 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) → 10/5 팀⁠장 노⁠트⁠북·휴⁠대⁠폰 검⁠수 후 UX/UI 개⁠선 4번(여⁠백·정⁠렬·카⁠드 높⁠이·입⁠력 폼·질⁠문/답⁠변 배⁠치, 정⁠착 일⁠정 단⁠계 기⁠본 접⁠힘, 기⁠능 변⁠경 없⁠음) | 10/3~10/5 | 구⁠현 과⁠정 ui_update 11장 · 작⁠업⁠과⁠정_20261004_새⁠디⁠자⁠인 5장 · 작⁠업⁠과⁠정_20261004_최⁠종⁠구⁠현⁠사⁠진 21장 → 구⁠현 완⁠료 최⁠종⁠완⁠료⁠사⁠진_1005 |
+| 15 | 기⁠획⁠안·결⁠과⁠보⁠고⁠서·완⁠료⁠보⁠고⁠서·기⁠술⁠명⁠세⁠서·신⁠청⁠서·신⁠고⁠서·영⁠상 스⁠크⁠립⁠트·README 작⁠성 | 10/4 | `docs/` · `deliverables/` |
 | 16 | 시⁠연⁠영⁠상(웹·모⁠바⁠일)·발⁠표⁠자⁠료 제⁠작, 최⁠종 제⁠출 | 10/5–10/6 | `deliverables/presentation/` |
 
 ---
@@ -342,35 +343,35 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 ## 11. 화면 구성
 
-10/4 최⁠종 구⁠현 화⁠면⁠입⁠니⁠다(배⁠포 앱, GPT-4.1 mini 연⁠결). 전⁠체 21장(19–21 이⁠메⁠일 알⁠림): [`screenshots/after_development/최종구현사진/`](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/)
+10/4 최⁠종 구⁠현 화⁠면⁠입⁠니⁠다(배⁠포 앱, GPT-4.1 mini 연⁠결). 전⁠체 21장(19–21 이⁠메⁠일 알⁠림): [`screenshots/during_development/작업과정_20261004_최종구현사진/`](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/)
 
 **PC**
 
 | 첫 화⁠면(처⁠음 방⁠문) | ① 맞⁠춤 혜⁠택 4단⁠계 판⁠정 |
 |:---:|:---:|
-| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/02_PC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.png) |
+| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/02_PC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.png) |
 
 | ② 정⁠착 일⁠정 | ② 생⁠활 정⁠보 |
 |:---:|:---:|
-| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/03_PC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/04_PC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.png) |
+| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/03_PC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/04_PC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.png) |
 
 | ③ 불⁠편⁠사⁠항(GPT-4.1 mini) | ④ 지⁠역⁠말(GPT-4.1 mini) |
 |:---:|:---:|
-| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/05_PC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/06_PC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.png) |
+| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/05_PC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/06_PC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.png) |
 
 | 오⁠이⁠소⁠창⁠원⁠에⁠게 물⁠어⁠보⁠기(검⁠증 통⁠과·실⁠행 기⁠록) |
 |:---:|
-| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/07_PC_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD.png) |
+| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/07_PC_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD.png) |
 
 **휴⁠대⁠폰**
 
 | 첫 화⁠면 | 나⁠의 조⁠건 입⁠력 | ① 맞⁠춤 혜⁠택 | ② 정⁠착 일⁠정 |
 |:---:|:---:|:---:|:---:|
-| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/08_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/09_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/10_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.jpg" width="200"> |
+| <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/08_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/09_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/10_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.jpg" width="200"> |
 
 | ② 생⁠활 정⁠보 | ③ 불⁠편⁠사⁠항 결⁠과 | ④ 지⁠역⁠말 | ④ 지⁠역⁠말 결⁠과 |
 |:---:|:---:|:---:|:---:|
-| <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/13_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/16_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/17_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/18_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.jpg" width="200"> |
+| <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/13_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/16_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/17_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/18_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.jpg" width="200"> |
 
 
 ---
@@ -387,11 +388,11 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 |:---:|:---:|
 | ![](screenshots/during_development/ui_update/20261004/05_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D_%EC%A0%80%EC%9E%A5%EB%B2%84%ED%8A%BC_%EC%95%88%EB%82%B4.png) | ![](screenshots/during_development/team_self_test/20261003/09_%EC%A0%95%EC%B0%A9%EB%A6%AC%ED%8F%AC%ED%8A%B8_1.png) |
 
-> 이⁠메⁠일 알⁠림 완⁠성(10/4 22:10): 보⁠내⁠는 계⁠정(팀⁠장 Gmail) 보⁠안 확⁠인·앱 비⁠밀⁠번⁠호 재⁠설⁠정 후, 신⁠청⁠하⁠면 바⁠로 전⁠체 일⁠정 메⁠일(캘⁠린⁠더 파⁠일 첨⁠부)이 오⁠고 일⁠정 하⁠루 전 알⁠림 메⁠일⁠을 보⁠냅⁠니⁠다. 화⁠면⁠은 `screenshots/after_development/최종구현사진/19–21`.
+> 이⁠메⁠일 알⁠림 완⁠성(10/4 22:10): 보⁠내⁠는 계⁠정(팀⁠장 Gmail) 보⁠안 확⁠인·앱 비⁠밀⁠번⁠호 재⁠설⁠정 후, 신⁠청⁠하⁠면 바⁠로 전⁠체 일⁠정 메⁠일(캘⁠린⁠더 파⁠일 첨⁠부)이 오⁠고 일⁠정 하⁠루 전 알⁠림 메⁠일⁠을 보⁠냅⁠니⁠다. 화⁠면⁠은 `screenshots/during_development/작업과정_20261004_최종구현사진/19–21`.
 
 | 이⁠메⁠일 알⁠림 신⁠청 | 신⁠청 완⁠료 | 받⁠은 일⁠정 알⁠림 메⁠일 |
 |:---:|:---:|:---:|
-| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/19_PC_%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%95%8C%EB%A6%BC_%EC%8B%A0%EC%B2%AD.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/20_PC_%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%95%8C%EB%A6%BC_%EC%8B%A0%EC%B2%AD%EC%99%84%EB%A3%8C.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/21_Gmail_%EC%9D%BC%EC%A0%95%EC%95%8C%EB%A6%BC%EB%A9%94%EC%9D%BC_%EC%88%98%EC%8B%A0.png) |
+| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/19_PC_%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%95%8C%EB%A6%BC_%EC%8B%A0%EC%B2%AD.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/20_PC_%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%95%8C%EB%A6%BC_%EC%8B%A0%EC%B2%AD%EC%99%84%EB%A3%8C.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/21_Gmail_%EC%9D%BC%EC%A0%95%EC%95%8C%EB%A6%BC%EB%A9%94%EC%9D%BC_%EC%88%98%EC%8B%A0.png) |
 
 ---
 
@@ -452,7 +453,8 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 | :---: | :---: | --- | --- |
 | B 이⁠혜⁠경 | Claude Opus 5.5(추⁠론 수⁠준 중⁠간) — 코⁠딩 에⁠이⁠전⁠트 | 코⁠드 작⁠성·수⁠정·디⁠버⁠깅, 자⁠동 테⁠스⁠트, 화⁠면 캡⁠처, 문⁠서 초⁠안 | 자⁠동 테⁠스⁠트 127개 실⁠행, 배⁠포 앱 직⁠접 조⁠작, 팀 자⁠체 테⁠스⁠트 |
 | B 이⁠혜⁠경 | GPT | UX/UI 개⁠선 작⁠업 프⁠롬⁠프⁠트 등 | 팀 검⁠토 후 반⁠영 |
-| A 조⁠준⁠수 · C 이⁠미⁠영 | GPT | [팀 확⁠인 — 10/5 기⁠재] | — |
+| A 조⁠준⁠수 | ChatGPT(GPT-5.6 Sol) · OpenAI Codex | 10/5 실⁠제 화⁠면 검⁠수 분⁠석, UI/UX 수⁠정(여⁠백·정⁠렬·카⁠드·입⁠력 폼·질⁠문/답⁠변 배⁠치), 회⁠귀 테⁠스⁠트 실⁠행 보⁠조 | 수⁠정 범⁠위·금⁠지⁠사⁠항(기⁠능 변⁠경 금⁠지)을 사⁠람⁠이 정⁠하⁠고, 노⁠트⁠북·휴⁠대⁠폰 화⁠면 검⁠수⁠와 자⁠동 테⁠스⁠트 127개⁠로 재⁠확⁠인 |
+| C 이⁠미⁠영 | GPT | 발⁠표⁠자⁠료(제⁠출5) 10장 초⁠안(10/5) | 팀 검⁠수 |
 | 앱 | GPT-4.1 mini(API) | 질⁠문 분⁠석·도⁠구 선⁠택·답 문⁠장 작⁠성 | 답⁠변 검⁠증 단⁠계(연⁠락⁠처·링⁠크 대⁠조), 실⁠패 시 규⁠칙 기⁠반 |
 
 > AI가 만⁠든 코⁠드·문⁠장⁠은 그⁠대⁠로 쓰⁠지 않⁠고, 자⁠동 테⁠스⁠트·배⁠포 앱 조⁠작·공⁠식 출⁠처 대⁠조⁠로 다⁠시 확⁠인⁠한 뒤 반⁠영⁠했⁠습⁠니⁠다. 정⁠책·연⁠락⁠처·지⁠역⁠말 뜻⁠은 AI가 만⁠들⁠지 않⁠습⁠니⁠다.
@@ -461,12 +463,12 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 
 ## 17. 테스트 결과와 대회 요구사항 대비 결과
 
-**테⁠스⁠트 3종 (10/3–10/4 실⁠제 기⁠록)**
+**테⁠스⁠트 3종 (10/2–10/5 실⁠제 기⁠록) — AI 자⁠동 12회 · 팀 자⁠체 37회 · 실⁠사⁠용⁠자 4회, 총 53회** (상⁠세: [`tests/README.md`](tests/README.md))
 
 | 구⁠분 | 방⁠법 | 결⁠과 |
 | :---: | --- | --- |
-| AI 자⁠동 테⁠스⁠트 | unittest 127개 · 대⁠표 Test Case 6건 PC·모⁠바⁠일 자⁠동 실⁠행 | 127개 통⁠과 · 12회 통⁠과(캡⁠처 26장) |
-| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 6번·전⁠체 검⁠수 | 지⁠적 83건 중 83건 반⁠영(B 68건, C 9건, A 6건 모⁠두), 현⁠황⁠표 `tests/team_self_test/오이소창원_팀자체테스트_현황표.md` |
+| AI 자⁠동 테⁠스⁠트 | unittest 127개 · 대⁠표 Test Case 6건 PC·모⁠바⁠일 자⁠동 실⁠행(12회) | 127개 통⁠과(10/5 UX/UI 개⁠선 후 재⁠확⁠인) · 12회 통⁠과(캡⁠처 26장) |
+| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 10번(10/5 노⁠트⁠북·휴⁠대⁠폰 검⁠수·UX/UI 개⁠선 4번 포⁠함)·전⁠체 검⁠수 | 지⁠적 87건 중 87건 반⁠영(B 68건, C 9건, A 10건 모⁠두), 테⁠스⁠트 결⁠과 `tests/README.md` |
 | 실⁠사⁠용⁠자 테⁠스⁠트 | 4명(U01–U04), 8개 과⁠제 + 온⁠라⁠인 설⁠문 | 문⁠항 평⁠균 4.56/5 · 만⁠족⁠도 4.75/5 · 추⁠천 4명 중 4명 |
 
 **실⁠사⁠용⁠자 테⁠스⁠트 그⁠래⁠프** (상⁠세: `tests/user_test/results_20261004/`)
@@ -523,5 +525,6 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 - 지⁠역⁠말: 국⁠립⁠국⁠어⁠원 우⁠리⁠말⁠샘(CC BY-SA 2.0 KR) 등 공⁠식 출⁠처, 출⁠처 표⁠시
 - 정⁠책·할 일·접⁠수 창⁠구: 각 기⁠관 공⁠식 누⁠리⁠집·공⁠고(확⁠인⁠일 기⁠준), 최⁠종 판⁠단⁠은 담⁠당 기⁠관
 - 생⁠활 정⁠보: 공⁠공·운⁠영 기⁠관 공⁠식 안⁠내 위⁠주, 특⁠정 업⁠체 홍⁠보 아⁠님
+- **앱 AI 모⁠델:** OpenAI GPT-4.1 mini — 모⁠델 ID `gpt-4.1-mini`(OpenAI API, `src/agent.py` 기⁠본⁠값) · 출⁠처 OpenAI(https://platform.openai.com/docs/models) · 라⁠이⁠선⁠스: OpenAI API 이⁠용⁠약⁠관(Services Agreement·Usage Policies)에 따⁠른 API 이⁠용 · 활⁠용 범⁠위: 질⁠문 분⁠석·도⁠구 선⁠택·답 문⁠장 작⁠성(정⁠책 판⁠정⁠은 규⁠칙 엔⁠진, 답 속 연⁠락⁠처·링⁠크⁠는 검⁠증 DB와 대⁠조). 외⁠부 API 모⁠델⁠이⁠라 가⁠중⁠치⁠는 제⁠출⁠하⁠지 않⁠습⁠니⁠다(대⁠회 안⁠내).
 - 오⁠픈⁠소⁠스: Streamlit(Apache-2.0), python-dateutil, openai(Apache-2.0), anthropic(MIT) — 자⁠세⁠한 목⁠록⁠은 출⁠처·AI 활⁠용 신⁠고⁠서 3장
 - 본 서⁠비⁠스⁠의 안⁠내⁠는 참⁠고⁠용⁠이⁠며 법⁠률·행⁠정 판⁠단⁠을 대⁠신⁠하⁠지 않⁠습⁠니⁠다.
