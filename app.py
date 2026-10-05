@@ -315,9 +315,9 @@ h1, h2, h3 {color: #063465 !important;}
 /* 10/3 첫 화면 다듬기(이혜경 요청): 파란 영역 15% 줄이기·소개 3줄 간격·버튼과 구분·현황 카드·기능 카드 여백 */
 .st-key-home-hero-band {padding-top: 1.6rem !important; padding-bottom: 1.1rem !important;}
 .st-key-home-hero-band [data-testid="stColumn"] {padding-top: .3rem; padding-bottom: .3rem;}
-.st-key-home-hero-band .st-key-slogan h3 {font-size: 1.4rem !important; padding-bottom: .2rem;}
+.st-key-home-hero-band .st-key-slogan h3 {font-size: 1.4rem !important;}
 .st-key-hero-intro {gap: .15rem; margin-bottom: 1.1rem; max-width: 42rem; width: 100%;}
-.st-key-hero-intro p {font-size: 1.05rem !important; line-height: 1.65;}
+.st-key-hero-intro p {font-size: 1.05rem !important;}
 p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 .st-key-hero-cta-help p.cta-help {margin-top: .2rem;}
 /* 예시·현황 카드: 글자 겹침 없게 원래 간격으로 (10/4) */
@@ -353,7 +353,7 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 .hero-eyebrow {display: inline-block; padding: .5rem .75rem; border-radius: .5rem; font-size: .875rem; font-weight: 600;
     color: #FFD2B3; background: rgba(254,106,1,.10); border: 1px solid rgba(255,210,179,.50); letter-spacing: .01em;}
 .st-key-home-hero-band .st-key-slogan h3 {font-size: clamp(1.9rem, 3.6vw, 2.9rem) !important; font-weight: 800 !important;
-    line-height: 1.22 !important; letter-spacing: -.03em; padding: .5rem 0 .4rem !important;
+    letter-spacing: -.03em;
     background: linear-gradient(92deg, #FFFFFF 0%, #FFFFFF 55%, #FFB98A 100%); -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; color: #FFFFFF;}
 .st-key-hero-intro p, .st-key-hero-intro p b {color: rgba(255,255,255,.86) !important;}
@@ -411,8 +411,8 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 
 span.page-hero-logo {display: block; width: 132px; height: 33px; background-size: contain; background-repeat: no-repeat; background-position: right center;}
 [class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {color: #FFFFFF !important; font-size: clamp(1.5rem, 2.6vw, 2.1rem) !important;
-    font-weight: 800 !important; letter-spacing: -.03em; line-height: 1.25; padding: .35rem 0 .1rem !important;}
-p.page-hero-desc {color: rgba(255,255,255,.82) !important; font-size: 1.02rem; line-height: 1.7; margin: .35rem 0 0;}
+    font-weight: 800 !important; letter-spacing: -.03em;}
+p.page-hero-desc {color: rgba(255,255,255,.82) !important; font-size: 1.02rem;}
 p.page-hero-desc b {color: #FFFFFF;}
 [class*="st-key-page-hero-top-"] [data-testid="stBaseButton-secondary"] {background: rgba(255,255,255,.08) !important;
     border: 1px solid rgba(255,255,255,.3) !important; border-radius: 999px !important; min-height: 2.3rem; padding: .2rem 1rem;}
@@ -465,17 +465,14 @@ p.page-hero-desc b {color: #FFFFFF;}
 }
 /* Visual rhythm polish: existing screen roles only; no navigation or state changes. */
 [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {
-    padding: 2rem 2.25rem 2.5rem !important; gap: 0 !important; margin-bottom: 2.5rem;
+    padding: 2rem 2.5rem 2.5rem !important; gap: 1rem !important; margin-bottom: 2.5rem;
 }
 [class*="st-key-page-hero-top-"] {padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.12);}
 [class*="st-key-page-hero-"] .hero-eyebrow {margin: 0;}
 [class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {padding: 0 !important; letter-spacing: -.02em !important;}
-p.page-hero-desc {margin: 0; line-height: 1.6;}
 .st-key-feature2-tabs {margin-top: 1.5rem;}
-.st-key-home-hero-band .st-key-slogan h3 {line-height: 1.25 !important; letter-spacing: -.02em !important; padding: .75rem 0 1rem !important;}
+.st-key-home-hero-band .st-key-slogan h3 {letter-spacing: -.02em !important;}
 .st-key-hero-intro {margin-bottom: 1.5rem;}
-.st-key-hero-intro p {line-height: 1.65;}
-.st-key-hero-intro p.hero-lines {line-height: 1.65; margin-bottom: 0;}
 .st-key-hero-cta-help p.cta-help {margin-top: 1.5rem; padding: .75rem 1rem; line-height: 1.6;}
 .st-key-hero-trust {margin-top: 1rem;}
 .st-key-hero-trust [data-testid="stCaptionContainer"] p {color: rgba(255,255,255,.82) !important; font-size: .875rem;}
@@ -509,7 +506,6 @@ p.page-hero-desc {margin: 0; line-height: 1.6;}
 [data-testid="stSidebar"] .st-key-nav-ask {margin-top: 1.5rem; margin-bottom: 1rem;}
 @media (max-width: 640px) {
     [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {padding: 1.5rem 1rem 2rem !important; margin-bottom: 1.5rem;}
-    .st-key-home-hero-band .st-key-slogan h3 {padding-bottom: .5rem !important;}
     .st-key-hero-intro {margin-bottom: 1.25rem;}
     .st-key-home-body p.sec-title {font-size: 1.5rem !important; margin-top: 2rem;}
     .st-key-complaint-input, .st-key-dialect-input {padding: 1rem;}
@@ -527,13 +523,14 @@ p.page-hero-desc {margin: 0; line-height: 1.6;}
     .st-key-feature2-tabs {margin-top: 1rem;}
     [class*="st-key-page-hero-top-"] {margin-bottom: .5rem;}
 }
-/* Header element wrappers: shared by profile and every feature page. */
-[class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) [data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] .hero-eyebrow) {gap: 0 !important;}
-[class*="st-key-page-hero-"] [data-testid="stElementContainer"]:has(.hero-eyebrow) {margin-bottom: 1rem;}
-[class*="st-key-page-hero-"] [data-testid="stElementContainer"]:has([data-testid="stHeading"]) {margin-bottom: .75rem;}
-[class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {margin: 0 !important;}
-.st-key-home-hero-inner [data-testid="stElementContainer"]:has(.hero-eyebrow) {margin-bottom: 1rem;}
-.st-key-slogan {margin-bottom: 1rem;}
+/* Intrinsic text flow: native keyed copy blocks own all Hero text gaps. */
+[class*="st-key-hero-copy-"] {gap: 1.25rem !important; height: auto !important; flex-shrink: 0;}
+[class*="st-key-hero-copy-"] > [data-testid="stElementContainer"],
+[class*="st-key-hero-copy-"] .st-key-slogan,
+[class*="st-key-hero-copy-"] .st-key-hero-intro {margin: 0 !important; height: auto !important; flex-shrink: 0;}
+[class*="st-key-hero-copy-"] [data-testid="stHeading"] h3 {margin: 0 !important; padding: 0 !important; line-height: 1.25 !important;}
+p.page-hero-desc, .st-key-hero-intro p.hero-lines {margin: 0; line-height: 1.65;}
+.st-key-hero-copy-home {margin-bottom: 1.5rem;}
 .st-key-home-topbar {padding-bottom: 1rem; margin-bottom: 1.5rem;}
 /* Mission checkbox: native label and square share the same first-line metrics. */
 .st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] label {display: flex; align-items: flex-start; gap: .75rem;}
@@ -543,7 +540,7 @@ p.page-hero-desc {margin: 0; line-height: 1.6;}
 .st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] label p {margin: 0; line-height: 1.5; overflow-wrap: anywhere;}
 @media (max-width: 640px) {
     [class*="st-key-page-hero-top-"] {margin-bottom: 1rem;}
-    [class*="st-key-page-hero-"] [data-testid="stElementContainer"]:has(.hero-eyebrow) {margin-bottom: .75rem;}
+    [class*="st-key-hero-copy-"] {gap: 1.1rem !important;}
     .st-key-page-journey [data-testid="stExpander"] [data-testid="stCheckbox"] {font-size: 1rem;}
 }
 /* Final refinement: quiet secondary actions; native interaction remains intact. */
@@ -563,7 +560,7 @@ p.page-hero-desc {margin: 0; line-height: 1.6;}
 [class*="st-key-ask-example-"] button:hover, [class*="st-key-complaint-example-"] button:hover, [class*="st-key-dialect-example-"] button:hover {background: #EEF3F8 !important; color: #063465 !important;}
 [data-testid="stExpandSidebarButton"] button, [data-testid="stCollapseSidebarButton"] button,
 button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSidebarButton"] {
-    min-width: 44px; min-height: 44px; color: #063465; background: #EEF3F8;
+    min-width: 44px; min-height: 44px; color: #063465; background: transparent; border: none; box-shadow: none;
 }
 [data-testid="stExpandSidebarButton"] svg, [data-testid="stCollapseSidebarButton"] svg {width: 24px; height: 24px;}
 [data-testid="stSidebar"] [class*="st-key-nav-"] button:focus-visible,
@@ -572,6 +569,92 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 [class*="st-key-dialect-example-"] button:focus-visible,
 [data-testid="stExpandSidebarButton"]:focus-visible, [data-testid="stCollapseSidebarButton"]:focus-visible {
     outline: 3px solid #FE6A01; outline-offset: 2px;
+}
+/* Remaining presentation fixes: native controls and scoped action rows. */
+@media (max-width: 640px) {
+    body:has(.st-key-page-home) [data-testid="stExpandSidebarButton"],
+    body:has(.st-key-page-home) [data-testid="stSidebarCollapsedControl"] {display: none !important;}
+}
+[data-testid="stExpandSidebarButton"] button:hover,
+[data-testid="stCollapseSidebarButton"] button:hover {background: #EEF3F8;}
+.st-key-ask-question-input {margin-block: 1rem 1.5rem;}
+.st-key-ask-question-input [data-testid="stChatInput"] {background: #FFFFFF; border: 1px solid #9FB0C6; border-radius: .75rem;}
+.st-key-ask-question-input textarea::placeholder {color: #52647A; opacity: 1;}
+.st-key-ask-question-input [data-testid="stChatInput"]:focus-within {border-color: #063465; outline: 2px solid #9FB0C6; outline-offset: 2px;}
+.st-key-ask-question-input button {color: #063465;}
+.st-key-dialect-input [data-testid="stForm"] {border: none;}
+[class*="st-key-policy-actions-"] [data-testid="stLinkButton"],
+[class*="st-key-policy-actions-"] [data-testid="stPopover"] {margin: 0 !important;}
+[class*="st-key-policy-actions-"] a,
+[class*="st-key-policy-actions-"] button {min-height: 2.75rem; padding-block: .5rem; display: inline-flex; align-items: center;}
+/* Repair only content spacing and equal-height service layout. */
+.st-key-home-body [data-testid="stHorizontalBlock"]:has([class*="st-key-home-card-"]) {align-items: stretch;}
+.st-key-home-body [data-testid="stColumn"]:has([class*="st-key-home-card-"]) > [data-testid="stVerticalBlock"] {height: 100%;}
+[class*="st-key-home-card-"] {height: 100%; min-height: 0 !important; display: flex; flex-direction: column; padding: 1.5rem !important; gap: 1rem !important; box-sizing: border-box;}
+[class*="st-key-home-card-"] > [data-testid="stElementContainer"]:has([data-testid="stButton"]) {margin-top: auto; padding-top: .5rem;}
+[class*="st-key-home-card-"] p {line-height: 1.6;}
+.st-key-dialect-result-area {margin-top: 1.5rem;}
+[class*="st-key-page-"]:not([class*="st-key-page-hero"]):not(.st-key-page-home) > [data-testid="stVerticalBlock"] {gap: 1.25rem;}
+[class*="st-key-page-"] [data-testid="stMarkdownContainer"] > p + p {margin-top: 1rem;}
+[class*="st-key-page-"] [data-testid="stMarkdownContainer"] > p {line-height: 1.6;}
+.st-key-home-body p.sec-title {margin-bottom: 1.5rem;}
+@media (max-width: 640px) {
+    [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {padding-inline: 1.5rem !important;}
+    .st-key-home-hero-band {padding-inline: 1.5rem !important;}
+    [class*="st-key-home-card-"] {height: auto; padding: 1.25rem !important;}
+}
+/* Forms and sibling card rows: presentation only, shared native layout. */
+.st-key-complaint-input, .st-key-dialect-input {padding: 1.75rem !important;}
+.st-key-complaint-input [data-testid="stForm"],
+.st-key-dialect-input [data-testid="stForm"] {margin-block: 1rem; padding: .25rem 0 1.5rem;}
+.st-key-complaint-input [data-testid="stTextInput"] [data-testid="stWidgetLabel"],
+.st-key-dialect-input [data-testid="stTextInput"] [data-testid="stWidgetLabel"] {margin-bottom: .75rem;}
+.st-key-complaint-input [data-testid="stFormSubmitButton"],
+.st-key-dialect-input [data-testid="stFormSubmitButton"] {margin-top: 1.25rem;}
+.st-key-ask-question-input {max-width: 52rem; width: 100%; margin-right: auto;}
+.st-key-ask-question-input textarea {padding-inline: 1rem;}
+.st-key-ask-question-input [data-testid="stChatInput"] {padding-inline: .5rem;}
+.st-key-explore-intro {gap: 1rem !important;}
+.st-key-explore-filters {margin-top: 1.75rem; margin-bottom: 2.25rem; padding: 1.5rem;}
+.st-key-page-explore [data-testid="stHorizontalBlock"]:has([class*="st-key-activity-card-"]),
+.st-key-page-complaint [data-testid="stHorizontalBlock"]:has([class*="st-key-channel-"]) {align-items: stretch; margin-block: 1rem 1.5rem;}
+.st-key-page-explore [data-testid="stColumn"]:has([class*="st-key-activity-card-"]) > [data-testid="stVerticalBlock"],
+.st-key-page-complaint [data-testid="stColumn"]:has([class*="st-key-channel-"]) > [data-testid="stVerticalBlock"] {height: 100%;}
+[class*="st-key-activity-card-"], [class*="st-key-channel-"] {height: 100%; display: flex; flex-direction: column; padding: 1.5rem !important; gap: 1rem !important; box-sizing: border-box;}
+[class*="st-key-activity-card-"] > [data-testid="stElementContainer"],
+[class*="st-key-channel-"] > [data-testid="stElementContainer"] {flex-shrink: 0;}
+[class*="st-key-activity-actions-"] {margin-top: auto !important; padding-top: 1.25rem; gap: 1.125rem !important;}
+[class*="st-key-activity-actions-"] [data-testid="stButton"],
+[class*="st-key-activity-actions-"] [data-testid="stLinkButton"] {margin: 0 !important;}
+[class*="st-key-activity-actions-"] button,
+[class*="st-key-activity-actions-"] a {min-height: 2.75rem; display: inline-flex; align-items: center; padding-block: .5rem;}
+[class*="st-key-channel-"] [data-testid="stCaptionContainer"] p {line-height: 1.6;}
+.st-key-explore-detail {margin-top: 2.5rem;}
+@media (max-width: 640px) {
+    [data-testid="stMainBlockContainer"] {padding-inline: 1.375rem;}
+    .st-key-home-hero-band {margin-left: -1.375rem !important; width: calc(100% + 2.75rem) !important;}
+    .st-key-complaint-input, .st-key-dialect-input {padding: 1.5rem !important;}
+    .st-key-explore-filters {margin-top: 1.5rem; margin-bottom: 2rem; padding: 1.25rem;}
+    [class*="st-key-activity-card-"], [class*="st-key-channel-"] {height: auto; padding: 1.25rem !important;}
+}
+/* Final remaining presentation issues: quiet expanders and one input surface. */
+.st-key-page-policy [data-testid="stHorizontalBlock"]:has([class*="st-key-policy-card-"]) {align-items: stretch; margin-bottom: 1.5rem;}
+.st-key-page-policy [data-testid="stColumn"]:has([class*="st-key-policy-card-"]) > [data-testid="stVerticalBlock"] {height: 100%;}
+[class*="st-key-policy-card-"] {height: 100%; display: flex; flex-direction: column; gap: 1rem !important; padding: 1.5rem !important; box-sizing: border-box;}
+[class*="st-key-policy-card-"] > [data-testid="stElementContainer"] {flex-shrink: 0;}
+[class*="st-key-policy-actions-"] {margin-top: auto !important; padding-top: 1rem; gap: 1.125rem !important; align-items: stretch;}
+[class*="st-key-policy-actions-"] a,
+[class*="st-key-policy-actions-"] button {line-height: 1.5; min-height: 2.75rem;}
+.st-key-page-explore [data-testid="stExpander"] details,
+.st-key-page-policy [data-testid="stExpander"] details {border: none !important; background: transparent !important; box-shadow: none !important;}
+.st-key-page-explore [data-testid="stExpander"],
+.st-key-page-policy [data-testid="stExpander"] {margin-block: 1.5rem;}
+.st-key-ask-question-input [data-testid="stChatInput"] textarea,
+.st-key-ask-question-input [data-testid="stChatInput"] [data-baseweb="textarea"] {background: transparent !important; box-shadow: none !important;}
+.st-key-home-body [data-testid="stExpander"] li {line-height: 1.6; margin-bottom: .75rem;}
+.st-key-page-journey [data-testid="stExpander"] {margin-block: .5rem 1rem;}
+@media (max-width: 640px) {
+    [class*="st-key-policy-card-"] {height: auto; padding: 1.25rem !important;}
 }
 </style>
 """
@@ -725,11 +808,12 @@ def _page_hero(position, title, desc=None, eyebrow=None):
                           horizontal_alignment="distribute"):
             _back_home_button(position)
             st.markdown('<span class="page-hero-logo" role="img" aria-label="오이소창원"></span>', unsafe_allow_html=True)
-        if eyebrow:
-            st.markdown(f'<span class="hero-eyebrow">{html.escape(eyebrow)}</span>', unsafe_allow_html=True)
-        st.subheader(title, anchor=False)
-        if desc:
-            st.markdown(f'<p class="page-hero-desc">{desc}</p>', unsafe_allow_html=True)
+        with st.container(key=f"hero-copy-{position}"):
+            if eyebrow:
+                st.markdown(f'<span class="hero-eyebrow">{html.escape(eyebrow)}</span>', unsafe_allow_html=True)
+            st.subheader(title, anchor=False)
+            if desc:
+                st.markdown(f'<p class="page-hero-desc">{desc}</p>', unsafe_allow_html=True)
     return hero
 
 
@@ -944,15 +1028,16 @@ def render_home_page():
                 st.markdown('<span class="top-pill">창원 전입 청년 · 첫 180일 정착 코디</span>', unsafe_allow_html=True)
             text_col, preview_col = st.columns([3, 2], gap="large", vertical_alignment="center")
             with text_col:
-                st.markdown('<span class="hero-eyebrow">AI 정착 코디네이터 Agent</span>', unsafe_allow_html=True)
-                with st.container(key="slogan"):
-                    st.subheader(SLOGAN, anchor=False)
-                with st.container(key="hero-intro"):
-                    # 한 문장 가치제안 — 아래 시작 버튼과는 간격으로 구분
-                    st.markdown(
-                        "<p class='hero-lines'>창원에 새로 전입한 청년이 첫 180일 동안 챙길 혜택과 할 일을 안내해요.</p>",
-                        unsafe_allow_html=True,
-                    )
+                with st.container(key="hero-copy-home"):
+                    st.markdown('<span class="hero-eyebrow">AI 정착 코디네이터 Agent</span>', unsafe_allow_html=True)
+                    with st.container(key="slogan"):
+                        st.subheader(SLOGAN, anchor=False)
+                    with st.container(key="hero-intro"):
+                        # 한 문장 가치제안 — 아래 시작 버튼과는 간격으로 구분
+                        st.markdown(
+                            "<p class='hero-lines'>창원에 새로 전입한 청년이 첫 180일 동안 챙길 혜택과 할 일을 안내해요.</p>",
+                            unsafe_allow_html=True,
+                        )
                 with st.container(key="hero-cta", horizontal=True, wrap=True, vertical_alignment="center"):
                     st.button(
                         f"{CONDITION_LABEL}하고 시작하기 →" if not user_key else PROFILE_EDIT_LABEL,
@@ -1262,7 +1347,7 @@ def _policy_todo(match):
 
 def _policy_card(match):
     style = LEVEL_STYLE[match["level"]]
-    with st.container(border=True, key=f"policy-card-{match['id']}"):
+    with st.container(border=True, key=f"policy-card-{match['id']}", height="stretch"):
         st.badge(match["level"], color={"level-ok": "green", "level-cond": "blue", "level-check": "orange", "level-no": "gray"}[style])
         _content_title(match["name"])
         _caption(match["message"])
@@ -1274,7 +1359,7 @@ def _policy_card(match):
             f"<div class='pc-label'>지금 할 일</div><div class='pc-body'>{html.escape(_policy_todo(match))}</div>",
             unsafe_allow_html=True,
         )
-        with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
+        with st.container(horizontal=True, wrap=True, vertical_alignment="center", key=f"policy-actions-{match['id']}"):
             st.link_button("공식 안내 보기" if match["level"] == "해당 없음" else "안내·신청 링크 열기", match["link"], key=f"policy-link-{match['id']}")
             with st.popover("자세히 보기"):
                 if match["support"]:
@@ -1614,7 +1699,7 @@ def render_journey_page():
             group_title += " · 지금"
         with st.expander(
             group_title,
-            expanded=mission_group["month"] == current_month,
+            expanded=False,
         ):
             stage_missions = mission_group["missions"]
             if mission_group["month"] == current_month:
@@ -1763,7 +1848,7 @@ def _activity_card(activity, app_name, car_only=False):
         schedule = (item["schedule"] or "").strip()
         if schedule:
             _caption("운영·일정: " + _md_text(schedule if len(schedule) <= 60 else schedule[:59] + "…"))
-        with st.container(horizontal=True, wrap=True, vertical_alignment="center"):
+        with st.container(horizontal=True, wrap=True, vertical_alignment="center", key=f"activity-actions-{activity['ID']}"):
             st.button("자세히 보기", key=f"activity-more-{activity['ID']}", on_click=_select_activity,
                       args=(activity["ID"],), type="tertiary")
             st.link_button("지도에서 보기", item["naver_map_url"])
@@ -1779,8 +1864,9 @@ def _activity_grid(activities, app_name, car_only=False, per_row=3):
 
 def render_explore_page():
     _feature_2_header(PAGE_EXPLORE)
-    st.subheader("이번 주말엔 창원을 조금 알아볼까요?")
-    _caption("창원에서 해볼 것 — 동네와 관심 분야를 고르면 갈 만한 곳과 참여할 일을 보여 드려요.")
+    with st.container(key="explore-intro"):
+        st.subheader("이번 주말엔 창원을 조금 알아볼까요?")
+        _caption("창원에서 해볼 것 — 동네와 관심 분야를 고르면 갈 만한 곳과 참여할 일을 보여 드려요.")
 
     try:
         activities = load_activities()
@@ -2067,7 +2153,8 @@ def render_ask_page():
             st.button(example, key=f"ask-example-{index}", on_click=_queue_question, args=(example,))
 
     history = st.session_state.setdefault("ask_history", [])
-    question = st.chat_input("창원 정착에 관해 한 문장으로 물어보세요", key="ask_input")
+    with st.container(key="ask-question-input"):
+        question = st.chat_input("창원 정착에 관해 한 문장으로 물어보세요", key="ask_input")
     question = question or st.session_state.pop("ask_pending", None)
     if question:
         history.append(_ask_agent(question))
@@ -2169,7 +2256,8 @@ def render_dialect_page():
         f"핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) "
         f"확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드리고, 사전에 없는 말은 짐작하지 않아요."
     )
-    input_column, result_column = st.columns([1, 1.25], gap="large")
+    input_column = st.container(key="dialect-input-area")
+    result_column = st.container(key="dialect-result-area")
     with input_column:
         with st.container(key="dialect-input"):
             _ai_status_caption()

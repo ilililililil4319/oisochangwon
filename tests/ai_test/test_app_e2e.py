@@ -571,7 +571,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.button(key="show-journey").click().run()
                 self.assertFalse(app.exception)
                 self.assertEqual(len(app.expander), 6)
-                self.assertTrue(app.expander[0].proto.expanded)
+                self.assertFalse(app.expander[0].proto.expanded)
                 self.assertFalse(any("확인 결과" in h.value for h in app.subheader))
                 app.checkbox(key="mission-progress:코디2026:M1-1").check().run()
                 app.text_input(key="mission-note:코디2026:M1-1").set_value("저장 전 기록").run()
@@ -1015,9 +1015,9 @@ class ApplicationE2ETests(unittest.TestCase):
                     for item in app.expander
                     if "2개월 차" in item.label
                 )
-                self.assertTrue(current_stage.proto.expanded)
+                self.assertFalse(current_stage.proto.expanded)
 
-    def test_all_six_month_titles_and_only_current_month_default_expansion(self):
+    def test_all_six_month_titles_and_all_default_collapsed(self):
         with TemporaryDirectory() as temp_dir:
             with patch.object(state_manager, "DB_PATH", Path(temp_dir) / "progress.sqlite3"):
                 for current_month in range(1, 7):
@@ -1030,7 +1030,7 @@ class ApplicationE2ETests(unittest.TestCase):
                         self.assertEqual(len(stages), 6)
                         for month, stage in enumerate(stages, start=1):
                             self.assertTrue(stage.label.startswith(f"{month}개월 차 · "))
-                            self.assertEqual(stage.proto.expanded, month == current_month)
+                            self.assertFalse(stage.proto.expanded)
                             self.assertEqual(" · 지금" in stage.label, month == current_month)
                         self.assertEqual(len([c for c in app.checkbox if c.key and c.key.startswith("mission-progress:")]), 26)
 
@@ -1052,7 +1052,7 @@ class ApplicationE2ETests(unittest.TestCase):
                 app.date_input[0].set_value(date(2026, 3, 20)).run()
                 _visit(app, "journey")
                 self.assertFalse(app.exception)
-                self.assertTrue(app.expander[5].proto.expanded)
+                self.assertFalse(app.expander[5].proto.expanded)
                 app.checkbox(key=f"mission-progress:{nickname}:M1-1").uncheck().run()
                 app.text_input(key=f"mission-note:{nickname}:M1-1").set_value("과거 기록 수정").run()
                 app.button(key=f"save-stage:{nickname}:1").click().run()
