@@ -2,7 +2,7 @@
 
 # 오이소창원 — AI 기반 창원 정착 지원 Agent
 
-> 최신 개발 인계: [오류 수정·UX/UI 개선·검증 종합 기록](handoff/team_share/오이소창원_UXUI_오류수정_검증_최종기록_20261005.md) — 코드 기준 b957d04, 전체 127개 OK(62.915초). [Drive 사본](https://drive.google.com/file/d/1abmm9dlg25cnurKXnFbRQUUUXV45Wftf/view).
+> 최⁠신 개⁠발 인⁠계: [오⁠류 수⁠정·UX/UI 개⁠선·검⁠증 종⁠합 기⁠록](handoff/team_share/오이소창원_UXUI_오류수정_검증_최종기록_20261005.md) — 코⁠드 기⁠준 b957d04, 전⁠체 127개 OK(62.915초). [Drive 사⁠본](https://drive.google.com/file/d/1abmm9dlg25cnurKXnFbRQUUUXV45Wftf/view).
 
 > 창⁠원⁠에 새⁠로 전⁠입⁠한 청⁠년⁠이 첫 180일 동⁠안 놓⁠치⁠기 쉬⁠운 혜⁠택⁠과 할 일⁠을,
 > 나⁠의 조⁠건⁠으⁠로 판⁠정⁠하⁠고 일⁠정⁠으⁠로 만⁠들⁠어 함⁠께 챙⁠겨 주⁠는 코⁠디⁠네⁠이⁠터 Agent
@@ -20,7 +20,7 @@
 
 제4회 경⁠남 AI·SW 경⁠진⁠대⁠회 일⁠반⁠부 · 지⁠정⁠주⁠제 01(사⁠회⁠문⁠제 해⁠결⁠형 AI Agent) · 팀 오⁠이⁠소⁠창⁠원(조⁠준⁠수 팀⁠장 · 이⁠혜⁠경 · 이⁠미⁠영)
 
-![첫 화⁠면 — 최⁠종 구⁠현(10/4)](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png)
+![첫 화⁠면 — 최⁠종 완⁠료(10/5)](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/01_PC_%ED%99%88.png)
 
 ---
 
@@ -97,7 +97,7 @@
 | 시⁠연⁠동⁠영⁠상(제⁠출4) | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
 | 발⁠표⁠자⁠료(제⁠출5) | 10장 이⁠내, 본⁠선 선⁠정 시 발⁠표 (10/5 제⁠작 — 이⁠미⁠영, GPT로 초⁠안·팀 검⁠수) | `deliverables/presentation/ppt/` |
 | 테⁠스⁠트 3종 | 코⁠드·체⁠크⁠리⁠스⁠트·보⁠고⁠서·설⁠문 결⁠과 | `tests/` |
-| 증⁠빙 캡⁠처 | PNG·JPG 142장 | `screenshots/` |
+| 증⁠빙 캡⁠처 | PNG·JPG 152장 | `screenshots/` |
 
 ---
 
@@ -130,7 +130,7 @@ oiso_changwon/
 ├── data/ (팀 검증 데이터, JSON)  정책 24 · 할 일 26 · 할 일 링크 18 · 생활 정보 60 · 지역말 30+2,223 · 접수 창구 6
 │
 ├── tests/ (테스트 3종)
-│   ├── README.md                       테스트 3종 결과(AI 자동 12회 · 팀 자체 37회 · 실사용자 4회)
+│   ├── README.md                       테스트 3종 결과(AI 자동 12회 · 팀 자체 38회 · 실사용자 4회)
 │   ├── ai_test/ (AI 자동 테스트)        unittest 127개
 │   ├── team_self_test/ (팀 자체 테스트)  Test Case · 체크리스트 · 자체평가 테스트보고서
 │   └── user_test/ (실사용자 테스트)      오이소창원_사용자테스트_서류양식(설문 Apps Script·평가지) · results_20261004(4명 결과·그래프)
@@ -148,7 +148,7 @@ oiso_changwon/
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (구현 과정)  ai_test 26장 · work_process 27장 · team_self_test 37장 · ui_update 11장 · deploy_check 15장 · 작업과정_20261004_새디자인 5장 · 작업과정_20261004_최종구현사진 21장
-│   └── after_development/ (구현 완료)   최종완료사진_1005 [10/5 최종 화면 — 받은 뒤 추가]
+│   └── after_development/ (구현 완료)   최종완료사진_1005 — PC 10장(휴대폰 추가 예정)
 │
 └── handoff/ (인수인계, 제출 전 삭제)  작업지시·인계서 · 문서 수정 메모 · tools(문서 변환)
 ```
@@ -239,9 +239,9 @@ oiso_changwon/
 | 9 | 📅 캘⁠린⁠더 · 📄 정⁠착 리⁠포⁠트 · ✉️ 동⁠의 기⁠반 이⁠메⁠일 알⁠림 | 10/3 | team_self_test 08-11 |
 | 10 | ③ 불⁠편⁠사⁠항 · ④ 지⁠역⁠말 화⁠면 개⁠선 | 10/3 | team_self_test 31-32 |
 | 11 | 팀 자⁠체 테⁠스⁠트 — B 이⁠혜⁠경 25번(지⁠적 68건 중 68건 반⁠영), C 이⁠미⁠영 2번(9건 중 9건 반⁠영) | 10/2–10/4 | team_self_test 01-33 |
-| 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 10번(UX·UI 요⁠청·인⁠증 오⁠류·기⁠능 확⁠인·휴⁠대⁠폰 검⁠수·이⁠메⁠일 점⁠검·10/5 UX/UI 개⁠선 4번) 10건 반⁠영·전⁠체 검⁠수 | 10/2–10/5 | team_self_test 34-37 |
+| 12 | 팀 자⁠체 테⁠스⁠트 — C 이⁠미⁠영 2번(PC·휴⁠대⁠폰) 9건 반⁠영, A 조⁠준⁠수 11번(UX·UI 요⁠청·인⁠증 오⁠류·기⁠능 확⁠인·휴⁠대⁠폰 검⁠수·이⁠메⁠일 점⁠검·10/5 UX/UI 개⁠선 5번) 11건 반⁠영·전⁠체 검⁠수 | 10/2–10/5 | team_self_test 34-37 |
 | 13 | 실⁠사⁠용⁠자 4명 테⁠스⁠트·설⁠문 → 의⁠견 반⁠영 | 10/3–10/4 | `tests/user_test/results_20261004` |
-| 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) → 10/5 팀⁠장 노⁠트⁠북·휴⁠대⁠폰 검⁠수 후 UX/UI 개⁠선 4번(여⁠백·정⁠렬·카⁠드 높⁠이·입⁠력 폼·질⁠문/답⁠변 배⁠치, 정⁠착 일⁠정 단⁠계 기⁠본 접⁠힘, 기⁠능 변⁠경 없⁠음) | 10/3~10/5 | 구⁠현 과⁠정 ui_update 11장 · 작⁠업⁠과⁠정_20261004_새⁠디⁠자⁠인 5장 · 작⁠업⁠과⁠정_20261004_최⁠종⁠구⁠현⁠사⁠진 21장 → 구⁠현 완⁠료 최⁠종⁠완⁠료⁠사⁠진_1005 |
+| 14 | 첫 화⁠면·전⁠체 UI 다⁠듬⁠기 → 첫 화⁠면·세⁠부 화⁠면 새 디⁠자⁠인(남⁠색 배⁠경·작⁠은 로⁠고·흰 카⁠드) → 10/5 팀⁠장 노⁠트⁠북·휴⁠대⁠폰 검⁠수 후 UX/UI 개⁠선 5번(여⁠백·정⁠렬·카⁠드 높⁠이·입⁠력 폼·질⁠문/답⁠변 배⁠치, 정⁠착 일⁠정 단⁠계 기⁠본 접⁠힘, 기⁠능 변⁠경 없⁠음) | 10/3~10/5 | 구⁠현 과⁠정 ui_update 11장 · 작⁠업⁠과⁠정_20261004_새⁠디⁠자⁠인 5장 · 작⁠업⁠과⁠정_20261004_최⁠종⁠구⁠현⁠사⁠진 21장 → 구⁠현 완⁠료 최⁠종⁠완⁠료⁠사⁠진_1005(PC 10장) |
 | 15 | 기⁠획⁠안·결⁠과⁠보⁠고⁠서·완⁠료⁠보⁠고⁠서·기⁠술⁠명⁠세⁠서·신⁠청⁠서·신⁠고⁠서·영⁠상 스⁠크⁠립⁠트·README 작⁠성 | 10/4 | `docs/` · `deliverables/` |
 | 16 | 시⁠연⁠영⁠상(웹·모⁠바⁠일)·발⁠표⁠자⁠료 제⁠작, 최⁠종 제⁠출 | 10/5–10/6 | `deliverables/presentation/` |
 
@@ -345,25 +345,29 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 
 ## 11. 화면 구성
 
-10/4 최⁠종 구⁠현 화⁠면⁠입⁠니⁠다(배⁠포 앱, GPT-4.1 mini 연⁠결). 전⁠체 21장(19–21 이⁠메⁠일 알⁠림): [`screenshots/during_development/작업과정_20261004_최종구현사진/`](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/)
+10/5 최⁠종 완⁠료 화⁠면⁠입⁠니⁠다(배⁠포 앱, GPT-4.1 mini 연⁠결, 팀⁠장 UX/UI 개⁠선 반⁠영). PC 10장: [`screenshots/after_development/최종완료사진_1005/`](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/) · 휴⁠대⁠폰⁠은 10/5 최⁠종 사⁠진⁠으⁠로 교⁠체 예⁠정⁠이⁠며 아⁠래⁠는 10/4 화⁠면⁠입⁠니⁠다.
 
-**PC**
+**PC (10/5 최⁠종)**
 
-| 첫 화⁠면(처⁠음 방⁠문) | ① 맞⁠춤 혜⁠택 4단⁠계 판⁠정 |
+| 첫 화⁠면 | 나⁠의 조⁠건 입⁠력 |
 |:---:|:---:|
-| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/01_PC_%ED%99%88_%EC%B2%98%EC%9D%8C%EB%B0%A9%EB%AC%B8.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/02_PC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/01_PC_%ED%99%88.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/02_PC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.png) |
 
-| ② 정⁠착 일⁠정 | ② 생⁠활 정⁠보 |
+| ① 맞⁠춤 혜⁠택 4단⁠계 판⁠정 | ② 정⁠착 일⁠정(1~6개⁠월 기⁠본 접⁠힘) |
 |:---:|:---:|
-| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/03_PC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/04_PC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/03_PC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/05_PC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95_1-6%EA%B0%9C%EC%9B%94.png) |
+
+| ② 생⁠활 정⁠보 | ② 차⁠로 가⁠면 좋⁠은 곳 |
+|:---:|:---:|
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/06_PC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/07_PC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4_%EC%B0%A8%EB%A1%9C%EA%B0%80%EB%A9%B4%EC%A2%8B%EC%9D%80%EA%B3%B3.png) |
 
 | ③ 불⁠편⁠사⁠항(GPT-4.1 mini) | ④ 지⁠역⁠말(GPT-4.1 mini) |
 |:---:|:---:|
-| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/05_PC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.png) | ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/06_PC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.png) |
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/08_PC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/09_PC_%EC%A7%80%EC%97%AD%EB%A7%90.png) |
 
-| 오⁠이⁠소⁠창⁠원⁠에⁠게 물⁠어⁠보⁠기(검⁠증 통⁠과·실⁠행 기⁠록) |
-|:---:|
-| ![](screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/07_PC_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0_%EC%95%BC%EA%B2%BD.png) |
+| 오⁠이⁠소⁠창⁠원⁠에⁠게 물⁠어⁠보⁠기(검⁠증 통⁠과·실⁠행 기⁠록) | ✉️ 이⁠메⁠일 알⁠림 신⁠청(주⁠소 가⁠림) |
+|:---:|:---:|
+| ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/10_PC_%EB%AC%BC%EC%96%B4%EB%B3%B4%EA%B8%B0.png) | ![](screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/04_PC_%EC%9D%B4%EB%A9%94%EC%9D%BC%EC%95%8C%EB%A6%BC_%EC%8B%A0%EC%B2%AD.png) |
 
 **휴⁠대⁠폰**
 
@@ -465,12 +469,12 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 
 ## 17. 테스트 결과와 대회 요구사항 대비 결과
 
-**테⁠스⁠트 3종 (10/2–10/5 실⁠제 기⁠록) — AI 자⁠동 12회 · 팀 자⁠체 37회 · 실⁠사⁠용⁠자 4회, 총 53회** (상⁠세: [`tests/README.md`](tests/README.md))
+**테⁠스⁠트 3종 (10/2–10/5 실⁠제 기⁠록) — AI 자⁠동 12회 · 팀 자⁠체 38회 · 실⁠사⁠용⁠자 4회, 총 54회** (상⁠세: [`tests/README.md`](tests/README.md))
 
 | 구⁠분 | 방⁠법 | 결⁠과 |
 | :---: | --- | --- |
 | AI 자⁠동 테⁠스⁠트 | unittest 127개 · 대⁠표 Test Case 6건 PC·모⁠바⁠일 자⁠동 실⁠행(12회) | 127개 통⁠과(10/5 UX/UI 개⁠선 후 재⁠확⁠인) · 12회 통⁠과(캡⁠처 26장) |
-| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 10번(10/5 노⁠트⁠북·휴⁠대⁠폰 검⁠수·UX/UI 개⁠선 4번 포⁠함)·전⁠체 검⁠수 | 지⁠적 87건 중 87건 반⁠영(B 68건, C 9건, A 10건 모⁠두), 테⁠스⁠트 결⁠과 `tests/README.md` |
+| 팀 자⁠체 테⁠스⁠트 | B 이⁠혜⁠경 25번(웹·모⁠바⁠일, 날⁠짜·시⁠각 기⁠록) · C 이⁠미⁠영 2번(PC·갤⁠럭⁠시 Z Flip3) · A 조⁠준⁠수 11번(10/5 노⁠트⁠북·휴⁠대⁠폰 검⁠수·UX/UI 개⁠선 5번 포⁠함)·전⁠체 검⁠수 | 지⁠적 88건 중 88건 반⁠영(B 68건, C 9건, A 11건 모⁠두), 테⁠스⁠트 결⁠과 `tests/README.md` |
 | 실⁠사⁠용⁠자 테⁠스⁠트 | 4명(U01–U04), 8개 과⁠제 + 온⁠라⁠인 설⁠문 | 문⁠항 평⁠균 4.56/5 · 만⁠족⁠도 4.75/5 · 추⁠천 4명 중 4명 |
 
 **실⁠사⁠용⁠자 테⁠스⁠트 그⁠래⁠프** (상⁠세: `tests/user_test/results_20261004/`)
