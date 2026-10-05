@@ -14,7 +14,7 @@
 ## 2. 조준수 팀장님 — 시연영상(제출4)
 | 항목 | 내용 |
 | --- | --- |
-| 대본 | https://github.com/jojunsu98/oiso_changwon/tree/main/deliverables/presentation/video → `오이소창원_시연영상_스크립트_20261004.pdf`(웹·모바일 10장면, 2분 59초 — 장면별 시간·누르는 것·내레이션·자막) |
+| 대본 | https://github.com/jojunsu98/oiso_changwon/tree/main/deliverables/presentation/video → `오이소창원_시연영상_스크립트_20261005.pdf`(웹·모바일 10장면, 2분 59초 — 장면별 시간·누르는 것·내레이션·자막) |
 | 입력값 | ‘코디2026 예시’(28세 · 2026-09-20 전입 · 직장인 · 차량 없음) |
 | 가릴 것 | 이메일 주소, Gmail 받은편지함 목록·해지 링크, Streamlit 설정·Secrets 화면 |
 | 편집 규칙 | 결과 화면은 녹화 그대로, 대기 구간 배속·자막만(조작된 시연은 실격 사유) |
@@ -26,7 +26,7 @@
 
 | 순서 | 할 일 | 위치 |
 | --- | --- | --- |
-| 1 | 프롬프트·스크립트 열기 | https://github.com/jojunsu98/oiso_changwon/tree/main/deliverables/presentation/ppt → `오이소창원_발표자료_GPT프롬프트_이미영인계_20261004`(Word·PDF), `오이소창원_발표자료_스크립트_20261004.pdf` |
+| 1 | 프롬프트·스크립트 열기 | https://github.com/jojunsu98/oiso_changwon/tree/main/deliverables/presentation/ppt → `오이소창원_발표자료_GPT프롬프트_이미영인계_20261005`(Word·PDF), `오이소창원_발표자료_스크립트_20261005.pdf` |
 | 2 | GPT에 프롬프트 1 + 스크립트 PDF → 10장 구성안 | — |
 | 3 | 프롬프트 2 → `.pptx` 만들기 | — |
 | 4 | 로고 넣기 | https://github.com/jojunsu98/oiso_changwon/tree/main/assets → `logo_wide.png`(모든 장 오른쪽 위), `logo_wide_light.png`(표지) |

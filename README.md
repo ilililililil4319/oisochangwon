@@ -12,7 +12,7 @@
 
 - **🔗 배⁠포 앱:** https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/ (QR로 휴⁠대⁠폰 접⁠속)
 - **💻 GitHub:** https://github.com/jojunsu98/oiso_changwon
-- **📄 완⁠료⁠보⁠고⁠서(제⁠출1):** [보⁠고⁠서 보⁠기](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261004.md)
+- **📄 완⁠료⁠보⁠고⁠서(제⁠출1):** [보⁠고⁠서 보⁠기](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261005.md)
 - **📋 기⁠획⁠안(최⁠종⁠본):** [기⁠획⁠안 보⁠기](docs/planning/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B8%B0%ED%9A%8D%EC%95%88_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261004.md)
 - **📑 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응):** [결⁠과⁠보⁠고⁠서 보⁠기](docs/result/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B2%B0%EA%B3%BC%EB%B3%B4%EA%B3%A0%EC%84%9C_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261005.md)
 - **🛠 Streamlit 관⁠리(개⁠발⁠자, 로⁠그⁠인 필⁠요):** https://share.streamlit.io → oisochangwon
@@ -206,7 +206,7 @@ oiso_changwon/
 - 지⁠역⁠말⁠은 **공⁠식 출⁠처 항⁠목⁠만** 사⁠용, 제⁠보 기⁠반 자⁠료 제⁠외, 사⁠전 밖 말⁠은 뜻⁠을 짐⁠작⁠하⁠지 않⁠음
 - 생⁠활 정⁠보⁠는 특⁠정 업⁠체 홍⁠보⁠가 아⁠니⁠며, 대⁠중⁠교⁠통⁠으⁠로 가⁠기 어⁠려⁠운 8곳⁠은 ‘차⁠로 가⁠면 좋⁠은 곳’으⁠로 분⁠리
 
-출⁠처⁠별 공⁠식 링⁠크 전⁠체⁠는 [`출처·AI 활용 신고서`](deliverables/submission/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EC%B6%9C%EC%B2%98_AI%ED%99%9C%EC%9A%A9_%EC%8B%A0%EA%B3%A0%EC%84%9C_20261004.md) 4장⁠에 정⁠리⁠했⁠습⁠니⁠다.
+출⁠처⁠별 공⁠식 링⁠크 전⁠체⁠는 [`출처·AI 활용 신고서`](deliverables/submission/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EC%B6%9C%EC%B2%98_AI%ED%99%9C%EC%9A%A9_%EC%8B%A0%EA%B3%A0%EC%84%9C_20261005.md) 4장⁠에 정⁠리⁠했⁠습⁠니⁠다.
 
 ---
 
@@ -382,14 +382,6 @@ response = client.chat.completions.create(model="gpt-4.1-mini", messages=message
 | ③ 불⁠편⁠사⁠항 결⁠과 | ③ Agent 실⁠행 기⁠록 | ④ 지⁠역⁠말 |
 |:---:|:---:|:---:|
 | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/19_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/20_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EC%8B%A4%ED%96%89%EA%B8%B0%EB%A1%9D.jpg" width="200"> | <img src="screenshots/after_development/%EC%B5%9C%EC%A2%85%EC%99%84%EB%A3%8C%EC%82%AC%EC%A7%84_1005/21_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90.jpg" width="200"> |
-
----:|:---:|:---:|:---:|
-| <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/08_%EB%AA%A8%EB%B0%94%EC%9D%BC_%ED%99%88.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/09_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%82%98%EC%9D%98%EC%A1%B0%EA%B1%B4.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/10_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%A7%9E%EC%B6%A4%ED%98%9C%ED%83%9D.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/11_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A0%95%EC%B0%A9%EC%9D%BC%EC%A0%95.jpg" width="200"> |
-
-| ② 생⁠활 정⁠보 | ③ 불⁠편⁠사⁠항 결⁠과 | ④ 지⁠역⁠말 | ④ 지⁠역⁠말 결⁠과 |
-|:---:|:---:|:---:|:---:|
-| <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/13_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%83%9D%ED%99%9C%EC%A0%95%EB%B3%B4.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/16_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EB%B6%88%ED%8E%B8%EC%82%AC%ED%95%AD_%EA%B2%B0%EA%B3%BC.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/17_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90.jpg" width="200"> | <img src="screenshots/during_development/%EC%9E%91%EC%97%85%EA%B3%BC%EC%A0%95_20261004_%EC%B5%9C%EC%A2%85%EA%B5%AC%ED%98%84%EC%82%AC%EC%A7%84/18_%EB%AA%A8%EB%B0%94%EC%9D%BC_%EC%A7%80%EC%97%AD%EB%A7%90_%EA%B2%B0%EA%B3%BC.jpg" width="200"> |
-
 
 ---
 
