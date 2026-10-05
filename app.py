@@ -344,16 +344,14 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 /* ===== 10/4 첫 화면 새 디자인(이혜경: 젊고 감각적으로, 로고는 작게 한쪽 끝) — 기능·문구는 그대로 ===== */
 .stApp, .stApp button, .stApp input, .stApp textarea {font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system, sans-serif !important;}
 .st-key-home-hero-band {position: relative; overflow: hidden; border-radius: 0 0 28px 28px;
-    background: radial-gradient(circle at 88% 12%, rgba(254,106,1,.38) 0, rgba(254,106,1,0) 32%),
-                radial-gradient(circle at 8% 100%, rgba(46,158,107,.28) 0, rgba(46,158,107,0) 30%),
-                linear-gradient(135deg, #041F3D 0%, #063465 52%, #0B4C8C 100%) !important;
+    background: linear-gradient(135deg, #041F3D 0%, #063465 100%) !important;
     margin-top: -2.3rem !important; padding-top: 2.4rem !important; padding-bottom: 2.4rem !important;}
 .st-key-home-topbar {padding: .2rem 0 1.4rem; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 1.6rem;}
 .st-key-home-topbar [data-testid="stImage"] img {width: 168px !important; height: auto;}
 .top-pill {display: inline-block; padding: .35rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 600;
     color: #FFFFFF; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); letter-spacing: -.01em;}
-.hero-eyebrow {display: inline-block; padding: .3rem .75rem; border-radius: 999px; font-size: .8rem; font-weight: 700;
-    color: #FFB98A; background: rgba(254,106,1,.14); border: 1px solid rgba(254,106,1,.45); letter-spacing: .02em;}
+.hero-eyebrow {display: inline-block; padding: .5rem .75rem; border-radius: .5rem; font-size: .875rem; font-weight: 600;
+    color: #FFD2B3; background: rgba(254,106,1,.10); border: 1px solid rgba(255,210,179,.50); letter-spacing: .01em;}
 .st-key-home-hero-band .st-key-slogan h3 {font-size: clamp(1.9rem, 3.6vw, 2.9rem) !important; font-weight: 800 !important;
     line-height: 1.22 !important; letter-spacing: -.03em; padding: .5rem 0 .4rem !important;
     background: linear-gradient(92deg, #FFFFFF 0%, #FFFFFF 55%, #FFB98A 100%); -webkit-background-clip: text; background-clip: text;
@@ -361,8 +359,8 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 .st-key-hero-intro p, .st-key-hero-intro p b {color: rgba(255,255,255,.86) !important;}
 .st-key-hero-intro p b {color: #FFFFFF !important;}
 .st-key-hero-cta [data-testid="stBaseButton-primary"] {border-radius: 999px !important; min-height: 3.2rem; padding: 0 1.8rem;
-    box-shadow: 0 10px 28px rgba(254,106,1,.40); transition: transform .15s ease, box-shadow .15s ease;}
-.st-key-hero-cta [data-testid="stBaseButton-primary"]:hover {transform: translateY(-2px); box-shadow: 0 14px 32px rgba(254,106,1,.5);}
+    box-shadow: none; transition: transform .15s ease, box-shadow .15s ease;}
+.st-key-hero-cta [data-testid="stBaseButton-primary"]:hover {transform: none; box-shadow: none;}
 .st-key-hero-cta [data-testid="stBaseButton-tertiary"] {border: 1px solid rgba(255,255,255,.35) !important; border-radius: 999px !important;
     padding: .55rem 1.2rem !important; min-height: 3.2rem;}
 .st-key-hero-cta [data-testid="stBaseButton-tertiary"] p {color: #FFFFFF !important; font-weight: 600;}
@@ -371,23 +369,30 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
     color: rgba(255,255,255,.92) !important; border-radius: 0 12px 12px 0; backdrop-filter: blur(6px);}
 .st-key-hero-trust [data-testid="stCaptionContainer"] p {color: rgba(255,255,255,.66) !important;}
 .st-key-hero-example, .st-key-hero-progress {background: rgba(255,255,255,.97) !important; border: none !important;
-    border-radius: 22px !important; box-shadow: 0 24px 60px rgba(2,16,34,.38); padding: 1.6rem 1.5rem 1.4rem !important; position: relative; overflow: hidden;}
+    border-radius: 22px !important; box-shadow: 0 4px 16px rgba(2,16,34,.12); padding: 1.6rem 1.5rem 1.4rem !important; position: relative; overflow: hidden;}
 .st-key-hero-example::before, .st-key-hero-progress::before {content: ""; position: absolute; left: 0; right: 0; top: 0;
-    height: 5px; background: linear-gradient(90deg, #FE6A01, #2E9E6B);}
+    height: 0; background: none;}
 .st-key-hero-example p.hero-lines {line-height: 2.05;}
 /* 아래 영역: 카드형·둥근 모서리·부드러운 그림자 */
 .stApp p.sec-title {font-weight: 800 !important; letter-spacing: -.02em; display: flex; align-items: center; gap: .55rem;}
-.stApp p.sec-title::before {content: ""; width: 6px; height: 1.2em; border-radius: 3px; background: linear-gradient(180deg, #FE6A01, #063465);}
+.stApp p.sec-title::before {content: ""; width: 6px; height: 1.2em; border-radius: 3px; background: #063465;}
 .flow-box {border-radius: 18px !important; background: #FFFFFF !important; border: 1px solid #E3E9F1 !important;
     box-shadow: 0 6px 18px rgba(6,52,101,.06);}
-.flow-box.flow-ai {background: linear-gradient(160deg, #F1F5FF 0%, #FFFFFF 70%) !important; border-color: #C9D7F0 !important;}
+.flow-box.flow-ai {background: #F5F8FC !important; border-color: #C9D7F0 !important;}
 .flow-box b {color: #063465;}
 .flow-arrow {color: #FE6A01;}
 [class*="st-key-home-card-"] {border: 1px solid #E3E9F1 !important; border-top: 1px solid #E3E9F1 !important; border-radius: 18px !important;
     box-shadow: 0 6px 18px rgba(6,52,101,.06); position: relative; overflow: hidden; transition: transform .15s ease, box-shadow .15s ease;}
-[class*="st-key-home-card-"]::before {content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: linear-gradient(90deg, #063465, #FE6A01);}
-[class*="st-key-home-card-"]:hover {transform: translateY(-3px); box-shadow: 0 14px 30px rgba(6,52,101,.12);}
-.st-key-home-ask-row {border-radius: 18px !important; background: linear-gradient(120deg, #FFF4EB 0%, #F4F7FC 100%) !important; border: 1px solid #F3D9C6 !important;}
+[class*="st-key-home-card-"]::before {content: ""; position: absolute; left: 0; right: 0; top: 0; height: 0; background: none;}
+[class*="st-key-home-card-"]:hover {transform: none; box-shadow: 0 2px 8px rgba(6,52,101,.04);}
+[class*="st-key-home-card-"] [data-testid="stBaseButton-primary"] {
+    background: transparent !important; border-color: #9FB0C6 !important; color: #063465 !important; box-shadow: none;
+}
+[class*="st-key-home-card-"] [data-testid="stBaseButton-primary"] p {color: #063465 !important;}
+[class*="st-key-home-card-"] [data-testid="stBaseButton-primary"]:hover {background: #EEF3F8 !important;}
+[class*="st-key-home-card-"] [data-testid="stBaseButton-primary"]:disabled {background: #F5F7FA !important; color: #5A6E88 !important;}
+
+.st-key-home-ask-row {border-radius: 18px !important; background: #F5F7FA !important; border: 1px solid transparent !important;}
 @media (max-width: 640px) {
     .st-key-home-hero-band {margin-top: -4rem !important; padding-top: 3.6rem !important; border-radius: 0 0 22px 22px;}
     .st-key-home-topbar {padding-bottom: 1rem; margin-bottom: 1.1rem; flex-wrap: nowrap !important; gap: .5rem !important;}
@@ -401,10 +406,8 @@ p.hero-lines {line-height: 1.9; margin: 0 0 1rem;}
 /* ===== 10/4 세부 화면 새 디자인(첫 화면과 같은 컨셉): 남색 머리 띠 · 연한 배경 위 흰 카드 · 둥근 버튼 ===== */
 [class*="st-key-page-hero-"]:not([class*="st-key-page-hero-top-"]) {position: relative; overflow: hidden; border-radius: 26px;
     padding: 1.1rem 1.8rem 1.7rem !important; margin: .2rem 0 1.4rem; gap: .45rem !important;
-    background: radial-gradient(circle at 92% 0%, rgba(254,106,1,.36) 0, rgba(254,106,1,0) 34%),
-                radial-gradient(circle at 0% 100%, rgba(46,158,107,.26) 0, rgba(46,158,107,0) 32%),
-                linear-gradient(135deg, #041F3D 0%, #063465 55%, #0B4C8C 100%);
-    box-shadow: 0 18px 44px rgba(4,31,61,.22);}
+    background: linear-gradient(135deg, #041F3D 0%, #063465 100%);
+    box-shadow: 0 4px 12px rgba(4,31,61,.08);}
 
 span.page-hero-logo {display: block; width: 132px; height: 33px; background-size: contain; background-repeat: no-repeat; background-position: right center;}
 [class*="st-key-page-hero-"] [data-testid="stHeading"] h3 {color: #FFFFFF !important; font-size: clamp(1.5rem, 2.6vw, 2.1rem) !important;
@@ -419,7 +422,7 @@ p.page-hero-desc b {color: #FFFFFF;}
 .st-key-feature2-tabs button {border-radius: 999px !important; min-height: 2.5rem; padding: .3rem 1.1rem !important;}
 .st-key-feature2-tabs [data-testid="stBaseButton-secondary"] {background: rgba(255,255,255,.08) !important; border: 1px solid rgba(255,255,255,.3) !important;}
 .st-key-feature2-tabs [data-testid="stBaseButton-secondary"] p {color: #FFFFFF !important;}
-.st-key-feature2-tabs [data-testid="stBaseButton-primary"] {background: #FE6A01 !important; border-color: #FE6A01 !important; box-shadow: 0 8px 20px rgba(254,106,1,.35);}
+.st-key-feature2-tabs [data-testid="stBaseButton-primary"] {background: #FE6A01 !important; border-color: #FE6A01 !important; box-shadow: none;}
 /* 본문: 연한 배경 위에 흰 카드 */
 [class*="st-key-page-"]:not(.st-key-page-home):not([class*="st-key-page-hero"]) [data-testid="stHeading"] h3 {color: #063465; font-weight: 800; letter-spacing: -.02em;}
 [class*="st-key-policy-card-"], [class*="st-key-activity-card-"], [class*="st-key-channel-"], [class*="st-key-level-count-"],
@@ -432,7 +435,7 @@ p.page-hero-desc b {color: #FFFFFF;}
 .st-key-level-count-level-cond {border-top: 4px solid #063465 !important;}
 .st-key-level-count-level-check {border-top: 4px solid #FE6A01 !important;}
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stExpander"] details {background: #FFFFFF; border-radius: 16px !important; border-color: #E3E9F1 !important;}
-[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stBaseButton-primary"] {border-radius: 999px !important; box-shadow: 0 8px 18px rgba(6,52,101,.18);}
+[class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stBaseButton-primary"] {border-radius: 999px !important; box-shadow: none;}
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stBaseButton-secondary"] {border-radius: 999px !important;}
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stTextInput"] input, [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stNumberInput"] input,
 [class*="st-key-page-"]:not(.st-key-page-home) [data-testid="stDateInput"] input {background: #FFFFFF !important;}
