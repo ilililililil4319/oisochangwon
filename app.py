@@ -164,7 +164,7 @@ READABILITY_CSS = """
 .st-key-journey-tools {border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.3rem; background: #FFFFFF;}
 .st-key-email-alert {max-width: 760px; border-top: 1px dashed #D5DDE7; padding-top: .7rem;}
 [class*="st-key-save-row-"] {gap: .6rem; align-items: center !important;}
-.st-key-complaint-input, .st-key-dialect-input {background: #F7F9FC; border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.2rem;}
+.st-key-complaint-input, .st-key-dialect-input, .st-key-ask-input {background: #F7F9FC; border: 1px solid #D5DDE7; border-radius: 14px; padding: 1rem 1.2rem;}
 .st-key-complaint-result, .st-key-dialect-result {border: 1px solid #D5DDE7; border-left: 5px solid #FE6A01; border-radius: 14px; padding: .8rem 1rem; background: #FFFFFF;}
 [class*="st-key-save-row-"] [data-testid="stElementContainer"] {margin: 0 !important;}
 .st-key-email-alert {scroll-margin-top: 90px;}
@@ -593,7 +593,6 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 [class*="st-key-home-card-"] {height: 100%; min-height: 0 !important; display: flex; flex-direction: column; padding: 1.5rem !important; gap: 1rem !important; box-sizing: border-box;}
 [class*="st-key-home-card-"] > [data-testid="stElementContainer"]:has([data-testid="stButton"]) {margin-top: auto; padding-top: .5rem;}
 [class*="st-key-home-card-"] p {line-height: 1.6;}
-.st-key-dialect-result-area {margin-top: 1.5rem;}
 .st-key-page-profile, .st-key-page-policy, .st-key-page-journey, .st-key-page-explore,
 .st-key-page-complaint, .st-key-page-dialect, .st-key-page-ask {gap: 1.25rem;}
 [class*="st-key-page-"] [data-testid="stMarkdownContainer"] > p + p {margin-top: 1rem;}
@@ -605,7 +604,7 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
     [class*="st-key-home-card-"] {height: auto; padding: 1.25rem !important;}
 }
 /* Forms and sibling card rows: presentation only, shared native layout. */
-.st-key-complaint-input, .st-key-dialect-input {padding: 1.75rem !important;}
+.st-key-complaint-input, .st-key-dialect-input, .st-key-ask-input {padding: 1.75rem !important;}
 .st-key-complaint-input [data-testid="stForm"],
 .st-key-dialect-input [data-testid="stForm"] {margin-block: 1rem; padding: .25rem 0 1.5rem;}
 .st-key-complaint-input [data-testid="stTextInput"] [data-testid="stWidgetLabel"],
@@ -635,7 +634,7 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 @media (max-width: 640px) {
     [data-testid="stMainBlockContainer"] {padding-inline: 1.375rem;}
     .st-key-home-hero-band {margin-left: -1.375rem !important; width: calc(100% + 2.75rem) !important;}
-    .st-key-complaint-input, .st-key-dialect-input {padding: 1.5rem !important;}
+    .st-key-complaint-input, .st-key-dialect-input, .st-key-ask-input {padding: 1.5rem !important;}
     .st-key-explore-filters {margin-top: 1.5rem; margin-bottom: 2rem; padding: 1.25rem;}
     [class*="st-key-activity-card-"], [class*="st-key-channel-"] {height: auto; padding: 1.25rem !important;}
 }
@@ -676,6 +675,8 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
     .st-key-complaint-result [data-testid="stChatMessage"],
     .st-key-dialect-result [data-testid="stChatMessage"] {padding: 1rem;}
 }
+.st-key-ask-questions [data-testid="stChatMessage"],
+.st-key-ask-results [data-testid="stChatMessage"] {width: 100%; margin-top: 0; margin-inline: 0;}
 </style>
 """
 
@@ -2097,8 +2098,9 @@ def _ask_agent(question):
     }
 
 
-def _render_agent_item(item, key_prefix):
-    with st.chat_message("user"):
+def _render_agent_item(item, key_prefix, question_container=None):
+    question_parent = question_container if question_container is not None else st
+    with question_parent.chat_message("user"):
         st.text(item["question"])
     with st.chat_message("assistant"):
         st.markdown(_answer_markdown(item["answer"]))
@@ -2160,32 +2162,39 @@ def _ai_status_caption():
 
 def render_ask_page():
     _page_hero("ask", ASK_LABEL, "혜택·정착 할 일·가볼 곳·지역말·불편 접수 창구를 한 문장으로 물어보세요.", eyebrow="코디네이터 Agent")
-    provider, api_key, model = llm_settings()
-    if provider:
-        _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 검증된 자료(정책·장소·지역말·접수 창구)로만 답해요.")
-    else:
-        _caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
-    _caption("실명·연락처 같은 개인정보는 입력하지 마세요. 질문은 답변을 만들기 위해 AI 모델로 전송돼요.")
+    input_column, result_column = st.columns([1, 1.25], gap="large")
+    with input_column:
+        with st.container(key="ask-input"):
+            provider, api_key, model = llm_settings()
+            if provider:
+                _caption(f"AI 연결됨: {MODEL_LABELS.get(model, model)} · 검증된 자료(정책·장소·지역말·접수 창구)로만 답해요.")
+            else:
+                _caption("AI 모델이 연결되지 않아 기본 안내(키워드 규칙)로 답해요.")
+            _caption("실명·연락처 같은 개인정보는 입력하지 마세요. 질문은 답변을 만들기 위해 AI 모델로 전송돼요.")
 
-    st.markdown("**이렇게 물어보세요**")
-    with st.container(horizontal=True, wrap=True):
-        for index, example in enumerate(ASK_EXAMPLES):
-            st.button(example, key=f"ask-example-{index}", on_click=_queue_question, args=(example,))
+            history = st.session_state.setdefault("ask_history", [])
+            with st.container(key="ask-question-input"):
+                question = st.chat_input("창원 정착에 관해 한 문장으로 물어보세요", key="ask_input")
+            st.markdown("**이렇게 물어보세요**")
+            with st.container(horizontal=True, wrap=True):
+                for index, example in enumerate(ASK_EXAMPLES):
+                    st.button(example, key=f"ask-example-{index}", on_click=_queue_question, args=(example,))
 
-    history = st.session_state.setdefault("ask_history", [])
-    with st.container(key="ask-question-input"):
-        question = st.chat_input("창원 정착에 관해 한 문장으로 물어보세요", key="ask_input")
+            question_history = st.container(key="ask-questions")
     question = question or st.session_state.pop("ask_pending", None)
     if question:
         history.append(_ask_agent(question))
 
-    for index, item in enumerate(history):
-        with st.container(key=f"ask-item-{index}"):
-            _render_agent_item(item, f"ask-{index}")
+    with result_column:
+        with st.container(key="ask-results"):
+            for index, item in enumerate(history):
+                with st.container(key=f"ask-item-{index}"):
+                    _render_agent_item(item, f"ask-{index}", question_container=question_history)
     if question and history:
         _scroll_into_view(f"ask-item-{len(history) - 1}")
-    if history:
-        st.button("대화 지우기", key="ask-clear", on_click=lambda: st.session_state.update(ask_history=[]))
+    with question_history:
+        if history:
+            st.button("대화 지우기", key="ask-clear", on_click=lambda: st.session_state.update(ask_history=[]))
 
 
 # --- ③ 불편사항 행정 접수안내 ---------------------------------------------------
@@ -2276,8 +2285,7 @@ def render_dialect_page():
         f"핵심 {len(dialects)}개와 공식 출처(국립국어원 우리말샘 등) "
         f"확장 사전 {DIALECT_EXT_COUNT:,}개에서 찾아 ‘문헌 기준 뜻’으로 알려 드리고, 사전에 없는 말은 짐작하지 않아요."
     )
-    input_column = st.container(key="dialect-input-area")
-    result_column = st.container(key="dialect-result-area")
+    input_column, result_column = st.columns([1, 1.25], gap="large")
     with input_column:
         with st.container(key="dialect-input"):
             _ai_status_caption()
