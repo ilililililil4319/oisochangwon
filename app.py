@@ -582,7 +582,7 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 .st-key-ask-question-input textarea::placeholder {color: #52647A; opacity: 1;}
 .st-key-ask-question-input [data-testid="stChatInput"]:focus-within {border-color: #063465; outline: 2px solid #9FB0C6; outline-offset: 2px;}
 .st-key-ask-question-input button {color: #063465;}
-.st-key-dialect-input [data-testid="stForm"] {border: none;}
+.st-key-complaint-input [data-testid="stForm"], .st-key-dialect-input [data-testid="stForm"] {border: none !important; background: transparent !important; box-shadow: none !important;}
 [class*="st-key-policy-actions-"] [data-testid="stLinkButton"],
 [class*="st-key-policy-actions-"] [data-testid="stPopover"] {margin: 0 !important;}
 [class*="st-key-policy-actions-"] a,
@@ -594,7 +594,8 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 [class*="st-key-home-card-"] > [data-testid="stElementContainer"]:has([data-testid="stButton"]) {margin-top: auto; padding-top: .5rem;}
 [class*="st-key-home-card-"] p {line-height: 1.6;}
 .st-key-dialect-result-area {margin-top: 1.5rem;}
-[class*="st-key-page-"]:not([class*="st-key-page-hero"]):not(.st-key-page-home) > [data-testid="stVerticalBlock"] {gap: 1.25rem;}
+.st-key-page-profile, .st-key-page-policy, .st-key-page-journey, .st-key-page-explore,
+.st-key-page-complaint, .st-key-page-dialect, .st-key-page-ask {gap: 1.25rem;}
 [class*="st-key-page-"] [data-testid="stMarkdownContainer"] > p + p {margin-top: 1rem;}
 [class*="st-key-page-"] [data-testid="stMarkdownContainer"] > p {line-height: 1.6;}
 .st-key-home-body p.sec-title {margin-bottom: 1.5rem;}
@@ -623,7 +624,8 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 [class*="st-key-activity-card-"], [class*="st-key-channel-"] {height: 100%; display: flex; flex-direction: column; padding: 1.5rem !important; gap: 1rem !important; box-sizing: border-box;}
 [class*="st-key-activity-card-"] > [data-testid="stElementContainer"],
 [class*="st-key-channel-"] > [data-testid="stElementContainer"] {flex-shrink: 0;}
-[class*="st-key-activity-actions-"] {margin-top: auto !important; padding-top: 1.25rem; gap: 1.125rem !important;}
+[class*="st-key-activity-card-"] > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-activity-actions-"]) {margin-top: auto;}
+[class*="st-key-activity-actions-"] {padding-top: 1.25rem; gap: 1.125rem !important;}
 [class*="st-key-activity-actions-"] [data-testid="stButton"],
 [class*="st-key-activity-actions-"] [data-testid="stLinkButton"] {margin: 0 !important;}
 [class*="st-key-activity-actions-"] button,
@@ -642,19 +644,37 @@ button[data-testid="stExpandSidebarButton"], button[data-testid="stCollapseSideb
 .st-key-page-policy [data-testid="stColumn"]:has([class*="st-key-policy-card-"]) > [data-testid="stVerticalBlock"] {height: 100%;}
 [class*="st-key-policy-card-"] {height: 100%; display: flex; flex-direction: column; gap: 1rem !important; padding: 1.5rem !important; box-sizing: border-box;}
 [class*="st-key-policy-card-"] > [data-testid="stElementContainer"] {flex-shrink: 0;}
-[class*="st-key-policy-actions-"] {margin-top: auto !important; padding-top: 1rem; gap: 1.125rem !important; align-items: stretch;}
+[class*="st-key-policy-card-"] > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-policy-actions-"]) {margin-top: auto;}
+[class*="st-key-policy-actions-"] {padding-top: 1rem; gap: 1.125rem !important; align-items: stretch;}
 [class*="st-key-policy-actions-"] a,
 [class*="st-key-policy-actions-"] button {line-height: 1.5; min-height: 2.75rem;}
 .st-key-page-explore [data-testid="stExpander"] details,
 .st-key-page-policy [data-testid="stExpander"] details {border: none !important; background: transparent !important; box-shadow: none !important;}
 .st-key-page-explore [data-testid="stExpander"],
 .st-key-page-policy [data-testid="stExpander"] {margin-block: 1.5rem;}
+.st-key-ask-question-input [data-testid="stChatInput"] > div {background: transparent; border: none;}
 .st-key-ask-question-input [data-testid="stChatInput"] textarea,
 .st-key-ask-question-input [data-testid="stChatInput"] [data-baseweb="textarea"] {background: transparent !important; box-shadow: none !important;}
 .st-key-home-body [data-testid="stExpander"] li {line-height: 1.6; margin-bottom: .75rem;}
 .st-key-page-journey [data-testid="stExpander"] {margin-block: .5rem 1rem;}
 @media (max-width: 640px) {
     [class*="st-key-policy-card-"] {height: auto; padding: 1.25rem !important;}
+}
+/* Keep the existing cards and messages; align their native layout wrappers. */
+[class*="st-key-home-card-"] {justify-content: flex-start;}
+@media (min-width: 641px) {
+    [class*="st-key-home-card-"] > [data-testid="stElementContainer"]:first-child {min-height: 3.2em;}
+}
+.st-key-page-ask [data-testid="stChatMessage"],
+.st-key-complaint-result [data-testid="stChatMessage"],
+.st-key-dialect-result [data-testid="stChatMessage"] {width: 92%; box-sizing: border-box; padding: 1.25rem; margin-block: .75rem 1.25rem;}
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {margin-right: auto; margin-left: 0;}
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {margin-left: auto; margin-right: 0;}
+[data-testid="stChatMessage"] [data-testid="stExpander"] details {border: none !important; background: transparent !important; box-shadow: none !important;}
+@media (max-width: 640px) {
+    .st-key-page-ask [data-testid="stChatMessage"],
+    .st-key-complaint-result [data-testid="stChatMessage"],
+    .st-key-dialect-result [data-testid="stChatMessage"] {padding: 1rem;}
 }
 </style>
 """
@@ -1076,7 +1096,7 @@ def render_home_page():
         columns = st.columns(4, gap="medium")
         for column, (target_page, title, text) in zip(columns, HOME_FEATURES):
             with column:
-                with st.container(key=f"home-card-{target_page}"):
+                with st.container(key=f"home-card-{target_page}", height="stretch"):
                     st.markdown(f"**{title}**")
                     _caption(text)
                     if user_key:
@@ -2233,7 +2253,7 @@ def render_complaint_page():
         columns = st.columns(3, gap="small")
         for column, item in zip(columns, channels[row_start:row_start + 3]):
             with column:
-                with st.container(border=True, key=f"channel-{row_start}-{item['단계']}"):
+                with st.container(border=True, key=f"channel-{row_start}-{item['단계']}", height="stretch"):
                     st.badge(item["단계"], color=COMPLAINT_BADGE_COLORS.get(item["단계"], "gray"))
                     st.markdown(f"**{item['예시']}**")
                     _caption(item["안내"] + " 연락처: " + ", ".join(item["연락처"]))
