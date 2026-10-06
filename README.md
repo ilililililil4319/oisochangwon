@@ -12,7 +12,7 @@
 
 - **🔗 배⁠포 앱:** https://oisochangwon-4fuybothxlr78qnnaappqv.streamlit.app/ (QR로 휴⁠대⁠폰 접⁠속)
 - **💻 GitHub:** https://github.com/jojunsu98/oiso_changwon
-- **📄 완⁠료⁠보⁠고⁠서(제⁠출1):** [보⁠고⁠서 보⁠기](deliverables/final_report/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C_20261005.md)
+- **📄 완⁠료⁠보⁠고⁠서(제⁠출1):** [보⁠고⁠서 보⁠기(PDF)](deliverables/final_report/1.%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B0%9C%EB%B0%9C%EC%99%84%EB%A3%8C%EB%B3%B4%EA%B3%A0%EC%84%9C.pdf)
 - **📋 기⁠획⁠안(최⁠종⁠본):** [기⁠획⁠안 보⁠기](docs/planning/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B8%B0%ED%9A%8D%EC%95%88_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261004.md)
 - **📑 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응):** [결⁠과⁠보⁠고⁠서 보⁠기](docs/result/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EA%B2%B0%EA%B3%BC%EB%B3%B4%EA%B3%A0%EC%84%9C_%EC%B5%9C%EC%A2%85%EB%B3%B8_20261005.md)
 - **🛠 Streamlit 관⁠리(개⁠발⁠자, 로⁠그⁠인 필⁠요):** https://share.streamlit.io → oisochangwon
@@ -90,12 +90,12 @@
 | 웹 앱 | Streamlit, Streamlit Community Cloud 배⁠포 | `app.py`, `src/`, `data/` |
 | 기⁠획⁠안(최⁠종⁠본) | md·pdf·docx | `docs/planning/` |
 | 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응) | md·pdf·docx — 기⁠획⁠안 Ⅰ~Ⅸ장⁠별 계⁠획 → 실⁠제 결⁠과 | `docs/result/` |
-| 완⁠료⁠보⁠고⁠서(제⁠출1) | md·pdf·docx (별⁠지 4, A4 5쪽 이⁠내) | `deliverables/final_report/` |
-| 기⁠술⁠명⁠세⁠서(제⁠출2) + 소⁠스 및 경⁠로(제⁠출3) | AI Agent 기⁠술⁠설⁠명⁠서 1쪽(별⁠지 1) — 정⁠보⁠출⁠처·기⁠존⁠자⁠산/8일 개⁠발⁠분 포⁠함 | `deliverables/technical_description/` |
-| 신⁠청⁠서(최⁠종 수⁠정⁠본) | md·pdf·docx (9/28 대⁠비 변⁠경 사⁠항 포⁠함) | `deliverables/submission/` |
-| 출⁠처·AI 활⁠용 신⁠고⁠서 | md·pdf·docx | `deliverables/submission/` |
-| 시⁠연⁠동⁠영⁠상(제⁠출4) | 3분 이⁠내 · 스⁠크⁠립⁠트 md·pdf·docx | `deliverables/presentation/video/` |
-| 발⁠표⁠자⁠료(제⁠출5) | 10장 이⁠내, 본⁠선 선⁠정 시 발⁠표 (10/5 제⁠작 — 이⁠미⁠영 제⁠작, 조⁠준⁠수 최⁠종 편⁠집, 팀 검⁠수) | `deliverables/presentation/ppt/` |
+| 신⁠청⁠서(최⁠종 수⁠정⁠본) | pdf | `deliverables/submission/` |
+| 1. 완⁠료⁠보⁠고⁠서(제⁠출1) | pdf·docx (별⁠지 4, 5쪽) | `deliverables/final_report/` |
+| 2. 기⁠술⁠명⁠세⁠서(제⁠출2) | pdf·docx (별⁠지 1, 2쪽 — 정⁠보⁠출⁠처·작⁠업⁠별 AI 상⁠세 포⁠함) | `deliverables/technical_description/` |
+| 3. 소⁠스 및 경⁠로(제⁠출3) | pdf·docx (2쪽) | `deliverables/technical_description/` |
+| 4. 시⁠연⁠동⁠영⁠상(제⁠출4) | mp4 (2분 57초) | `deliverables/presentation/video/` |
+| 5. 발⁠표⁠자⁠료(제⁠출5) | 5-1 발⁠표⁠자⁠료 pptx · 5-2 발⁠표⁠대⁠본 pdf·docx | `deliverables/presentation/ppt/` |
 | 테⁠스⁠트 3종 | 코⁠드·체⁠크⁠리⁠스⁠트·보⁠고⁠서·설⁠문 결⁠과 | `tests/` |
 | 증⁠빙 캡⁠처 | PNG·JPG 163장 | `screenshots/` |
 
@@ -141,10 +141,10 @@ oiso_changwon/
 │   └── images/ (그림)            Workflow·QR·실사용자 그래프(문서·README에서 사용)
 │
 ├── deliverables/ (최종 제출물)
-│   ├── final_report/ (완료보고서, 제출1)
-│   ├── technical_description/ (기술명세서 제출2 + 소스 및 경로 제출3, 별지 1)
-│   ├── submission/ (신청서 최종 수정본 · 출처·AI 활용 신고서)
-│   └── presentation/ (발표) ── video/ (시연동영상 제출4) · ppt/ (발표자료 제출5)
+│   ├── submission/ (신청서 최종 수정본)
+│   ├── final_report/ (1. 완료보고서)
+│   ├── technical_description/ (2. 기술명세서 · 3. 소스 및 경로)
+│   └── presentation/ ── video/ (4. 시연동영상) · ppt/ (5-1 발표자료 · 5-2 발표대본)
 │
 ├── screenshots/ (화면 캡처)
 │   ├── during_development/ (구현 과정)  ai_test 26장 · work_process 27장 · team_self_test 37장 · ui_update 11장 · deploy_check 15장 · 작업과정_20261004_새디자인 5장 · 작업과정_20261004_최종구현사진 21장
@@ -207,7 +207,7 @@ oiso_changwon/
 - 지⁠역⁠말⁠은 **공⁠식 출⁠처 항⁠목⁠만** 사⁠용, 제⁠보 기⁠반 자⁠료 제⁠외, 사⁠전 밖 말⁠은 뜻⁠을 짐⁠작⁠하⁠지 않⁠음
 - 생⁠활 정⁠보⁠는 특⁠정 업⁠체 홍⁠보⁠가 아⁠니⁠며, 대⁠중⁠교⁠통⁠으⁠로 가⁠기 어⁠려⁠운 8곳⁠은 ‘차⁠로 가⁠면 좋⁠은 곳’으⁠로 분⁠리
 
-출⁠처⁠별 공⁠식 링⁠크 전⁠체⁠는 [`출처·AI 활용 신고서`](deliverables/submission/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EC%B6%9C%EC%B2%98_AI%ED%99%9C%EC%9A%A9_%EC%8B%A0%EA%B3%A0%EC%84%9C_20261005.md) 4장⁠에 정⁠리⁠했⁠습⁠니⁠다.
+출⁠처⁠별 공⁠식 링⁠크 전⁠체⁠는 아⁠래 [20장 정⁠보⁠출⁠처](#20-정보출처-출처ai-활용-신고서)에 정⁠리⁠했⁠습⁠니⁠다.
 
 ---
 
@@ -547,7 +547,7 @@ Secrets를 고⁠칠 때 `OPENAI_API_KEY` 줄⁠을 지⁠우⁠지 않⁠도⁠
 
 ## 20. 정보출처 (출처·AI 활용 신고서)
 
-제⁠출⁠한 [「출⁠처·AI 활⁠용 신⁠고⁠서」](deliverables/submission/%EC%98%A4%EC%9D%B4%EC%86%8C%EC%B0%BD%EC%9B%90_%EC%B6%9C%EC%B2%98_AI%ED%99%9C%EC%9A%A9_%EC%8B%A0%EA%B3%A0%EC%84%9C_20261005.pdf)의 생⁠성⁠형 AI·오⁠픈⁠소⁠스·데⁠이⁠터 출⁠처⁠를 그⁠대⁠로 옮⁠겼⁠습⁠니⁠다. 항⁠목⁠별 세⁠부 링⁠크⁠는 `data/` 폴⁠더⁠의 각 JSON 파⁠일⁠에⁠도 기⁠록⁠돼 있⁠습⁠니⁠다.
+「출⁠처·AI 활⁠용 신⁠고⁠서」의 생⁠성⁠형 AI·오⁠픈⁠소⁠스·데⁠이⁠터 출⁠처⁠를 그⁠대⁠로 옮⁠겼⁠습⁠니⁠다. 항⁠목⁠별 세⁠부 링⁠크⁠는 `data/` 폴⁠더⁠의 각 JSON 파⁠일⁠에⁠도 기⁠록⁠돼 있⁠습⁠니⁠다.
 
 ### 20-1. 생성형 AI 활용
 
