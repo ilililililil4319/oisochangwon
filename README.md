@@ -90,7 +90,6 @@
 | 웹 앱 | Streamlit, Streamlit Community Cloud 배⁠포 | `app.py`, `src/`, `data/` |
 | 기⁠획⁠안(최⁠종⁠본) | md·pdf·docx | `docs/planning/` |
 | 결⁠과⁠보⁠고⁠서(기⁠획⁠안 대⁠응) | md·pdf·docx — 기⁠획⁠안 Ⅰ~Ⅸ장⁠별 계⁠획 → 실⁠제 결⁠과 | `docs/result/` |
-| 신⁠청⁠서(최⁠종 수⁠정⁠본) | pdf | `deliverables/submission/` |
 | 1. 완⁠료⁠보⁠고⁠서(제⁠출1) | pdf·docx (별⁠지 4, 5쪽) | `deliverables/final_report/` |
 | 2. 기⁠술⁠명⁠세⁠서(제⁠출2) | pdf·docx (별⁠지 1, 2쪽 — 정⁠보⁠출⁠처·작⁠업⁠별 AI 상⁠세 포⁠함) | `deliverables/technical_description/` |
 | 3. 소⁠스 및 경⁠로(제⁠출3) | pdf·docx (2쪽) | `deliverables/technical_description/` |
@@ -141,7 +140,6 @@ oiso_changwon/
 │   └── images/ (그림)            Workflow·QR·실사용자 그래프(문서·README에서 사용)
 │
 ├── deliverables/ (최종 제출물)
-│   ├── submission/ (신청서 최종 수정본)
 │   ├── final_report/ (1. 완료보고서)
 │   ├── technical_description/ (2. 기술명세서 · 3. 소스 및 경로)
 │   └── presentation/ ── video/ (4. 시연동영상) · ppt/ (5-1 발표자료 · 5-2 발표대본)
