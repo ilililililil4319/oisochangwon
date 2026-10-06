@@ -21,6 +21,7 @@ done <<'LIST'
 docs/planning/오이소창원_기획안_최종본_20261004.md|오이소창원 기획안|y|qr
 deliverables/final_report/오이소창원_개발완료보고서_20261005.md|오이소창원 개발완료보고서|y|qr
 deliverables/technical_description/오이소창원_AI_Agent_기술설명서_20261005.md|오이소창원 AI Agent 기술설명서|y|qr
+deliverables/technical_description/오이소창원_소스및경로_20261006.md|오이소창원 소스 및 경로|y|qr
 deliverables/submission/오이소창원_참가신청서_최종수정본_20261005.md|오이소창원 참가 신청서(최종 수정본)|y
 deliverables/submission/오이소창원_참가신청서_한글양식_붙여넣기용_20261005.md|참가 신청서 한글 양식 붙여넣기용|y
 deliverables/submission/오이소창원_출처_AI활용_신고서_20261005.md|오이소창원 출처·AI 활용 신고서|y|qr
